@@ -1,33 +1,39 @@
-import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { branchAdminData } from "../../data/branch_admin/branchAdminTable"
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { branchAdminData } from "../../data/branch_admin/branchAdminTable";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">
-    <span className="text-xs font-medium text-muted-foreground capitalize">{label}</span>
-    <span className="text-sm font-medium text-foreground capitalize">{value || "—"}</span>
+    <span className="text-xs font-medium text-muted-foreground capitalize">
+      {label}
+    </span>
+    <span className="text-sm font-medium text-foreground capitalize">
+      {value || "—"}
+    </span>
   </div>
-)
+);
 
 const SectionTitle = ({ children }) => (
   <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
     {children}
   </h2>
-)
+);
 
 const ViewBranchAdmin = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const admin = branchAdminData.data.find((a) => a.id === id)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const admin = branchAdminData.data.find((a) => a.id === id);
 
   if (!admin) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <p className="text-muted-foreground text-sm">Branch admin not found.</p>
-        <Button variant="outline" onClick={() => navigate(-1)}>Go Back</Button>
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Go Back
+        </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -41,12 +47,13 @@ const ViewBranchAdmin = () => {
         >
           <ArrowLeft size={16} />
         </Button>
-        <h1 className="text-lg font-semibold text-foreground capitalize">View Branch Admin</h1>
+        <h1 className="text-lg font-semibold text-foreground capitalize">
+          View Branch Admin
+        </h1>
       </div>
 
       <div className="bg-card border border-border rounded-md py-6 shadow-sm">
         <div className="max-w-3xl w-full mx-auto space-y-8 px-4">
-
           <div className="space-y-4">
             <SectionTitle>Employee Details</SectionTitle>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -60,7 +67,9 @@ const ViewBranchAdmin = () => {
               <InfoRow label="Role" value={admin.role?.name} />
               <InfoRow label="Branch" value={admin.branch?.name} />
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-muted-foreground capitalize">Status</span>
+                <span className="text-xs font-medium text-muted-foreground capitalize">
+                  Status
+                </span>
                 <span
                   className={`inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     admin.is_active
@@ -90,11 +99,10 @@ const ViewBranchAdmin = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ViewBranchAdmin
+export default ViewBranchAdmin;

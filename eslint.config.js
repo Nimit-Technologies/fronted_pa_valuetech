@@ -5,7 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "node_modules"]),
 
   {
     files: ["**/*.{js,jsx}"],
@@ -17,7 +17,7 @@ export default defineConfig([
     ],
 
     languageOptions: {
-      globals: globals.browser,
+      globals: { ...globals.browser, ...globals.node },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -26,7 +26,14 @@ export default defineConfig([
     },
 
     rules: {
-      "react-refresh/only-export-components": "off",
+      "react-refresh/only-export-components": "warn",
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^React$|^process$",
+        },
+      ],
     },
   },
 ]);

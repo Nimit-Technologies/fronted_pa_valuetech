@@ -1,8 +1,8 @@
-import React from 'react'
-import SuperAdminLayout from '../features/superAdmin/layout/superAdminLayout'
+import React from "react";
+import SuperAdminLayout from "../features/superAdmin/layout/superAdminLayout";
 
 const SuperAdmin = () => {
-  return <SuperAdminLayout />
-}
+  return <SuperAdminLayout />;
+};
 
-export default SuperAdmin
+export default SuperAdmin;

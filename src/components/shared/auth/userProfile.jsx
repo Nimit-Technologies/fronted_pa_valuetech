@@ -1,32 +1,38 @@
-import { useNavigate } from "react-router-dom"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { userProfileData } from "@/features/superAdmin/data/userProfile"
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { userProfileData } from "@/features/superAdmin/data/userProfile";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">
-    <span className="text-xs font-medium text-muted-foreground capitalize">{label}</span>
-    <span className="text-sm font-medium text-foreground capitalize">{value || "—"}</span>
+    <span className="text-xs font-medium text-muted-foreground capitalize">
+      {label}
+    </span>
+    <span className="text-sm font-medium text-foreground capitalize">
+      {value || "—"}
+    </span>
   </div>
-)
+);
 
 const SectionTitle = ({ children }) => (
   <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
     {children}
   </h2>
-)
+);
 
 const UserProfile = () => {
-  const navigate = useNavigate()
-  const user = userProfileData.data[0]
+  const navigate = useNavigate();
+  const user = userProfileData.data[0];
 
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <p className="text-muted-foreground text-sm">User profile not found.</p>
-        <Button variant="outline" onClick={() => navigate(-1)}>Go Back</Button>
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Go Back
+        </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -40,12 +46,13 @@ const UserProfile = () => {
         >
           <ArrowLeft size={16} />
         </Button>
-        <h1 className="text-lg font-semibold text-foreground capitalize">My Profile</h1>
+        <h1 className="text-lg font-semibold text-foreground capitalize">
+          My Profile
+        </h1>
       </div>
 
       <div className="bg-card border border-border rounded-md py-6 shadow-sm">
         <div className="max-w-3xl w-full mx-auto space-y-8 px-4">
-
           <div className="space-y-4">
             <SectionTitle>Personal Details</SectionTitle>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -59,7 +66,9 @@ const UserProfile = () => {
               <InfoRow label="Role" value={user.role?.name} />
               <InfoRow label="Branch" value={user.branch?.name} />
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-muted-foreground capitalize">Status</span>
+                <span className="text-xs font-medium text-muted-foreground capitalize">
+                  Status
+                </span>
                 <span
                   className={`inline-flex w-fit items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     user.is_active
@@ -89,11 +98,10 @@ const UserProfile = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserProfile
+export default UserProfile;

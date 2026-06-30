@@ -61,7 +61,10 @@ const CreateBranch = () => {
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => { setBranchName(""); setOpen(false); }}
+              onClick={() => {
+                setBranchName("");
+                setOpen(false);
+              }}
             >
               Cancel
             </Button>

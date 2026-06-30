@@ -1,7 +1,7 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
-import Sidebar from '@/components/shared/navigation/sidebar'
-import { sidebarItems } from '../data/superAdminSidebarItems'
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "@/components/shared/navigation/sidebar";
+import { sidebarItems } from "../data/superAdminSidebarItems";
 
 const SuperAdminLayout = () => {
   return (
@@ -11,7 +11,7 @@ const SuperAdminLayout = () => {
         <Outlet />
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default SuperAdminLayout
+export default SuperAdminLayout;

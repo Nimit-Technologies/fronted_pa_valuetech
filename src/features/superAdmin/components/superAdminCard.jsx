@@ -4,7 +4,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 const SuperAdminCard = ({ title, value }) => {
   return (
@@ -19,7 +19,7 @@ const SuperAdminCard = ({ title, value }) => {
       </CardHeader>
       <CardContent />
     </Card>
-  )
-}
+  );
+};
 
-export default SuperAdminCard
+export default SuperAdminCard;

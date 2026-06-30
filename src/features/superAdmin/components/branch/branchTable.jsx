@@ -1,5 +1,5 @@
-import React from 'react'
-import { Trash2 } from 'lucide-react'
+import React from "react";
+import { Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -7,18 +7,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import UpdateBranch from './updateBranch'
-import Pagination from '../pagination'
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import UpdateBranch from "./updateBranch";
+import Pagination from "../pagination";
 
 const BranchTable = ({ data, headers = [] }) => {
-  const rows = data?.data ?? []
+  const rows = data?.data ?? [];
 
   return (
-
     <div>
-
       <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
         <Table>
           <TableHeader>
@@ -49,21 +47,29 @@ const BranchTable = ({ data, headers = [] }) => {
                   key={branch.id}
                   className="hover:bg-muted/30 transition-colors"
                 >
-                  <TableCell className="text-foreground font-medium">{index + 1}</TableCell>
-                  <TableCell className="capitalize text-foreground">{branch.name}</TableCell>
+                  <TableCell className="text-foreground font-medium">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="capitalize text-foreground">
+                    {branch.name}
+                  </TableCell>
                   <TableCell>
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${branch.is_active
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        branch.is_active
                           ? "bg-green-100 text-green-800"
                           : "bg-red-500 text-white"
-                        }`}
+                      }`}
                     >
                       {branch.is_active ? "Active" : "Inactive"}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1.5">
-                      <UpdateBranch defaultName={branch.name} branchId={branch.id} />
+                      <UpdateBranch
+                        defaultName={branch.name}
+                        branchId={branch.id}
+                      />
                       <Button
                         variant="ghost"
                         size="icon-sm"
@@ -81,7 +87,7 @@ const BranchTable = ({ data, headers = [] }) => {
         <Pagination />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BranchTable
+export default BranchTable;

@@ -1,7 +1,10 @@
 import { Search } from "lucide-react";
 import React from "react";
 
-const SuperAdminSearchbar = ({ onSearch, placeholder = "Search branch..." }) => {
+const SuperAdminSearchbar = ({
+  onSearch,
+  placeholder = "Search branch...",
+}) => {
   return (
     <div className="w-full max-w-md min-w-40">
       <div className="relative flex items-center">

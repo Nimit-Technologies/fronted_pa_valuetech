@@ -63,7 +63,10 @@ const UpdateBranch = ({ defaultName = "", branchId }) => {
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => { setBranchName(defaultName); setOpen(false); }}
+              onClick={() => {
+                setBranchName(defaultName);
+                setOpen(false);
+              }}
             >
               Cancel
             </Button>
