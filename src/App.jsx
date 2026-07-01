@@ -8,6 +8,7 @@ import UpdateBranchAdmin from "./features/superAdmin/components/branchAdmin/upda
 import ViewBranchAdmin from "./features/superAdmin/components/branchAdmin/viewBranchAdmin";
 import SuperAdminHome from "./features/superAdmin/pages/superAdminHome";
 import UserProfile from "./components/shared/auth/userProfile";
+import Footer from "./components/shared/navigation/footer";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           </Route>
         </Routes>
       </div>
+      <Footer/>
     </div>
   );
 };

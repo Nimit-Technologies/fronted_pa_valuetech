@@ -8,7 +8,10 @@ import tailwindcss from "@tailwindcss/vite";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  define: {
+    "process.env.NODE_ENV": JSON.stringify(mode),
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -71,4 +74,4 @@ export default defineConfig({
       "X-XSS-Protection": "1; mode=block",
     },
   },
-});
+}));

@@ -1,6 +1,8 @@
 import { Component } from "react";
 import { AlertCircle } from "lucide-react";
 
+const isDevelopment = import.meta.env.MODE === "development";
+
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -13,7 +15,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     // Log error to console in development
-    if (process.env.NODE_ENV === "development") {
+    if (isDevelopment) {
       console.error("Error Boundary caught:", error, errorInfo);
     }
 
@@ -47,7 +49,7 @@ class ErrorBoundary extends Component {
                 refreshing the page.
               </p>
 
-              {process.env.NODE_ENV === "development" && this.state.error && (
+              {isDevelopment && this.state.error && (
                 <details className="mt-6 text-left bg-muted p-4 rounded-lg mb-6">
                   <summary className="cursor-pointer font-semibold text-sm">
                     Error Details (Development Only)
