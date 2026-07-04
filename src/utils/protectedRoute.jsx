@@ -1,6 +1,5 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { User2 } from "lucide-react";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth);

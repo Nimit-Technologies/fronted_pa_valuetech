@@ -11,20 +11,25 @@ import UserProfile from "./components/shared/auth/userProfile";
 import Footer from "./components/shared/navigation/footer";
 import Login from "./components/shared/auth/login";
 import ProtectedRoute from "./utils/protectedRoute";
- 
+
 const App = () => {
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
-      
       <Navbar />
       {/* <Login /> */}
       <div className="flex-1 overflow-hidden">
-        
         <Routes>
           <Route path="/" element={<Login />} />
-           <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
 
-          <Route path="/super-admin" element={<ProtectedRoute><SuperAdmin /></ProtectedRoute>}>
+          <Route
+            path="/super-admin"
+            element={
+              <ProtectedRoute>
+                <SuperAdmin />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<SuperAdminHome />} />
             <Route path="branch" element={<Branch />} />
             <Route path="branch-admin" element={<BranchAdmin />} />
@@ -38,7 +43,7 @@ const App = () => {
           </Route>
         </Routes>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

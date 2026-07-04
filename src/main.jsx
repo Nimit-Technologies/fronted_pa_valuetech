@@ -12,11 +12,11 @@ import store from "./store/store";
 const root = (
   <ErrorBoundary>
     <BrowserRouter>
-    <Provider store={store}> 
-      <PersistGate persistor={persistor}>
-      <App />
-      </PersistGate>
-    </Provider>
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
+          <App />
+        </PersistGate>
+      </Provider>
     </BrowserRouter>
   </ErrorBoundary>
 );

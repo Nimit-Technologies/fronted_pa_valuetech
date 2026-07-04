@@ -13,7 +13,7 @@ import Logout from "./logout";
 import { useSelector } from "react-redux";
 
 const UserAvatar = () => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -30,7 +30,9 @@ const UserAvatar = () => {
             user details
           </PopoverTitle>
           <PopoverDescription className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-            <p className="capitalize">{user.data.first_name} {user.data.last_name}</p>
+            <p className="capitalize">
+              {user.data.first_name} {user.data.last_name}
+            </p>
             <p>{user.data.phone}</p>
             <p className="capitalize">{user.data.role.name}</p>
             <p className="capitalize">super admin</p>

@@ -1,27 +1,24 @@
 import { useState } from "react";
-import {Toaster} from "../../ui/sonner";
-import {toast} from "sonner";
+import { Toaster } from "sonner";
 import useLogin from "../../../hooks/auth/useLogin";
 
- function Login() {
+function Login() {
   const [employee_id, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
-  const { handleLogin, loading, error } = useLogin();
+  const { handleLogin } = useLogin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     // alert(`Employee ID: ${employee_id}, Password: ${password}`);
-    
+
     await handleLogin({
       employee_id,
-      password
+      password,
     });
-    
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 z-10">
-        
       {/* Card */}
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 ">
         <Toaster position="top-right" richColors />
@@ -35,7 +32,6 @@ import useLogin from "../../../hooks/auth/useLogin";
 
         {/* Form */}
         <form className="space-y-5" onSubmit={handleSubmit}>
-
           {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -52,9 +48,7 @@ import useLogin from "../../../hooks/auth/useLogin";
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Password
-            </label>
+            <label className="block text-sm font-medium mb-2">Password</label>
             <input
               type="password"
               value={password}
@@ -92,7 +86,6 @@ import useLogin from "../../../hooks/auth/useLogin";
             Sign up
           </span>
         </p>
-
       </div>
     </div>
   );

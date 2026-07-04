@@ -1,8 +1,8 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/slices/authSlice";
 import loginUser from "../../services/api/authApi/loginApi";
-import { Toaster } from "../../components/ui/sonner";
+
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -22,8 +22,8 @@ const useLogin = () => {
       dispatch(
         login({
           user: data,
-          token: data.token
-        })
+          token: data.token,
+        }),
       );
 
       toast.success("Login successful");
@@ -32,13 +32,11 @@ const useLogin = () => {
         navigate("/super-admin");
       }, 1000);
     } catch (err) {
-
       const message = err.response?.data?.message;
       // console.error("Error response:",message); // Debugging line
       setError(message);
       toast.error(err.response?.data?.message || "Login failed");
       // console.error("Login error:", error); // Debugging line
-
     } finally {
       setLoading(false);
     }
