@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer 
-      className="w-full p-4 border-t border-default shadow-sm bg-card md:flex md:items-center md:justify-between md:p-6" 
+      className="w-full p-4 border-t border-default shadow-sm bg-card md:flex md:items-center md:justify-between md:p-6 z-8" 
       role="contentinfo"
     >
       {/* Left Section */}
