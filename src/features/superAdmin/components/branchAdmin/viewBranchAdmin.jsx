@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { branchAdminData } from "../../data/branch_admin/branchAdminTable";
+import { branchAdminData } from "@/features/superAdmin/data/branch_admin/branchAdminTable";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">

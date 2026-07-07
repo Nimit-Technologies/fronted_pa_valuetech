@@ -12,6 +12,7 @@ const MobileSidebar = ({ menu = [] }) => {
                 <NavLink
                   key={i}
                   to={item.path}
+                  end={Boolean(item.exact)}
                   className={({ isActive }) =>
                     `flex items-center justify-center rounded-md mx-1 py-2 text-sm font-medium transition-colors cursor-pointer ${
                       isActive

@@ -4,7 +4,7 @@ import Notification from "@/components/shared/notification";
 import UserAvatar from "@/components/shared/auth/userAvatar";
 import { Link } from "react-router-dom";
 
-const DesktopNavbar = () => {
+const DesktopNavbar = ({ title }) => {
   return (
     <div className="flex items-center justify-between w-full px-6 py-3 bg-card border-b border-border shadow-sm">
       <Link to="/" className="flex items-center gap-3">
@@ -16,7 +16,7 @@ const DesktopNavbar = () => {
       </Link>
 
       <p className="text-sm font-semibold text-foreground capitalize tracking-wide">
-        Super Admin Dashboard
+        {title}
       </p>
 
       <div className="flex items-center gap-2">

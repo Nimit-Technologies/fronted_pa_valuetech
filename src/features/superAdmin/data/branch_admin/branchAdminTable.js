@@ -1,5 +1,4 @@
-export const branchAdminData = {
-  data: [
+const data = [
     {
       id: "cmqrwx8h100037op0k58k9zkm",
       employee_id: "emp12347",
@@ -135,8 +134,10 @@ export const branchAdminData = {
       created_at: "2026-06-24t10:30:35.351z",
       updated_at: "2026-06-24t10:30:35.351z",
     },
-  ],
+  ];
 
-  total_user: 50,
-  active_user: 53,
+export const branchAdminData = {
+  data,
+  total_user: data.length,
+  active_user: data.filter((u) => u.is_active).length,
 };

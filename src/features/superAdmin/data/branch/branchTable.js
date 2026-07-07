@@ -1,5 +1,4 @@
-export const branchData = {
-  data: [
+const data = [
     {
       id: "cmqruschc0000wcp08mmcr53u",
       name: "noida",
@@ -25,8 +24,10 @@ export const branchData = {
       name: "mumbai",
       is_active: false,
     },
-  ],
+  ];
 
-  total_branch: 50,
-  active_branch: 50,
+export const branchData = {
+  data,
+  total_branch: data.length,
+  active_branch: data.filter((b) => b.is_active).length,
 };

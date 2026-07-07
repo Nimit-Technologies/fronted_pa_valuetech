@@ -1,6 +1,6 @@
 import React from "react";
-import DesktopSidebar from "./desktopSidebar";
-import MobileSidebar from "./mobileSidebar";
+import DesktopSidebar from "@/components/shared/navigation/desktopSidebar";
+import MobileSidebar from "@/components/shared/navigation/mobileSidebar";
 
 const Sidebar = ({ menu = [] }) => {
   return (

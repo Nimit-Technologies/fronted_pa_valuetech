@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SuperAdminTableHeader from "../components/superAdminTableHeader";
-import BranchAdminTable from "../components/branchAdmin/branchAdminTable";
-import SuperAdminCard from "../components/superAdminCard";
+import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
+import BranchAdminTable from "@/features/superAdmin/components/branchAdmin/branchAdminTable";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { branchAdminData } from "../data/branch_admin/branchAdminTable.js";
-import { branchAdminHeader } from "../data/branch_admin/branchAdminHeader.js";
+import { branchAdminData } from "@/features/superAdmin/data/branch_admin/branchAdminTable.js";
+import { branchAdminHeader } from "@/features/superAdmin/data/branch_admin/branchAdminHeader.js";
 
 const BranchAdmin = () => {
   const navigate = useNavigate();

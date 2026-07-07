@@ -1,14 +1,22 @@
 import { Route, Routes } from "react-router-dom";
-import Navbar from "./components/shared/navigation/navbar";
-import SuperAdmin from "./pages/superAdmin";
-import Branch from "./features/superAdmin/pages/branch";
-import BranchAdmin from "./features/superAdmin/pages/branchAdmin";
-import CreateBranchAdmin from "./features/superAdmin/components/branchAdmin/createBranchAdmin";
-import UpdateBranchAdmin from "./features/superAdmin/components/branchAdmin/updateBranchAdmin";
-import ViewBranchAdmin from "./features/superAdmin/components/branchAdmin/viewBranchAdmin";
-import SuperAdminHome from "./features/superAdmin/pages/superAdminHome";
-import UserProfile from "./components/shared/auth/userProfile";
-import Footer from "./components/shared/navigation/footer";
+import Navbar from "@/components/shared/navigation/navbar";
+import SuperAdmin from "@/pages/superAdmin";
+import Branch from "@/features/superAdmin/pages/branch";
+import BranchAdmin from "@/features/superAdmin/pages/branchAdmin";
+import CreateBranchAdmin from "@/features/superAdmin/components/branchAdmin/createBranchAdmin";
+import UpdateBranchAdmin from "@/features/superAdmin/components/branchAdmin/updateBranchAdmin";
+import ViewBranchAdmin from "@/features/superAdmin/components/branchAdmin/viewBranchAdmin";
+import SuperAdminHome from "@/features/superAdmin/pages/home";
+import UserProfile from "@/components/shared/auth/userProfile";
+import Footer from "@/components/shared/navigation/footer";
+
+
+import IndividualCoordinator from "@/pages/individualCoordinator";
+import IndividualCoordinatorHome from "@/features/individualCoordinator/pages/home";
+import CaseDashboard from "@/features/individualCoordinator/pages/caseDashboard";
+import CreateCase from "@/features/individualCoordinator/pages/createCase";
+import UpdateCase from "@/features/individualCoordinator/pages/updateCase";
+import ViewCase from "@/features/individualCoordinator/pages/viewCase";
 
 const App = () => {
   return (
@@ -29,9 +37,18 @@ const App = () => {
             />
             <Route path="user-profile" element={<UserProfile />} />
           </Route>
+
+          <Route path="/coordinator" element={<IndividualCoordinator />}>
+            <Route index element={<IndividualCoordinatorHome />} />
+            <Route path="case" element={<CaseDashboard />} />
+            <Route path="case/create" element={<CreateCase />} />
+            <Route path="case/view/:id" element={<ViewCase />} />
+            <Route path="case/update/:id" element={<UpdateCase />} />
+            <Route path="user-profile" element={<UserProfile />} />
+          </Route>
         </Routes>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

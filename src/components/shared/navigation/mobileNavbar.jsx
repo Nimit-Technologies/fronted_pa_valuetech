@@ -4,12 +4,12 @@ import Notification from "@/components/shared/notification";
 import UserAvatar from "@/components/shared/auth/userAvatar";
 import { Link } from "react-router-dom";
 
-const MobileNavbar = () => {
+const MobileNavbar = ({ title }) => {
   return (
     <div className="flex flex-col items-center justify-between gap-4 w-full px-4 sm:px-6 py-3 bg-card border-b border-border shadow-sm">
       <div>
         <p className="text-sm sm:text-base font-semibold text-foreground capitalize tracking-wide">
-          Super Admin Dashboard
+          {title}
         </p>
       </div>
 
