@@ -9,8 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import UpdateBranch from "./updateBranch";
-import Pagination from "../pagination";
+import UpdateBranch from "@/features/superAdmin/components/branch/updateBranch";
+import Pagination from "@/features/superAdmin/components/pagination";
 
 const BranchTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];

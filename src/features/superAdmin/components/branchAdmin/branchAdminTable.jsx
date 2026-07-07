@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import Pagination from "../pagination";
+import Pagination from "@/features/superAdmin/components/pagination";
 
 const BranchAdminTable = ({ data, headers = [] }) => {
   const navigate = useNavigate();

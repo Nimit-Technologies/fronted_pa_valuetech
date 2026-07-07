@@ -17,6 +17,7 @@ const DesktopSidebar = ({ menu = [] }) => {
                 <NavLink
                   key={i}
                   to={item.path}
+                  end={Boolean(item.exact)}
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
                       isActive

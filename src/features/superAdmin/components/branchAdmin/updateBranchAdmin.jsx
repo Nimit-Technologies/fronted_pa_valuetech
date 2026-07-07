@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { branchAdminData } from "../../data/branch_admin/branchAdminTable";
+import { branchAdminData } from "@/features/superAdmin/data/branch_admin/branchAdminTable";
 
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">

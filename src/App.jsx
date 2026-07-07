@@ -11,7 +11,7 @@ import BranchAdmin from "./features/superAdmin/pages/branchAdmin";
 import CreateBranchAdmin from "./features/superAdmin/components/branchAdmin/createBranchAdmin";
 import UpdateBranchAdmin from "./features/superAdmin/components/branchAdmin/updateBranchAdmin";
 import ViewBranchAdmin from "./features/superAdmin/components/branchAdmin/viewBranchAdmin";
-import SuperAdminHome from "./features/superAdmin/pages/superAdminHome";
+import SuperAdminHome from "./features/superAdmin/pages/home";
 
 // Branch Admin
 import BranchAdminPage from "./pages/branchAdmin";

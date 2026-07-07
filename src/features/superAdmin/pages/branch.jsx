@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import SuperAdminTableHeader from "../components/superAdminTableHeader";
-import BranchTable from "../components/branch/branchTable";
-import SuperAdminCard from "../components/superAdminCard";
-import { branchData } from "../data/branch/branchTable.js";
-import { branchTableHeader } from "../data/branch/branchTableHeader.js";
-import CreateBranch from "../components/branch/createBranch";
+import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
+import BranchTable from "@/features/superAdmin/components/branch/branchTable";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
+import { branchData } from "@/features/superAdmin/data/branch/branchTable.js";
+import { branchTableHeader } from "@/features/superAdmin/data/branch/branchTableHeader.js";
+import CreateBranch from "@/features/superAdmin/components/branch/createBranch";
 const Branch = () => {
   const [search, setSearch] = useState("");
 
