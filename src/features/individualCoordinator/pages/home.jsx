@@ -1,7 +1,7 @@
-import React from 'react'
-import GreetingHeader from '@/components/shared/greetingHeader'
-import CoordinatorCard from '@/features/individualCoordinator/components/coordinatorCard'
-import { caseData } from '@/features/individualCoordinator/data/case/caseTable'
+import React from "react";
+import GreetingHeader from "@/components/shared/greetingHeader";
+import CoordinatorCard from "@/features/individualCoordinator/components/coordinatorCard";
+import { caseData } from "@/features/individualCoordinator/data/case/caseTable";
 
 const IndividualCoordinatorHome = () => {
   const { total_cases, visit_completed } = caseData.meta;
@@ -19,7 +19,7 @@ const IndividualCoordinatorHome = () => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default IndividualCoordinatorHome
+export default IndividualCoordinatorHome;

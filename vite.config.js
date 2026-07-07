@@ -74,4 +74,14 @@ export default defineConfig(({ mode }) => ({
       "X-XSS-Protection": "1; mode=block",
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    passWithNoTests: true,
+    setupFiles: ["./src/test/setup.js"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+    },
+  },
 }));

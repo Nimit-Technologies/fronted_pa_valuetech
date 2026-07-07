@@ -4,11 +4,18 @@ import CoordinatorSearchbar from "@/features/individualCoordinator/components/co
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-const CoordinatorTableHeader = ({ onSearch, createRoute, createLabel = "Create" }) => {
+const CoordinatorTableHeader = ({
+  onSearch,
+  createRoute,
+  createLabel = "Create",
+}) => {
   const navigate = useNavigate();
 
   const renderCreate = () => (
-    <Button className="gap-2 whitespace-nowrap" onClick={() => navigate(createRoute)}>
+    <Button
+      className="gap-2 whitespace-nowrap"
+      onClick={() => navigate(createRoute)}
+    >
       <Plus size={16} />
       {createLabel}
     </Button>

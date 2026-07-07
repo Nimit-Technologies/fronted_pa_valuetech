@@ -37,7 +37,10 @@ const UpdateCase = () => {
       </div>
 
       <UpdateCaseForm />
-      <Comment remarks={caseItem?.remarks || []} onAddComment={handleAddComment} />
+      <Comment
+        remarks={caseItem?.remarks || []}
+        onAddComment={handleAddComment}
+      />
 
       <div className="flex justify-center pt-2 pb-6">
         <Button

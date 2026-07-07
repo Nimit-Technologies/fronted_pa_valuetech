@@ -71,7 +71,10 @@ const ViewCase = () => {
       </div>
 
       <ViewCaseForm />
-      <Comment remarks={caseItem?.remarks || []} onAddComment={handleAddComment} />
+      <Comment
+        remarks={caseItem?.remarks || []}
+        onAddComment={handleAddComment}
+      />
     </div>
   );
 };

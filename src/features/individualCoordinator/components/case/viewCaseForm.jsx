@@ -28,10 +28,7 @@ const ViewCaseForm = () => {
 
   return (
     <div className="bg-card border border-border rounded-md py-6 shadow-sm">
-      <form
-        id="case-form"
-        className="max-w-3xl w-full mx-auto space-y-8 px-4"
-      >
+      <form id="case-form" className="max-w-3xl w-full mx-auto space-y-8 px-4">
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
             Case Details

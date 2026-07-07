@@ -5,8 +5,6 @@ import CoordinatorCard from "@/features/individualCoordinator/components/coordin
 import { caseData } from "@/features/individualCoordinator/data/case/caseTable.js";
 import { caseTableHeader } from "@/features/individualCoordinator/data/case/caseTableHeader.js";
 
-
-
 const CaseDashboard = () => {
   const [search, setSearch] = useState("");
 

@@ -10,7 +10,6 @@ import SuperAdminHome from "@/features/superAdmin/pages/home";
 import UserProfile from "@/components/shared/auth/userProfile";
 import Footer from "@/components/shared/navigation/footer";
 
-
 import IndividualCoordinator from "@/pages/individualCoordinator";
 import IndividualCoordinatorHome from "@/features/individualCoordinator/pages/home";
 import CaseDashboard from "@/features/individualCoordinator/pages/caseDashboard";

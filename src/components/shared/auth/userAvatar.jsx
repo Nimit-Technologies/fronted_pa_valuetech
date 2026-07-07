@@ -15,7 +15,9 @@ import Logout from "@/components/shared/auth/logout";
 const UserAvatar = () => {
   const { pathname } = useLocation();
   const user = userProfileData.data[0];
-  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ");
+  const fullName = [user?.first_name, user?.last_name]
+    .filter(Boolean)
+    .join(" ");
   const basePath = pathname.startsWith("/coordinator")
     ? "/coordinator"
     : "/super-admin";

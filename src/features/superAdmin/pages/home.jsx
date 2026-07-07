@@ -10,12 +10,18 @@ const SuperAdminHome = () => {
       <GreetingHeader />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <SuperAdminCard title="Total Branches" value={branchData.total_branch} />
+        <SuperAdminCard
+          title="Total Branches"
+          value={branchData.total_branch}
+        />
         <SuperAdminCard
           title="Active Branches"
           value={branchData.active_branch}
         />
-        <SuperAdminCard title="Total Users" value={branchAdminData.total_user} />
+        <SuperAdminCard
+          title="Total Users"
+          value={branchAdminData.total_user}
+        />
       </div>
     </div>
   );
