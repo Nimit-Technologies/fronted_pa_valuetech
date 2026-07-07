@@ -1,0 +1,31 @@
+export const userProfileData = {
+  data: [
+    {
+      id: "cmqrwx8h100037op0k58k9zkm",
+      employee_id: "emp12347",
+      first_name: "arun",
+      last_name: "sharma",
+      email: "branch@admin.com",
+      phone: "8001236948",
+      adhar_number: "213456789015",
+      is_active: true,
+      branch: { id: "cmqruschc0000wcp08mmcr53u", name: "noida" },
+      department: { id: "cmqruvoi80001xop0f62x2232", name: "management" },
+      role: { id: "cmqruwir90000nop00n2xlyez", name: "super-admin" },
+      address: {
+        id: "cmqrwx80n00027op06khe0e70",
+        lane: "mg road",
+        landmark: "near city mall",
+        city: "noida",
+        district: "gautam budh nagar",
+        state: "uttar pradesh",
+        pin_code: "201301",
+        country: "india",
+        created_at: "2026-06-24t10:10:35.351z",
+        updated_at: "2026-06-24t10:10:35.351z",
+      },
+      created_at: "2026-06-24t10:10:35.351z",
+      updated_at: "2026-06-24t10:10:35.351z",
+    },
+  ],
+};
