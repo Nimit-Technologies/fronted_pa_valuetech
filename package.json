@@ -20,6 +20,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "ci": "npm run check && npm run build",
+    
     "prebuild": "npm run check",
     "type-check": "tsc --noEmit"
   },
