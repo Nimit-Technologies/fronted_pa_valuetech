@@ -1,32 +1,88 @@
-export const branchData = {
-  data: [
-    {
-      id: "cmqruschc0000wcp08mmcr53u",
-      name: "noida",
-      is_active: true,
-    },
-    {
-      id: "cmqruschc0001wcp08mmcr53v",
-      name: "delhi",
-      is_active: true,
-    },
-    {
-      id: "cmqruschc0002wcp08mmcr53w",
-      name: "gurgaon",
-      is_active: false,
-    },
-    {
-      id: "cmqruschc0003wcp08mmcr53x",
-      name: "bangalore",
-      is_active: true,
-    },
-    {
-      id: "cmqruschc0004wcp08mmcr53y",
-      name: "mumbai",
-      is_active: false,
-    },
-  ],
+const data = [
+  {
+    id: "bank001",
+    bank_name: "HDFC Bank",
+    branch: "Noida",
+    branch_code: "HDFC001",
+    gst: "09ABCDE1234F1Z5",
+    is_active: true,
 
-  total_branch: 50,
-  active_branch: 50,
+    city: "Noida",
+    district: "Gautam Buddha Nagar",
+    state: "Uttar Pradesh",
+    pincode: "201301",
+    country: "India",
+    lane: "Sector 18",
+    landmark: "Near DLF Mall",
+  },
+  {
+    id: "bank002",
+    bank_name: "ICICI Bank",
+    branch: "Delhi",
+    branch_code: "ICICI002",
+    gst: "07ABCDE5678G1Z2",
+    is_active: true,
+
+    city: "New Delhi",
+    district: "Central Delhi",
+    state: "Delhi",
+    pincode: "110001",
+    country: "India",
+    lane: "Connaught Place",
+    landmark: "Near Rajiv Chowk Metro Station",
+  },
+  {
+    id: "bank003",
+    bank_name: "State Bank of India",
+    branch: "Gurgaon",
+    branch_code: "SBI003",
+    gst: "06ABCDE9876H1Z3",
+    is_active: false,
+
+    city: "Gurugram",
+    district: "Gurugram",
+    state: "Haryana",
+    pincode: "122001",
+    country: "India",
+    lane: "MG Road",
+    landmark: "Near Cyber Hub",
+  },
+  {
+    id: "bank004",
+    bank_name: "Axis Bank",
+    branch: "Bangalore",
+    branch_code: "AXIS004",
+    gst: "29ABCDE4567J1Z4",
+    is_active: true,
+
+    city: "Bengaluru",
+    district: "Bengaluru Urban",
+    state: "Karnataka",
+    pincode: "560001",
+    country: "India",
+    lane: "Brigade Road",
+    landmark: "Near MG Road Metro Station",
+  },
+  {
+    id: "bank005",
+    bank_name: "Punjab National Bank",
+    branch: "Mumbai",
+    branch_code: "PNB005",
+    gst: "27ABCDE7890K1Z5",
+    is_active: false,
+
+    city: "Mumbai",
+    district: "Mumbai City",
+    state: "Maharashtra",
+    pincode: "400001",
+    country: "India",
+    lane: "Nariman Point",
+    landmark: "Near Air India Building",
+  },
+];
+
+export const bankData = {
+  data,
+  total_bank: data.length,
+  active_bank: data.filter((item) => item.is_active).length,
 };

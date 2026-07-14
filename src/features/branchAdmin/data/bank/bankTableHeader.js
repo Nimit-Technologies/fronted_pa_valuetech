@@ -1,1 +1,9 @@
-export const bankTableHeader = ["s.no", "branch name", "status", "Action"];
+export const bankTableHeader = [
+  "serial no",
+  "bank name",
+  "branch",
+  "branch code",
+  "gst",
+  "status",
+  "Action",
+];

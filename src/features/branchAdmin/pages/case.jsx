@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const Case = () => {
-  return (
-    <div>Case</div>
-  )
-}
+  return <div>Case</div>;
+};
 
-export default Case
+export default Case;

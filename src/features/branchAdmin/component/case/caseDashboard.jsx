@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const caseDashboard = () => {
-  return (
-    <div>caseDashboard</div>
-  )
-}
+  return <div>caseDashboard</div>;
+};
 
-export default caseDashboard
+export default caseDashboard;

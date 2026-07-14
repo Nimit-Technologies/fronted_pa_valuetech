@@ -23,24 +23,14 @@ import {
 
 import { Pencil } from "lucide-react";
 
-import { departmentData } from "../../data/role/roleTable";
+const UpdateDepartment = ({
+  departmentId,
 
-const UpdateRole = ({
-  roleId,
+  defaultDepartmentName = "Engineering",
 
-  defaultRoleName = "Frontend Engineer",
-
-  // Engineering department
-  defaultDepartment = "2",
-
-  // Active status
   defaultStatus = true,
 }) => {
-  const [roleName, setRoleName] = useState(defaultRoleName);
-
-  const [department, setDepartment] = useState(
-    defaultDepartment?.toString() || "",
-  );
+  const [departmentName, setDepartmentName] = useState(defaultDepartmentName);
 
   const [status, setStatus] = useState(defaultStatus ? "active" : "inactive");
 
@@ -49,18 +39,10 @@ const UpdateRole = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const selectedDepartment = departmentData.data.find(
-      (dept) => dept.id === department,
-    );
-
     console.log({
-      roleId,
+      departmentId,
 
-      roleName,
-
-      departmentId: department,
-
-      departmentName: selectedDepartment?.name,
+      departmentName,
 
       status,
     });
@@ -69,9 +51,7 @@ const UpdateRole = ({
   };
 
   const handleCancel = () => {
-    setRoleName(defaultRoleName);
-
-    setDepartment(defaultDepartment?.toString() || "");
+    setDepartmentName(defaultDepartmentName);
 
     setStatus(defaultStatus ? "active" : "inactive");
 
@@ -98,9 +78,11 @@ const UpdateRole = ({
         className="w-[360px] p-5"
       >
         <PopoverHeader className="px-0 pt-0">
-          <PopoverTitle>Update Role</PopoverTitle>
+          <PopoverTitle>Update Department</PopoverTitle>
 
-          <PopoverDescription>Update role details below.</PopoverDescription>
+          <PopoverDescription>
+            Update department details below.
+          </PopoverDescription>
         </PopoverHeader>
 
         <form
@@ -108,52 +90,20 @@ const UpdateRole = ({
 
           className="mt-5 space-y-5"
         >
-          {/* Role Name */}
+          {/* Department Name */}
 
           <div className="flex flex-col gap-2 w-full">
-            <Label>Role Name</Label>
+            <Label>Department Name</Label>
 
             <Input
-              value={roleName}
+              value={departmentName}
 
-              onChange={(e) => setRoleName(e.target.value)}
+              onChange={(e) => setDepartmentName(e.target.value)}
 
-              placeholder="Enter Role Name"
+              placeholder="Enter Department Name"
 
               className="w-full"
             />
-          </div>
-
-          {/* Department */}
-
-          <div className="flex flex-col gap-2 w-full">
-            <Label>Department</Label>
-
-            <Select
-              value={department}
-
-              onValueChange={setDepartment}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                {departmentData.data
-
-                  .filter((dept) => dept.is_active)
-
-                  .map((dept) => (
-                    <SelectItem
-                      key={dept.id}
-
-                      value={dept.id.toString()}
-                    >
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Status */}
@@ -199,4 +149,4 @@ const UpdateRole = ({
   );
 };
 
-export default UpdateRole;
+export default UpdateDepartment;
