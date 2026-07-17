@@ -4,11 +4,18 @@ import { BrowserRouter } from "react-router-dom";
 import App from "@/App";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import "@/index.css";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import store, { persistor } from "@/store/store";
 
 const root = (
   <ErrorBoundary>
     <BrowserRouter>
-      <App />
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
+          <App />
+        </PersistGate>
+      </Provider>
     </BrowserRouter>
   </ErrorBoundary>
 );

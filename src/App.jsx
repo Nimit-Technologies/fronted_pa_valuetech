@@ -9,6 +9,8 @@ import ViewBranchAdmin from "@/features/superAdmin/components/branchAdmin/viewBr
 import SuperAdminHome from "@/features/superAdmin/pages/home";
 import UserProfile from "@/components/shared/auth/userProfile";
 import Footer from "@/components/shared/navigation/footer";
+import Login from "@/components/shared/auth/login";
+import ProtectedRoute from "@/utils/protectedRoute";
 
 import IndividualCoordinator from "@/pages/individualCoordinator";
 import IndividualCoordinatorHome from "@/features/individualCoordinator/pages/home";
@@ -46,7 +48,17 @@ const App = () => {
 
       <div className="flex-1 overflow-hidden">
         <Routes>
-          <Route path="/super-admin" element={<SuperAdmin />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+
+          <Route
+            path="/super-admin"
+            element={
+              <ProtectedRoute>
+                <SuperAdmin />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<SuperAdminHome />} />
             <Route path="branch" element={<Branch />} />
             <Route path="branch-admin" element={<BranchAdmin />} />

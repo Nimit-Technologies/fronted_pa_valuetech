@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { defaultExclude } from "vitest/config";
 import path from "path";
 import { fileURLToPath } from "url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
@@ -78,6 +79,9 @@ export default defineConfig(({ mode }) => ({
     environment: "jsdom",
     globals: true,
     passWithNoTests: true,
+    // "tests/" holds Playwright E2E specs (see playwright.config.js's
+    // testDir) and must stay out of Vitest's own test run.
+    exclude: [...defaultExclude, "tests/**"],
     setupFiles: ["./src/test/setup.js"],
     pool: "forks",
     maxWorkers: 6,
