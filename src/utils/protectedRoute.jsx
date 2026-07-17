@@ -7,7 +7,6 @@ function ProtectedRoute({ children }) {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  console.log("User role in ProtectedRoute:", user); // Debugging line
   if (user.data.role.name !== "super admin") {
     return <Navigate to="/login" replace />;
   }

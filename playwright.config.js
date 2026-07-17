@@ -1,10 +1,10 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './tests',
-  reporter: 'html',
+  testDir: "./tests",
+  reporter: "html",
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: "http://localhost:5173",
     headless: true,
   },
-})
+});

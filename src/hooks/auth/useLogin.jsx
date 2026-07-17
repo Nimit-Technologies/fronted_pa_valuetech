@@ -16,9 +16,7 @@ const useLogin = () => {
     try {
       setLoading(true);
       setError("");
-      console.log("Payload in useLogin:", payload); // Debugging line
       const data = await loginUser(payload);
-      console.log("Login successful, received data:", data); // Debugging line
       dispatch(
         login({
           user: data,
