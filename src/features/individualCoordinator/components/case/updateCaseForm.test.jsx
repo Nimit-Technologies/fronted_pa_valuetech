@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UpdateCaseForm from "@/features/individualCoordinator/components/case/updateCaseForm";
 import { caseData } from "@/features/individualCoordinator/data/case/caseTable";
@@ -52,7 +52,9 @@ describe("UpdateCaseForm", () => {
     // the page renders the submit button outside this component (form="case-form"),
     // so submit the form directly to exercise the same onSubmit handler.
     const form = document.getElementById("case-form");
-    form.requestSubmit();
+    await act(async () => {
+      form.requestSubmit();
+    });
 
     await waitFor(() => {
       const updated = caseData.data.find((c) => c.id === "case_0001");

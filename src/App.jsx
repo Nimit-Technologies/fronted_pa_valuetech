@@ -16,6 +16,11 @@ import CaseDashboard from "@/features/individualCoordinator/pages/caseDashboard"
 import CreateCase from "@/features/individualCoordinator/pages/createCase";
 import UpdateCase from "@/features/individualCoordinator/pages/updateCase";
 import ViewCase from "@/features/individualCoordinator/pages/viewCase";
+import IndividualEngineerHome from "@/features/individualEngineer/pages/home";
+import IndividualEngineer from "@/pages/individualEngineer";
+import EngineerCaseDashboard from "@/features/individualEngineer/pages/caseDashboard";
+import EngineerViewCase from "@/features/individualEngineer/pages/viewCase";
+import Report from "@/features/individualEngineer/pages/report/report";
 
 const App = () => {
   return (
@@ -43,6 +48,14 @@ const App = () => {
             <Route path="case/create" element={<CreateCase />} />
             <Route path="case/view/:id" element={<ViewCase />} />
             <Route path="case/update/:id" element={<UpdateCase />} />
+            <Route path="user-profile" element={<UserProfile />} />
+          </Route>
+
+          <Route path="/engineer" element={<IndividualEngineer />}>
+            <Route index element={<IndividualEngineerHome />} />
+            <Route path="case" element={<EngineerCaseDashboard />} />
+            <Route path="case/view/:id" element={<EngineerViewCase />} />
+            <Route path="report/create/:id" element={<Report />} />
             <Route path="user-profile" element={<UserProfile />} />
           </Route>
         </Routes>

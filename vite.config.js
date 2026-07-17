@@ -79,6 +79,8 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     passWithNoTests: true,
     setupFiles: ["./src/test/setup.js"],
+    pool: "forks",
+    maxWorkers: 6,
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

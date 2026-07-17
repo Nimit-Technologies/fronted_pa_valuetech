@@ -31,3 +31,6 @@ document/*
 .vscode/*
 .agents/*
 .claude/*
+
+# ShipStudio metadata
+.shipstudio/
