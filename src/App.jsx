@@ -22,6 +22,23 @@ import EngineerCaseDashboard from "@/features/individualEngineer/pages/caseDashb
 import EngineerViewCase from "@/features/individualEngineer/pages/viewCase";
 import Report from "@/features/individualEngineer/pages/report/report";
 
+// Branch Admin
+import BranchAdminPage from "@/pages/branchAdmin";
+import BranchAdminHome from "@/features/branchAdmin/pages/branchAdminHome";
+import Bank from "@/features/branchAdmin/pages/bank";
+import Business from "@/features/branchAdmin/pages/business";
+import Case from "@/features/branchAdmin/pages/case";
+import Department from "@/features/branchAdmin/pages/department";
+import Engineer from "@/features/branchAdmin/pages/engineer";
+import Role from "@/features/branchAdmin/pages/role";
+import User from "@/features/branchAdmin/pages/user";
+import CreateUser from "@/features/branchAdmin/pages/user/createUser";
+import UpdateUser from "@/features/branchAdmin/pages/user/updateUser";
+import ViewUser from "@/features/branchAdmin/pages/user/viewUser";
+import CreateBank from "./features/branchAdmin/component/bank/createBank";
+import UpdateBank from "@/features/branchAdmin/component/bank/updateBank";
+import ViewBank from "@/features/branchAdmin/component/bank/viewBank";
+
 const App = () => {
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -57,6 +74,30 @@ const App = () => {
             <Route path="case/view/:id" element={<EngineerViewCase />} />
             <Route path="report/create/:id" element={<Report />} />
             <Route path="user-profile" element={<UserProfile />} />
+          </Route>
+
+          <Route path="/branch-admin" element={<BranchAdminPage />}>
+            <Route index element={<BranchAdminHome />} />
+
+            <Route path="bank" element={<Bank />} />
+            <Route path="bank/create" element={<CreateBank />} />
+            <Route path="bank/update/:id" element={<UpdateBank />} />
+            <Route path="bank/view/:id" element={<ViewBank />} />
+
+            <Route path="business" element={<Business />} />
+
+            <Route path="case" element={<Case />} />
+
+            <Route path="department" element={<Department />} />
+
+            <Route path="engineer" element={<Engineer />} />
+
+            <Route path="role" element={<Role />} />
+
+            <Route path="user" element={<User />} />
+            <Route path="user/create" element={<CreateUser />} />
+            <Route path="user/update/:id" element={<UpdateUser />} />
+            <Route path="user/view/:id" element={<ViewUser />} />
           </Route>
         </Routes>
       </div>
