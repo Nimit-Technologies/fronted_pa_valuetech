@@ -28,6 +28,7 @@ test-results
 *.njsproj
 *.sln
 *.sw?
+.tests/*
 
 #credential files
 .env
