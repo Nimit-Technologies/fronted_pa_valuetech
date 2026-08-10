@@ -23,7 +23,7 @@ import {
 
 import { Pencil } from "lucide-react";
 
-import { departmentData } from "../../data/role/roleTable";
+import { departmentData } from "@/features/branchAdmin/data/role/roleTable";
 
 const UpdateRole = ({
   roleId,

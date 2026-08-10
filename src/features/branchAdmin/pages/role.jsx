@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import SuperAdminCard from "../../superAdmin/components/superAdminCard";
-import SuperAdminTableHeader from "../../superAdmin/components/superAdminTableHeader";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
+import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
 
-import RoleTable from "../component/role/roleTable";
-import CreateRole from "../component/role/createRole";
+import RoleTable from "@/features/branchAdmin/component/role/roleTable";
+import CreateRole from "@/features/branchAdmin/component/role/createRole";
 
-import { roleData } from "../data/role/roleTable";
-import { roleTableHeader } from "../data/role/roleTableHeader";
+import { roleData } from "@/features/branchAdmin/data/role/roleTable";
+import { roleTableHeader } from "@/features/branchAdmin/data/role/roleTableHeader";
 
 const Role = () => {
   const [search, setSearch] = useState("");

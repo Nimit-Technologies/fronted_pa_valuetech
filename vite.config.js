@@ -1,93 +1,126 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { defaultExclude } from "vitest/config";
 import path from "path";
 import { fileURLToPath } from "url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default defineConfig(({ mode }) => ({
-  define: {
-    "process.env.NODE_ENV": JSON.stringify(mode),
-  },
-  plugins: [
-    react(),
-    tailwindcss(),
-    babel({
-      presets: [reactCompilerPreset()],
-    }),
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+export default defineConfig(({ mode }) => {
+  // vite.config.js is evaluated in Node before the dev server exists, so
+  // `import.meta.env` (used by src/constants/credentials.js) is not populated
+  // here. `loadEnv` reads the correct .env / .env.[mode] files for the
+  // current mode instead, keeping the proxy target dynamic per environment.
+  const env = loadEnv(mode, process.cwd(), "");
+
+  if (!env.VITE_SERVER_BASE_URL) {
+    throw new Error(
+      `VITE_SERVER_BASE_URL is not defined in the environment variables for mode "${mode}".`,
+    );
+  }
+
+  const serverBaseUrl = env.VITE_SERVER_PORT
+    ? `${env.VITE_SERVER_BASE_URL}:${env.VITE_SERVER_PORT}`
+    : env.VITE_SERVER_BASE_URL;
+
+  return {
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(mode),
     },
-  },
-  build: {
-    // Production build settings
-    target: "es2020",
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs in production
-        drop_debugger: true,
-      },
-      format: {
-        comments: false,
+    plugins: [
+      react(),
+      tailwindcss(),
+      babel({
+        presets: [reactCompilerPreset()],
+      }),
+    ],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
       },
     },
-    rollupOptions: {
-      output: {
-        // Code splitting configuration - using function form for better compatibility
-        manualChunks: (id) => {
-          if (
-            id.includes("node_modules/react") ||
-            id.includes("node_modules/react-dom") ||
-            id.includes("node_modules/react-router-dom")
-          ) {
-            return "react-vendor";
-          }
-          if (
-            id.includes("node_modules/class-variance-authority") ||
-            id.includes("node_modules/clsx") ||
-            id.includes("node_modules/tailwind-merge")
-          ) {
-            return "ui-vendor";
-          }
-          if (id.includes("node_modules/lucide-react")) {
-            return "icons";
-          }
+    server: {
+      proxy: {
+        "/api": {
+          target: serverBaseUrl,
+          changeOrigin: true,
+          secure: false,
         },
       },
+      headers: {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-XSS-Protection": "1; mode=block",
+      },
     },
-    // Optimization settings
-    reportCompressedSize: false,
-    sourcemap: false, // Disable source maps in production; use "hidden" to keep maps for debugging without exposing them
-    chunkSizeWarningLimit: 500,
-  },
-  server: {
-    // Development server settings
-    headers: {
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "SAMEORIGIN",
-      "X-XSS-Protection": "1; mode=block",
+    test: {
+      environment: "jsdom",
+      globals: true,
+      passWithNoTests: true,
+      exclude: [...defaultExclude, "tests/**"],
+      setupFiles: ["./src/test/setup.js"],
+      pool: "forks",
+      maxWorkers: 6,
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "html"],
+      },
     },
-  },
-  test: {
-    environment: "jsdom",
-    globals: true,
-    passWithNoTests: true,
-    // "tests/" holds Playwright E2E specs (see playwright.config.js's
-    // testDir) and must stay out of Vitest's own test run.
-    exclude: [...defaultExclude, "tests/**"],
-    setupFiles: ["./src/test/setup.js"],
-    pool: "forks",
-    maxWorkers: 6,
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html"],
+    build: {
+      target: "es2020",
+      minify: "terser",
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+        format: {
+          comments: false,
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/react-dom/") ||
+              id.includes("node_modules/react-router")
+            ) {
+              return "react-vendor";
+            }
+            if (
+              id.includes("node_modules/@radix-ui/") ||
+              id.includes("node_modules/class-variance-authority") ||
+              id.includes("node_modules/clsx") ||
+              id.includes("node_modules/tailwind-merge")
+            ) {
+              return "ui-vendor";
+            }
+            if (id.includes("node_modules/lucide-react")) {
+              return "icons";
+            }
+            if (
+              id.includes("node_modules/@reduxjs/") ||
+              id.includes("node_modules/react-redux/") ||
+              id.includes("node_modules/redux/")
+            ) {
+              return "redux-vendor";
+            }
+            if (
+              id.includes("node_modules/react-hook-form/") ||
+              id.includes("node_modules/zod/")
+            ) {
+              return "form-vendor";
+            }
+          },
+        },
+      },
+  
+      reportCompressedSize: false,
+      sourcemap: false,
+      chunkSizeWarningLimit: 500,
     },
-  },
-}));
+  };
+});

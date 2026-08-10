@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "sonner";
 import App from "@/App";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import "@/index.css";
@@ -13,6 +14,7 @@ const root = (
     <BrowserRouter>
       <Provider store={store}>
         <PersistGate persistor={persistor}>
+          <Toaster position="top-right" richColors />
           <App />
         </PersistGate>
       </Provider>

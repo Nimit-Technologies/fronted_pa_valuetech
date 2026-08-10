@@ -2,14 +2,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import UserTable from "../component/user/userTable";
-import { userTableHeader } from "../data/user/userTableHeader";
-import { userTableData } from "../data/user/userTable";
+import UserTable from "@/features/branchAdmin/component/user/userTable";
+import { userTableHeader } from "@/features/branchAdmin/data/user/userTableHeader";
+import { userTableData } from "@/features/branchAdmin/data/user/userTable";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import BranchAdminCard from "../component/branchAdminCard";
-import BranchAdminTableHeader from "../component/branchAdminTableHeader";
+import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
+import BranchAdminTableHeader from "@/features/branchAdmin/component/branchAdminTableHeader";
 
 const User = () => {
   const [search, setSearch] = useState("");

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import SuperAdminCard from "../../superAdmin/components/superAdminCard";
-import SuperAdminTableHeader from "../../superAdmin/components/superAdminTableHeader";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
+import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
 
-import BankTable from "../component/bank/bankTable";
+import BankTable from "@/features/branchAdmin/component/bank/bankTable";
 
-import { bankData } from "../data/bank/bankTable";
-import { bankTableHeader } from "../data/bank/bankTableHeader";
+import { bankData } from "@/features/branchAdmin/data/bank/bankTable";
+import { bankTableHeader } from "@/features/branchAdmin/data/bank/bankTableHeader";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";

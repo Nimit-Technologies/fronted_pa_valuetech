@@ -1,16 +1,25 @@
 import { Route, Routes } from "react-router-dom";
 import Navbar from "@/components/shared/navigation/navbar";
+import Footer from "@/components/shared/navigation/footer";
+
+import UserProfile from "@/components/shared/userProfile";
+
+import Login from "@/features/auth/pages/login";
+import ProtectedRoute from "@/features/auth/guards/protectedRoute";
+import PublicOnlyRoute from "@/features/auth/guards/publicOnlyRoute";
+import useVerifySession from "@/features/auth/hooks/useVerifySession";
+import { ROLES } from "@/features/auth/constants/roles";
+import { Loader2 } from "lucide-react";
+
+
+
 import SuperAdmin from "@/pages/superAdmin";
+import SuperAdminHome from "@/features/superAdmin/pages/home";
 import Branch from "@/features/superAdmin/pages/branch";
 import BranchAdmin from "@/features/superAdmin/pages/branchAdmin";
 import CreateBranchAdmin from "@/features/superAdmin/components/branchAdmin/createBranchAdmin";
 import UpdateBranchAdmin from "@/features/superAdmin/components/branchAdmin/updateBranchAdmin";
 import ViewBranchAdmin from "@/features/superAdmin/components/branchAdmin/viewBranchAdmin";
-import SuperAdminHome from "@/features/superAdmin/pages/home";
-import UserProfile from "@/components/shared/auth/userProfile";
-import Footer from "@/components/shared/navigation/footer";
-import Login from "@/components/shared/auth/login";
-import ProtectedRoute from "@/utils/protectedRoute";
 
 import IndividualCoordinator from "@/pages/individualCoordinator";
 import IndividualCoordinatorHome from "@/features/individualCoordinator/pages/home";
@@ -42,19 +51,44 @@ import UpdateBank from "@/features/branchAdmin/component/bank/updateBank";
 import ViewBank from "@/features/branchAdmin/component/bank/viewBank";
 
 const App = () => {
+  const { checking } = useVerifySession();
+
+  if (checking) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Navbar />
 
       <div className="flex-1 overflow-hidden">
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <PublicOnlyRoute>
+                <Login />
+              </PublicOnlyRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicOnlyRoute>
+                <Login />
+              </PublicOnlyRoute>
+            }
+          />
 
+          {/* super admin */}
           <Route
             path="/super-admin"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
                 <SuperAdmin />
               </ProtectedRoute>
             }
@@ -71,7 +105,15 @@ const App = () => {
             <Route path="user-profile" element={<UserProfile />} />
           </Route>
 
-          <Route path="/coordinator" element={<IndividualCoordinator />}>
+          {/* coordinator */}
+          <Route
+            path="/coordinator"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
+                <IndividualCoordinator />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<IndividualCoordinatorHome />} />
             <Route path="case" element={<CaseDashboard />} />
             <Route path="case/create" element={<CreateCase />} />
@@ -79,8 +121,15 @@ const App = () => {
             <Route path="case/update/:id" element={<UpdateCase />} />
             <Route path="user-profile" element={<UserProfile />} />
           </Route>
-
-          <Route path="/engineer" element={<IndividualEngineer />}>
+          {/* engineer */}
+          <Route
+            path="/engineer"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.ENGINEER]}>
+                <IndividualEngineer />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<IndividualEngineerHome />} />
             <Route path="case" element={<EngineerCaseDashboard />} />
             <Route path="case/view/:id" element={<EngineerViewCase />} />
@@ -88,7 +137,15 @@ const App = () => {
             <Route path="user-profile" element={<UserProfile />} />
           </Route>
 
-          <Route path="/branch-admin" element={<BranchAdminPage />}>
+          {/* branch admin */}
+          <Route
+            path="/branch-admin"
+            element={
+              <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
+                <BranchAdminPage />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<BranchAdminHome />} />
 
             <Route path="bank" element={<Bank />} />

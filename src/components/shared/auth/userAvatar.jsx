@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import Logout from "@/components/shared/auth/logout";
+import Logout from "@/features/auth/component/logout";
+import useSession from "@/features/auth/hooks/useSession";
 
 const UserAvatar = () => {
   const { pathname } = useLocation();
-  const { user } = useSelector((state) => state.auth);
-  const profile = user?.data;
+  const { user } = useSession();
+  const profile = user;
   const fullName = [profile?.first_name, profile?.last_name]
     .filter(Boolean)
     .join(" ");
@@ -45,8 +45,8 @@ const UserAvatar = () => {
           <PopoverDescription className="mt-3 space-y-1.5 text-sm text-muted-foreground">
             <p className="capitalize">{fullName || "-"}</p>
             <p>{profile?.phone || "-"}</p>
-            <p className="capitalize">{profile?.department?.name || "-"}</p>
             <p className="capitalize">{profile?.role?.name || "-"}</p>
+            <p className="capitalize">{profile?.department?.name || "-"}</p>
           </PopoverDescription>
         </PopoverHeader>
         <div className="flex w-full items-center justify-between mt-3 pt-3 border-t border-border">

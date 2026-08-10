@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import UpdateDepartment from "./updateDepartment";
-import Pagination from "../pagination";
+import Pagination from "@/features/branchAdmin/component/pagination";
 
 const DepartmentTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];

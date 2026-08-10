@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { userProfileData } from "@/data/userProfile";
+import useSession from "@/features/auth/hooks/useSession";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">
@@ -22,7 +22,7 @@ const SectionTitle = ({ children }) => (
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const user = userProfileData.data[0];
+  const { user } = useSession();
 
   if (!user) {
     return (

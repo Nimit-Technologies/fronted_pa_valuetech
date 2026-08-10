@@ -9,7 +9,7 @@ import {
   persistReducer,
   persistStore,
 } from "redux-persist";
-import authReducer from "./slices/authSlice";
+import authReducer from "@/features/auth/slice/authSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps
 // its default export, leaving storage.getItem undefined at runtime. A plain
@@ -21,20 +21,22 @@ const storage = {
   removeItem: (key) => Promise.resolve(window.localStorage.removeItem(key)),
 };
 
-const rootReducer = combineReducers({
-  auth: authReducer,
-});
-
-const persistConfig = {
-  key: "root",
+// Persist only identity (user/isAuthenticated), not the transient
+// loading/error fields — otherwise a refresh mid-request (or right after a
+// failed attempt) can rehydrate loading: true and permanently stick the
+// login button in its disabled "Logging in..." state.
+const authPersistConfig = {
+  key: "auth",
   storage,
-  whitelist: ["auth"],
+  blacklist: ["loading", "error"],
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const rootReducer = combineReducers({
+  auth: persistReducer(authPersistConfig, authReducer),
+});
 
 const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

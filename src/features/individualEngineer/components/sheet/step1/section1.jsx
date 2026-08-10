@@ -7,7 +7,7 @@ import React, {
 import { useParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { caseData } from "@/features/individualEngineer/data/case/caseTable";
-import Address from "../address";
+import Address from "@/features/individualEngineer/components/sheet/address";
 
 const ADDRESS_FIELD_KEYS = [
   "city",

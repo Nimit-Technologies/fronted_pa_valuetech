@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 
-import SuperAdminCard from "../../superAdmin/components/superAdminCard";
-import SuperAdminTableHeader from "../../superAdmin/components/superAdminTableHeader";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
+import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
 
-import DepartmentTable from "../component/Department/DepartmentTable";
-import CreateDepartment from "../component/Department/createDepartment";
+import DepartmentTable from "@/features/branchAdmin/component/department/departmentTable";
+import CreateDepartment from "@/features/branchAdmin/component/department/createDepartment";
 
 import {
   departmentData,
   departmentTableHeader,
-} from "../data/department/departmentTable";
+} from "@/features/branchAdmin/data/department/departmentTable";
 
 const Department = () => {
   const [search, setSearch] = useState("");

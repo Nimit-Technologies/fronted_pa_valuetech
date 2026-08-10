@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { userTableData } from "../../data/user/userTable";
+import { userTableData } from "@/features/branchAdmin/data/user/userTable";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">

@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import UpdateRole from "./updateRole";
-import Pagination from "../pagination";
+import Pagination from "@/features/branchAdmin/component/pagination";
 
 const RoleTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];

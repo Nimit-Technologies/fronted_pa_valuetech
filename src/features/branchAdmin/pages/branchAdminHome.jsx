@@ -1,5 +1,5 @@
-import SuperAdminCard from "../../superAdmin/components/superAdminCard";
-import BranchAdminCard from "../component/branchAdminCard";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
+import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
 
 const dashboardData = {
   totalCases: 15000,
