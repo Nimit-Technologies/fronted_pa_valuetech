@@ -22,4 +22,10 @@ if (!CREDENTIALS.API_VERSION) {
 // Single source of truth for the backend's base URL — every request goes
 // through the shared axios instance (src/utils/axiosInstance.js) as a
 // relative path (e.g. "/auth/login") against this baseURL.
-export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}/${CREDENTIALS.API_VERSION}`;
+export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`;
+export const apiBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}/${CREDENTIALS.API_VERSION}`;
+
+export const apiConfig = {
+  baseBackendUrl: baseBackendUrl,
+  apiBackendUrl: apiBackendUrl,
+};
