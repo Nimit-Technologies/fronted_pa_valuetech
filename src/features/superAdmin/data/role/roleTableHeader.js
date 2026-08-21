@@ -3,5 +3,5 @@ export const roleTableHeader = [
   "Role Name",
   "Department",
   "Status",
-  // "Action",
+  "Action",
 ];

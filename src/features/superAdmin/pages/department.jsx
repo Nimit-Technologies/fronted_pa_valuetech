@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 
-import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
-import BranchAdminSearchbar from "@/features/branchAdmin/component/branchAdminTableHeader";
+import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
+import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
 
-import DepartmentTable from "@/features/branchAdmin/component/department/departmentTable";
-// import CreateDepartment from "@/features/branchAdmin/component/department/createDepartment";
+import DepartmentTable from "@/features/superAdmin/components/department/departmentTable";
+import CreateDepartment from "@/features/superAdmin/components/department/createDepartment";
 
-import {
-  departmentData,
-  departmentTableHeader,
-} from "@/features/branchAdmin/data/department/departmentTable";
+import { departmentData } from "@/features/superAdmin/data/department/departmentTable";
+import { DepartmentTableHeader } from "@/features/superAdmin/data/department/departmentTableHeader";
 
 const Department = () => {
   const [search, setSearch] = useState("");
@@ -27,7 +25,7 @@ const Department = () => {
       {/* Card */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <BranchAdminCard
+        <SuperAdminCard
           title="Total Department"
 
           value={departmentData.total_department}
@@ -36,10 +34,10 @@ const Department = () => {
 
       {/* Search + Create */}
 
-      <BranchAdminSearchbar
+      <SuperAdminTableHeader
         onSearch={setSearch}
         placeholder="Search department..."
-        // createButton={<CreateDepartment />}
+        createButton={<CreateDepartment />}
       />
 
       {/* Table */}
@@ -47,7 +45,7 @@ const Department = () => {
       <DepartmentTable
         data={filteredData}
 
-        headers={departmentTableHeader}
+        headers={DepartmentTableHeader}
       />
     </div>
   );

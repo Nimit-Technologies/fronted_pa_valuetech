@@ -11,15 +11,15 @@ import useVerifySession from "@/features/auth/hooks/useVerifySession";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Loader2 } from "lucide-react";
 
-
-
 import SuperAdmin from "@/pages/superAdmin";
 import SuperAdminHome from "@/features/superAdmin/pages/home";
 import Branch from "@/features/superAdmin/pages/branch";
-import BranchAdmin from "@/features/superAdmin/pages/branchAdmin";
-import CreateBranchAdmin from "@/features/superAdmin/components/branchAdmin/createBranchAdmin";
-import UpdateBranchAdmin from "@/features/superAdmin/components/branchAdmin/updateBranchAdmin";
-import ViewBranchAdmin from "@/features/superAdmin/components/branchAdmin/viewBranchAdmin";
+import User from "@/features/superAdmin/pages/user";
+import Department from "@/features/superAdmin/pages/department";
+import Role from "@/features/superAdmin/pages/role";
+import CreateUser from "@/features/superAdmin/components/user/createUser";
+import UpdateUser from "@/features/superAdmin/components/user/updateUser";
+import ViewUser from "@/features/superAdmin/components/user/viewUser";
 
 import IndividualCoordinator from "@/pages/individualCoordinator";
 import IndividualCoordinatorHome from "@/features/individualCoordinator/pages/home";
@@ -39,13 +39,13 @@ import BranchAdminHome from "@/features/branchAdmin/pages/branchAdminHome";
 import Bank from "@/features/branchAdmin/pages/bank";
 import Business from "@/features/branchAdmin/pages/business";
 import Case from "@/features/branchAdmin/pages/case";
-import Department from "@/features/branchAdmin/pages/department";
+import BranchAdminDepartment from "@/features/branchAdmin/pages/department";
 import Engineer from "@/features/branchAdmin/pages/engineer";
-import Role from "@/features/branchAdmin/pages/role";
-import User from "@/features/branchAdmin/pages/user";
-import CreateUser from "@/features/branchAdmin/pages/user/createUser";
-import UpdateUser from "@/features/branchAdmin/pages/user/updateUser";
-import ViewUser from "@/features/branchAdmin/pages/user/viewUser";
+import BranchAdminRole from "@/features/branchAdmin/pages/role";
+import BranchAdminUser from "@/features/branchAdmin/pages/user";
+// import CreateUser from "@/features/branchAdmin/pages/user/createUser";
+// import UpdateUser from "@/features/branchAdmin/pages/user/updateUser";
+import BranchAdminViewUser from "@/features/branchAdmin/pages/user/viewUser";
 import CreateBank from "./features/branchAdmin/component/bank/createBank";
 import UpdateBank from "@/features/branchAdmin/component/bank/updateBank";
 import ViewBank from "@/features/branchAdmin/component/bank/viewBank";
@@ -88,20 +88,19 @@ const App = () => {
           <Route
             path="/super-admin"
             element={
-              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-                <SuperAdmin />
-              </ProtectedRoute>
+              // <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+              <SuperAdmin />
+              // </ProtectedRoute>
             }
           >
             <Route index element={<SuperAdminHome />} />
             <Route path="branch" element={<Branch />} />
-            <Route path="branch-admin" element={<BranchAdmin />} />
-            <Route path="branch-admin/view/:id" element={<ViewBranchAdmin />} />
-            <Route path="branch-admin/create" element={<CreateBranchAdmin />} />
-            <Route
-              path="branch-admin/update/:id"
-              element={<UpdateBranchAdmin />}
-            />
+            <Route path="user" element={<User />} />
+            <Route path="department" element={<Department />} />
+            <Route path="role" element={<Role />} />
+            <Route path="user/view/:id" element={<ViewUser />} />
+            <Route path="user/create" element={<CreateUser />} />
+            <Route path="user/update/:id" element={<UpdateUser />} />
             <Route path="user-profile" element={<UserProfile />} />
           </Route>
 
@@ -109,9 +108,9 @@ const App = () => {
           <Route
             path="/coordinator"
             element={
-              <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
-                <IndividualCoordinator />
-              </ProtectedRoute>
+              // <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
+              <IndividualCoordinator />
+              // </ProtectedRoute>
             }
           >
             <Route index element={<IndividualCoordinatorHome />} />
@@ -141,9 +140,9 @@ const App = () => {
           <Route
             path="/branch-admin"
             element={
-              <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
-                <BranchAdminPage />
-              </ProtectedRoute>
+              // <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
+              <BranchAdminPage />
+              // </ProtectedRoute>
             }
           >
             <Route index element={<BranchAdminHome />} />
@@ -157,16 +156,16 @@ const App = () => {
 
             <Route path="case" element={<Case />} />
 
-            <Route path="department" element={<Department />} />
+            <Route path="department" element={<BranchAdminDepartment />} />
 
             <Route path="engineer" element={<Engineer />} />
 
-            <Route path="role" element={<Role />} />
+            <Route path="role" element={<BranchAdminRole />} />
 
-            <Route path="user" element={<User />} />
-            <Route path="user/create" element={<CreateUser />} />
-            <Route path="user/update/:id" element={<UpdateUser />} />
-            <Route path="user/view/:id" element={<ViewUser />} />
+            <Route path="user" element={<BranchAdminUser />} />
+            {/* <Route path="user/create" element={<CreateUser />} /> */}
+            {/* <Route path="user/update/:id" element={<UpdateUser />} /> */}
+            <Route path="user/view/:id" element={<BranchAdminViewUser />} />
           </Route>
         </Routes>
       </div>

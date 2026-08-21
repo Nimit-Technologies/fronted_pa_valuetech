@@ -2,7 +2,9 @@ import React from "react";
 import GreetingHeader from "@/components/shared/greetingHeader";
 import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
 import { branchData } from "@/features/superAdmin/data/branch/branchTable.js";
-import { branchAdminData } from "@/features/superAdmin/data/branch_admin/branchAdminTable.js";
+import { userData } from "@/features/superAdmin/data/user/userTable.js";
+import { roleData } from "@/features/superAdmin/data/role/roleTable.js";
+import { departmentData } from "@/features/superAdmin/data/department/departmentTable.js";
 
 const SuperAdminHome = () => {
   return (
@@ -18,10 +20,12 @@ const SuperAdminHome = () => {
           title="Active Branches"
           value={branchData.active_branch}
         />
+        <SuperAdminCard title="Total Users" value={userData.total_user} />
         <SuperAdminCard
-          title="Total Users"
-          value={branchAdminData.total_user}
+          title="Total Departments"
+          value={departmentData.total_department}
         />
+        <SuperAdminCard title="Total Roles" value={roleData.total_role} />
       </div>
     </div>
   );

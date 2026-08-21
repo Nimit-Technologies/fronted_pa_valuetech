@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
-import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
+import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
+import BranchAdminTableHeader from "@/features/branchAdmin/component/branchAdminTableHeader";
 
 import BankTable from "@/features/branchAdmin/component/bank/bankTable";
 
@@ -32,12 +32,13 @@ const Bank = () => {
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
       {/* Dashboard Card */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <SuperAdminCard title="Total Banks" value={bankData.total_bank} />
+        <BranchAdminCard title="Total Banks" value={bankData.total_bank} />
       </div>
 
       {/* Search + Create */}
-      <SuperAdminTableHeader
+      <BranchAdminTableHeader
         onSearch={setSearch}
+        placeholder={"Search Bank..."}
         createButton={
           <Button
             className="gap-2"

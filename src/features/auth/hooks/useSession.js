@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
  * evolve without touching every call site.
  */
 
-
 export const useSession = () => {
   const { user, isAuthenticated, loading, error } = useSelector(
     (state) => state.auth,

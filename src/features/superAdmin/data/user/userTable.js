@@ -136,7 +136,7 @@ const data = [
   },
 ];
 
-export const branchAdminData = {
+export const userData = {
   data,
   total_user: data.length,
   active_user: data.filter((u) => u.is_active).length,

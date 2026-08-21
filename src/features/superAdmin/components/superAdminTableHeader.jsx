@@ -1,9 +1,9 @@
 import React from "react";
 import SuperAdminSearchbar from "@/features/superAdmin/components/superAdminSearchbar";
-const SuperAdminTableHeader = ({ onSearch, createButton }) => {
+const SuperAdminTableHeader = ({ onSearch, createButton, placeholder }) => {
   return (
     <div className="flex flex-col sm:flex-row bg-card border border-border shadow-sm rounded-md w-full px-4 py-4 gap-3 sm:items-center sm:justify-between">
-      <SuperAdminSearchbar onSearch={onSearch} />
+      <SuperAdminSearchbar onSearch={onSearch} placeholder={placeholder} />
       {createButton}
     </div>
   );
