@@ -6,10 +6,14 @@ import {
   PURGE,
   REGISTER,
   REHYDRATE,
+  createTransform,
   persistReducer,
   persistStore,
 } from "redux-persist";
 import authReducer from "@/features/auth/slice/authSlice";
+// Add future slices here as they're built, e.g.:
+// import productReducer from "@/features/product/slice/productSlice";
+// import roleReducer from "@/features/role/slice/roleSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps
 // its default export, leaving storage.getItem undefined at runtime. A plain
@@ -21,22 +25,45 @@ const storage = {
   removeItem: (key) => Promise.resolve(window.localStorage.removeItem(key)),
 };
 
-// Persist only identity (user/isAuthenticated), not the transient
-// loading/error fields — otherwise a refresh mid-request (or right after a
-// failed attempt) can rehydrate loading: true and permanently stick the
-// login button in its disabled "Logging in..." state.
-const authPersistConfig = {
-  key: "auth",
-  storage,
-  blacklist: ["loading", "error"],
+// Strips each whitelisted slice's transient fields before they hit
+// localStorage, so a refresh mid-request (or right after a failed attempt)
+// never rehydrates e.g. `loading: true` and sticks a button in a disabled
+// "Logging in..." state forever. Add an entry per slice as new persisted
+// slices grow their own loading/error/transient fields.
+const TRANSIENT_FIELDS_BY_SLICE = {
+  auth: ["loading", "error"],
 };
 
-const rootReducer = combineReducers({
-  auth: persistReducer(authPersistConfig, authReducer),
+const stripTransientFields = createTransform((inboundState, key) => {
+  const transientFields = TRANSIENT_FIELDS_BY_SLICE[key];
+  if (!transientFields) return inboundState;
+
+  return Object.fromEntries(
+    Object.entries(inboundState).filter(
+      ([field]) => !transientFields.includes(field),
+    ),
+  );
 });
 
+const rootReducer = combineReducers({
+  auth: authReducer,
+  // product: productReducer,
+  // role: roleReducer,
+});
+
+
+const persistConfig = {
+  key: "root",
+  version: 1,
+  storage,
+  whitelist: ["auth"],
+  transforms: [stripTransientFields],
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 const store = configureStore({
-  reducer: rootReducer,
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

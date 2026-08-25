@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import axios from "axios";
 import {
   session as sessionRequest,
   normalizeUser,
@@ -42,12 +43,19 @@ export const useVerifySession = () => {
         const response = await sessionRequest();
         if (cancelled) return;
         dispatch(loginSuccess({ user: normalizeUser(response.data) }));
-      } catch {
-        // Any failure (401 in practice) means the cookie is no longer
-        // valid. The shared axios interceptor already handles redirecting
-        // away from protected routes on 401 — this just makes sure Redux's
-        // copy of "am I logged in" agrees with reality.
-        if (!cancelled) dispatch(logoutAction());
+      } catch (err) {
+        if (cancelled) return;
+
+        // Only a definitive "this cookie is not valid" answer (401/403)
+        // should clear the persisted session. A network error, timeout, or
+        // 5xx just means we couldn't confirm — the cookie may well still be
+        // good, so leave Redux/localStorage alone and let the user carry on
+        // with their persisted identity until a real API call proves
+        // otherwise (handled by the shared axios 401 interceptor).
+        const status = axios.isAxiosError(err) ? err.response?.status : null;
+        if (status === 401 || status === 403) {
+          dispatch(logoutAction());
+        }
       } finally {
         if (!cancelled) setChecking(false);
       }
