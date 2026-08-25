@@ -1,5 +1,5 @@
 import React from "react";
-// import { Eye, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import {
   Table,
@@ -10,10 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
-// import UpdateDepartment from "./updateDepartment";
-import Pagination from "@/features/branchAdmin/component/pagination";
+import UpdateDepartment from "./updateDepartment";
+import Pagination from "@/features/superAdmin/components/pagination";
 
 const DepartmentTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];
@@ -77,8 +77,8 @@ const DepartmentTable = ({ data, headers = [] }) => {
                 <TableCell>
                   <div className="flex items-center gap-1.5">
                     {/* View */}
-                    {/* 
-                    <Button
+
+                    {/* <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -88,23 +88,23 @@ const DepartmentTable = ({ data, headers = [] }) => {
 
                     {/* Update */}
 
-                    {/* <UpdateDepartment
+                    <UpdateDepartment
                       departmentId={department.id}
 
                       defaultDepartmentName={department.name}
 
                       defaultStatus={department.is_active}
-                    /> */}
+                    />
 
                     {/* Delete */}
 
-                    {/* <Button
+                    <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 size={16} />
-                    </Button> */}
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

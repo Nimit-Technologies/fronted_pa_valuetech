@@ -1,5 +1,5 @@
 import React from "react";
-// import { Eye, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 import {
   Table,
@@ -10,10 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
-// import UpdateRole from "./updateRole";
-import Pagination from "@/features/branchAdmin/component/pagination";
+import UpdateRole from "./updateRole";
+import Pagination from "@/features/superAdmin/components/pagination";
 
 const RoleTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];
@@ -74,29 +74,31 @@ const RoleTable = ({ data, headers = [] }) => {
 
                   {/* Action */}
                   <TableCell>
-                    {/* <div className="flex items-center gap-1.5"> */}
-                    {/* <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <div className="flex items-center gap-1.5">
+                      {/* <Button variant="ghost" size="icon" className="h-8 w-8">
                         <Eye size={16} />
                       </Button> */}
 
-                    {/* <UpdateRole
+                      <UpdateRole
                         roleId={role.id}
 
                         defaultRoleName={role.name}
 
                         defaultDepartment={role.department?.id}
 
-                        defaultStatus={role.is_active}
-                      /> */}
+                        defaultDepartmentName={role.department?.name}
 
-                    {/* <Button
+                        defaultStatus={role.is_active}
+                      />
+
+                      <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 hover:text-destructive"
                       >
                         <Trash2 size={16} />
-                      </Button> */}
-                    {/* </div> */}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

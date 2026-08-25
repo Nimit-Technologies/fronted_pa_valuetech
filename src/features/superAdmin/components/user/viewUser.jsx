@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { branchAdminData } from "@/features/superAdmin/data/branch_admin/branchAdminTable";
+import { userData } from "@/features/superAdmin/data/user/userTable";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">
@@ -20,15 +20,15 @@ const SectionTitle = ({ children }) => (
   </h2>
 );
 
-const ViewBranchAdmin = () => {
+const ViewUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const admin = branchAdminData.data.find((a) => a.id === id);
+  const admin = userData.data.find((u) => u.id === id);
 
   if (!admin) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-muted-foreground text-sm">Branch admin not found.</p>
+        <p className="text-muted-foreground text-sm">User not found.</p>
         <Button variant="outline" onClick={() => navigate(-1)}>
           Go Back
         </Button>
@@ -48,7 +48,7 @@ const ViewBranchAdmin = () => {
           <ArrowLeft size={16} />
         </Button>
         <h1 className="text-lg font-semibold text-foreground capitalize">
-          View Branch Admin
+          View User
         </h1>
       </div>
 
@@ -105,4 +105,4 @@ const ViewBranchAdmin = () => {
   );
 };
 
-export default ViewBranchAdmin;
+export default ViewUser;

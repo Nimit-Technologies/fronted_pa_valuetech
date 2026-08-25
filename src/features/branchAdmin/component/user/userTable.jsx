@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, Trash2, Pencil } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -110,7 +110,7 @@ const UserTable = ({ data, headers = [] }) => {
                       </Button>
 
                       {/* Update */}
-                      <Button
+                      {/* <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -119,16 +119,16 @@ const UserTable = ({ data, headers = [] }) => {
                         }
                       >
                         <Pencil size={16} />
-                      </Button>
+                      </Button> */}
 
                       {/* Delete */}
-                      <Button
+                      {/* <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       >
                         <Trash2 size={16} />
-                      </Button>
+                      </Button> */}
                     </div>
                   </TableCell>
                 </TableRow>

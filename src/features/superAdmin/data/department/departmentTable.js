@@ -19,10 +19,3 @@ export const departmentData = {
 
   total_department: 3,
 };
-
-export const departmentTableHeader = [
-  "S.No",
-  "Department Name",
-  "Status",
-  // "Action",
-];

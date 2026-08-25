@@ -19,28 +19,27 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const bankData = [
-  { id: 1, name: "HDFC", code: "HDFC" },
-  { id: 2, name: "ICICI", code: "ICIC" },
-  { id: 3, name: "SBI", code: "SBI" },
-  { id: 4, name: "PNB", code: "PNB" },
-  { id: 5, name: "Axis Bank", code: "AXIS" },
-  { id: 6, name: "Bank of Baroda", code: "BOB" },
-  { id: 7, name: "Kotak Mahindra Bank", code: "KOTAK" },
-  { id: 8, name: "Canara Bank", code: "CNRB" },
-  { id: 9, name: "Union Bank of India", code: "UBIN" },
-  { id: 10, name: "IndusInd Bank", code: "INDB" },
+const departmentData = [
+  { id: 1, name: "Management", code: "Man" },
+  { id: 2, name: "Engineer", code: "Eng" },
+  { id: 3, name: "Back Office", code: "BOF" },
+  //   { id: 4, name: "PNB", code: "PNB" },
+  //   { id: 5, name: "Axis Bank", code: "AXIS" },
+  //   { id: 6, name: "Bank of Baroda", code: "BOB" },
+  //   { id: 7, name: "Kotak Mahindra Bank", code: "KOTAK" },
+  //   { id: 8, name: "Canara Bank", code: "CNRB" },
+  //   { id: 9, name: "Union Bank of India", code: "UBIN" },
+  //   { id: 10, name: "IndusInd Bank", code: "INDB" },
 ];
 
 const ITEMS_PER_PAGE = 5;
 
-const BankDropDown = ({ value, onSelect, disabled = false }) => {
+const DepartmentDropDown = ({ value, onSelect, disabled = false }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
-
   // Filter banks based on search
-  const filteredBanks = bankData.filter(
+  const filteredBanks = departmentData.filter(
     (bank) =>
       bank.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bank.code.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -79,14 +78,14 @@ const BankDropDown = ({ value, onSelect, disabled = false }) => {
           disabled={disabled}
           className="h-11 w-full justify-start font-normal"
         >
-          {value || "Select Bank"}
+          {value || "Select Department"}
         </Button> */}
         <Button
           type="button"
           variant="outline"
           className="flex h-11 w-full items-center justify-between px-3 font-normal"
         >
-          <span>{value || "Select Bank"}</span>
+          <span>{value || "Select Department"}</span>
           {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </Button>
       </DropdownMenuTrigger>
@@ -98,7 +97,7 @@ const BankDropDown = ({ value, onSelect, disabled = false }) => {
         <div className="relative px-2 pt-2">
           <Search className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search banks..."
+            placeholder="Search department..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -170,4 +169,4 @@ const BankDropDown = ({ value, onSelect, disabled = false }) => {
   );
 };
 
-export default BankDropDown;
+export default DepartmentDropDown;

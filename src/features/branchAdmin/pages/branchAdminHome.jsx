@@ -15,7 +15,7 @@ const BranchAdminHome = () => {
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto">
       {/* Top Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <SuperAdminCard title="Total Cases" value={dashboardData.totalCases} />
+        <SuperAdminCard title="Total Roles" value={dashboardData.totalCases} />
 
         <SuperAdminCard title="Total Visits" value={dashboardData.totalVisit} />
       </div>

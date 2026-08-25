@@ -1,6 +1,7 @@
 import React from "react";
+import { Eye, Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -9,12 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Button } from "@/components/ui/button";
 import Pagination from "@/features/superAdmin/components/pagination";
 
-const BranchAdminTable = ({ data, headers = [] }) => {
-  const navigate = useNavigate();
+const UserTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -32,78 +34,100 @@ const BranchAdminTable = ({ data, headers = [] }) => {
               ))}
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={headers.length || 7}
+                  colSpan={headers.length}
                   className="text-center text-muted-foreground py-12 text-sm"
                 >
-                  No branch admins found.
+                  No Users Found.
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((admin, index) => (
+              rows.map((user, index) => (
                 <TableRow
-                  key={admin.id}
+                  key={user.id}
                   className="hover:bg-muted/30 transition-colors"
                 >
+                  {/* S.No */}
                   <TableCell className="text-foreground font-medium">
                     {index + 1}
                   </TableCell>
-                  <TableCell className="text-foreground uppercase">
-                    {admin.employee_id}
+
+                  {/* Employee ID */}
+                  <TableCell className="capitalize">
+                    {user.employee_id}
                   </TableCell>
-                  <TableCell className="capitalize text-foreground whitespace-nowrap">
-                    {admin.first_name} {admin.last_name}
+
+                  {/* Name */}
+                  <TableCell className="capitalize">
+                    {`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim()}
                   </TableCell>
-                  <TableCell className="text-foreground">
-                    {admin.phone}
-                  </TableCell>
-                  <TableCell className="capitalize text-foreground">
-                    {admin.branch?.name}
-                  </TableCell>
+
+                  {/* Phone */}
+                  <TableCell>{user.phone}</TableCell>
+
+                  {/* Aadhar Number */}
+                  <TableCell>{user.adhar_number}</TableCell>
+
+                  {/* Branch */}
+                  <TableCell>{user.branch?.name}</TableCell>
+
+                  {/* Department */}
+                  <TableCell>{user.department?.name}</TableCell>
+
+                  {/* Role */}
+                  <TableCell>{user.role?.name}</TableCell>
+
+                  {/* Status */}
                   <TableCell>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        admin.is_active
+                        user.is_active
                           ? "bg-green-100 text-green-800"
-                          : "bg-red-500 text-white"
+                          : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {admin.is_active ? "Active" : "Inactive"}
+                      {user.is_active ? "Active" : "Inactive"}
                     </span>
                   </TableCell>
+
+                  {/* Action */}
                   <TableCell>
-                    <div className="flex gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      {/* View */}
                       <Button
                         variant="ghost"
-                        size="icon-sm"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
                         onClick={() =>
-                          navigate(`/super-admin/branch-admin/view/${admin.id}`)
+                          navigate(`/super-admin/user/view/${user.id}`)
                         }
                       >
-                        <Eye size={14} />
+                        <Eye size={16} />
                       </Button>
+
+                      {/* Update */}
                       <Button
                         variant="ghost"
-                        size="icon-sm"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
                         onClick={() =>
-                          navigate(
-                            `/super-admin/branch-admin/update/${admin.id}`,
-                          )
+                          navigate(`/super-admin/user/update/${user.id}`)
                         }
                       >
-                        <Pencil size={14} />
+                        <Pencil size={16} />
                       </Button>
+
+                      {/* Delete */}
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                       </Button>
                     </div>
                   </TableCell>
@@ -112,10 +136,11 @@ const BranchAdminTable = ({ data, headers = [] }) => {
             )}
           </TableBody>
         </Table>
+
+        <Pagination />
       </div>
-      <Pagination />
     </div>
   );
 };
 
-export default BranchAdminTable;
+export default UserTable;

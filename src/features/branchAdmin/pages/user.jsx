@@ -1,19 +1,19 @@
 // ...existing code...
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 import UserTable from "@/features/branchAdmin/component/user/userTable";
 import { userTableHeader } from "@/features/branchAdmin/data/user/userTableHeader";
 import { userTableData } from "@/features/branchAdmin/data/user/userTable";
 
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { Plus } from "lucide-react";
 import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
 import BranchAdminTableHeader from "@/features/branchAdmin/component/branchAdminTableHeader";
 
 const User = () => {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const filteredData = {
     ...userTableData,
@@ -44,15 +44,16 @@ const User = () => {
 
       <BranchAdminTableHeader
         onSearch={setSearch}
-        createButton={
-          <Button
-            className="gap-2"
-            onClick={() => navigate("/branch-admin/user/create")}
-          >
-            <Plus size={16} />
-            Create User
-          </Button>
-        }
+        placeholder={"Search User..."}
+        // createButton={
+        //   <Button
+        //     className="gap-2"
+        //     onClick={() => navigate("/branch-admin/user/create")}
+        //   >
+        //     <Plus size={16} />
+        //     Create User
+        //   </Button>
+        // }
       />
 
       <UserTable data={filteredData} headers={userTableHeader} />
