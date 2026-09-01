@@ -23,50 +23,66 @@ import {
 
 import { Pencil } from "lucide-react";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
-// import { roleData } from "@/features/superAdmin/data/role/roleTable";
-
-// const departmentDRP = {
-//   departmentName: ""
-// }
+import useUpdateRole from "../../hooks/role/useUpdateRole";
+import useAllRole from "../../hooks/role/useAllRole";
 
 const UpdateRole = ({
-  // roleId,
+  roleId,
   defaultRoleName = "Frontend Engineer",
-  // defaultDepartment = "2",
   defaultDepartmentName = "",
-  // Active status
+  defaultDepartment = "",
   defaultStatus = true,
 }) => {
-  const [roleName, setRoleName] = useState(defaultRoleName);
+  const { Update } = useUpdateRole();
+  const { allRole } = useAllRole();
 
+  const [roleName, setRoleName] = useState(defaultRoleName);
   const [department, setDepartment] = useState({
     departmentName: defaultDepartmentName,
+    departmentId: defaultDepartment,
   });
-
   const [status, setStatus] = useState(defaultStatus ? "active" : "inactive");
-
   const [open, setOpen] = useState(false);
 
   const handleDepartmentSelect = (depart) => {
-    setDepartment((prev) => ({ ...prev, departmentName: depart }));
+    setDepartment((prev) => ({
+      ...prev,
+      departmentName: depart?.name || "",
+      departmentId: depart?.id || "",
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // const selectedDepartment = roleData.data.find(
-    //   (dept) => dept.department?.id === defaultDepartment
-    // );
+    if (!roleName.trim() || !department.departmentId) return;
+
+    const payload = {
+      data: {
+        id: roleId,
+        name: roleName.trim(),
+        department_id: department.departmentId,
+        is_active: status === "active",
+      },
+    };
+
+    try {
+      await Update(payload);
+      await allRole();
+    } catch (err) {
+      console.error("Failed to update role:", err);
+    }
+
     setOpen(false);
   };
 
   const handleCancel = () => {
     setRoleName(defaultRoleName);
-
-    setDepartment({ departmentName: defaultDepartmentName });
-
+    setDepartment({
+      departmentName: defaultDepartmentName,
+      departmentId: defaultDepartment,
+    });
     setStatus(defaultStatus ? "active" : "inactive");
-
     setOpen(false);
   };
 
@@ -75,48 +91,30 @@ const UpdateRole = ({
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-
           size="icon"
-
           className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Pencil size={14} />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent
-        align="end"
-
-        className="w-[360px] p-5"
-      >
+      <PopoverContent align="end" className="w-[360px] p-5">
         <PopoverHeader className="px-0 pt-0">
           <PopoverTitle>Update Role</PopoverTitle>
-
           <PopoverDescription>Update role details below.</PopoverDescription>
         </PopoverHeader>
 
-        <form
-          onSubmit={handleSubmit}
-
-          className="mt-5 space-y-5"
-        >
-          {/* Role Name */}
-
+        <form onSubmit={handleSubmit} className="mt-5 space-y-5">
           <div className="flex flex-col gap-2 w-full">
             <Label>Role Name</Label>
 
             <Input
               value={roleName}
-
               onChange={(e) => setRoleName(e.target.value)}
-
               placeholder="Enter Role Name"
-
               className="w-full"
             />
           </div>
-
-          {/* Department */}
 
           <div className="flex flex-col gap-2 w-full">
             <Label>Department</Label>
@@ -124,65 +122,25 @@ const UpdateRole = ({
               value={department.departmentName}
               onSelect={handleDepartmentSelect}
             ></DepartmentDropDown>
-            {/* <Select
-              value={department}
-
-              onValueChange={setDepartment}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                {roleData.data
-
-                  .filter((dept) => dept.is_active)
-
-                  .map((dept) => (
-                    <SelectItem
-                      key={dept.id}
-
-                      value={dept.id.toString()}
-                    >
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select> */}
           </div>
-
-          {/* Status */}
 
           <div className="flex flex-col gap-2 w-full">
             <Label>Status</Label>
 
-            <Select
-              value={status}
-
-              onValueChange={setStatus}
-            >
+            <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
 
               <SelectContent>
                 <SelectItem value="active">Active</SelectItem>
-
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Buttons */}
-
           <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-
-              variant="outline"
-
-              onClick={handleCancel}
-            >
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
 

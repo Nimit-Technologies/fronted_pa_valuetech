@@ -23,3 +23,10 @@ if (!CREDENTIALS.API_VERSION) {
 // through the shared axios instance (src/utils/axiosInstance.js) as a
 // relative path (e.g. "/auth/login") against this baseURL.
 export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}/${CREDENTIALS.API_VERSION}`;
+
+// export apiEndPoints = {
+//   baseBackendUrl,
+//   auth:{
+//     login:baseBackendUrl/
+//   }
+// }

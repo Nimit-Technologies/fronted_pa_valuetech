@@ -10,6 +10,10 @@ import {
   persistStore,
 } from "redux-persist";
 import authReducer from "@/features/auth/slice/authSlice";
+import departmentReducer from "@/features/superAdmin/slice/department/departmentSlice";
+import branchReducer from "@/features/superAdmin/slice/branch/branchSlice";
+import roleReducer from "@/features/superAdmin/slice/role/roleSlice";
+import userReducer from "@/features/superAdmin/slice/user/userSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps
 // its default export, leaving storage.getItem undefined at runtime. A plain
@@ -33,6 +37,10 @@ const authPersistConfig = {
 
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
+  department: departmentReducer,
+  branch: branchReducer,
+  role: roleReducer,
+  user: userReducer,
 });
 
 const store = configureStore({

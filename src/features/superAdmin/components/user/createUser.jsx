@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import RoleDropDown from "@/components/shared/dropdown/roleDropDown";
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
-
+import useCreateUser from "@/features/superAdmin/hooks/user/useCreateUser";
+import useAllUser from "@/features/superAdmin/hooks/user/useAllUser";
 import {
   Select,
   SelectContent,
@@ -40,11 +41,12 @@ const IN_Form = {
   phone: "",
   aadharNumber: "",
 
-  branch: "",
-  department: "",
-  role: "",
+  branch: { name: "", id: "" },
+  department: { name: "", id: "" },
+  role: { name: "", id: "" },
   status: "",
-
+  password: "",
+  confirm_password: "",
   city: "",
   district: "",
   state: "",
@@ -55,6 +57,9 @@ const IN_Form = {
 };
 
 const CreateUser = () => {
+  const { create } = useCreateUser();
+  const { allUser } = useAllUser();
+
   const navigate = useNavigate();
   // const [branch, setBranch] = useState(IN_Form);
   // const [role, setRole] = useState(IN_Form);
@@ -62,14 +67,34 @@ const CreateUser = () => {
 
   const [form, setForm] = useState(IN_Form);
 
-  const handleBranchSelect = (branchname) => {
-    setForm((prev) => ({ ...prev, branch: branchname }));
+  const handleBranchSelect = (selectedBranch) => {
+    setForm((prev) => ({
+      ...prev,
+      branch: {
+        name: selectedBranch?.name ?? "",
+        id: selectedBranch?.id ?? "",
+      },
+    }));
   };
-  const handleRoleSelect = (rolename) => {
-    setForm((prev) => ({ ...prev, role: rolename }));
+
+  const handleRoleSelect = (selectedRole) => {
+    setForm((prev) => ({
+      ...prev,
+      role: {
+        name: selectedRole?.name ?? "",
+        id: selectedRole?.id ?? "",
+      },
+    }));
   };
-  const handleDepartmentSelect = (departname) => {
-    setForm((prev) => ({ ...prev, department: departname }));
+
+  const handleDepartmentSelect = (selectedDepartment) => {
+    setForm((prev) => ({
+      ...prev,
+      department: {
+        name: selectedDepartment?.name ?? "",
+        id: selectedDepartment?.id ?? "",
+      },
+    }));
   };
 
   const handleChange = (e) => {
@@ -86,10 +111,34 @@ const CreateUser = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(form);
+    const payload = {
+      employee_id: form.employeeId,
+      first_name: form.firstName,
+      last_name: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      password: form.password,
+      confirm_password: form.confirm_password,
+      aadhaar_number: form.aadharNumber,
+      branch_id: form.branch?.id ?? form.branchId ?? "",
+      department_id: form.department?.id ?? form.departmentId ?? "",
+      role_id: form.role?.id ?? form.roleId ?? "",
+      address: {
+        city: form.city,
+        district: form.district,
+        state: form.state,
+        pin_code: form.pincode,
+        country: form.country,
+        lane: form.lane,
+        landmark: form.landmark,
+      },
+    };
+
+    await create(payload);
+    await allUser();
   };
 
   return (
@@ -304,6 +353,29 @@ const CreateUser = () => {
                     <SelectItem value="Inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <RequiredLabel>Password</RequiredLabel>
+                <Input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                  className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+              <div>
+                <RequiredLabel>Confirm Password</RequiredLabel>
+                <Input
+                  type="password"
+                  name="confirm_password"
+                  value={form.confirm_password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                  className="h-11 w-full bg-background border-border text-foreground "
+                />
               </div>
             </div>
           </div>

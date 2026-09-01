@@ -11,16 +11,32 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Pencil } from "lucide-react";
+import useUpdateBranch from "../../hooks/branch/useUpdateBranch";
+import useAllBranch from "../../hooks/branch/useAllBranch";
 
 const UpdateBranch = ({ defaultName = "", branchId }) => {
+  const { Update } = useUpdateBranch();
+  const { allBranch } = useAllBranch();
   const [branchName, setBranchName] = useState(defaultName);
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    const payload = {
+      data: {
+        id: branchId,
+        name: branchName.trim(),
+      },
+    };
     e.preventDefault();
     if (!branchName.trim()) return;
     // TODO: wire up with API
     console.log("Updating branch:", branchId, branchName.trim());
+    try {
+      await Update(payload);
+      await allBranch();
+    } catch (err) {
+      console.error("Failed to update branch:", err);
+    }
     setOpen(false);
   };
 

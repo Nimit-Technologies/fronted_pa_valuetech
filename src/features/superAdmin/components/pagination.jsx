@@ -1,7 +1,14 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 
-const Pagination = ({ currentPage = 1, totalPages = 5, onPrev, onNext }) => {
+const Pagination = ({
+  currentPage = 1,
+  totalPages = 1,
+  onPrev,
+  onNext,
+  hasPreviousPage = false,
+  hasNextPage = false,
+}) => {
   return (
     <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 shadow rounded-md mt-4">
       <p className="text-sm font-medium text-muted-foreground">
@@ -13,7 +20,7 @@ const Pagination = ({ currentPage = 1, totalPages = 5, onPrev, onNext }) => {
           size="sm"
           className="flex-1 sm:flex-none px-6"
           onClick={onPrev}
-          disabled={currentPage <= 1}
+          disabled={!hasPreviousPage}
         >
           Previous
         </Button>
@@ -22,7 +29,7 @@ const Pagination = ({ currentPage = 1, totalPages = 5, onPrev, onNext }) => {
           size="sm"
           className="flex-1 sm:flex-none px-10"
           onClick={onNext}
-          disabled={currentPage >= totalPages}
+          disabled={!hasNextPage}
         >
           Next
         </Button>

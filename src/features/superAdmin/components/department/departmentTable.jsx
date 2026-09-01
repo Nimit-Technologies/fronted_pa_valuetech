@@ -9,14 +9,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+// import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 import UpdateDepartment from "./updateDepartment";
 import Pagination from "@/features/superAdmin/components/pagination";
 
-const DepartmentTable = ({ data, headers = [] }) => {
-  const rows = data?.data ?? [];
+const DepartmentTable = ({
+  data,
+  headers = [],
+  hasNextPage = false,
+  hasPreviousPage = false,
+  onNext,
+  onPrev,
+}) => {
+  const rows = data;
 
   return (
     <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
@@ -50,53 +57,29 @@ const DepartmentTable = ({ data, headers = [] }) => {
                 key={department.id}
                 className="hover:bg-muted/30 transition-colors"
               >
-                {/* S.No */}
-
                 <TableCell className="font-medium">{index + 1}</TableCell>
 
-                {/* Department Name */}
-
                 <TableCell className="capitalize">{department.name}</TableCell>
-
-                {/* Status */}
 
                 <TableCell>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      department.is_active
+                      department.isActive
                         ? "bg-green-100 text-green-800"
                         : "bg-red-500 text-white"
                     }`}
                   >
-                    {department.is_active ? "Active" : "Inactive"}
+                    {department.isActive ? "Active" : "Inactive"}
                   </span>
                 </TableCell>
 
-                {/* Action */}
-
                 <TableCell>
                   <div className="flex items-center gap-1.5">
-                    {/* View */}
-
-                    {/* <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                      <Eye size={16} />
-                    </Button> */}
-
-                    {/* Update */}
-
                     <UpdateDepartment
                       departmentId={department.id}
-
                       defaultDepartmentName={department.name}
-
                       defaultStatus={department.is_active}
                     />
-
-                    {/* Delete */}
 
                     <Button
                       variant="ghost"
@@ -113,7 +96,14 @@ const DepartmentTable = ({ data, headers = [] }) => {
         </TableBody>
       </Table>
 
-      <Pagination />
+      <Pagination
+        currentPage={1}
+        totalPages={1}
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        onPrev={onPrev}
+        onNext={onNext}
+      />
     </div>
   );
 };

@@ -14,8 +14,15 @@ import {
 import { Button } from "@/components/ui/button";
 import Pagination from "@/features/superAdmin/components/pagination";
 
-const UserTable = ({ data, headers = [] }) => {
-  const rows = data?.data ?? [];
+const UserTable = ({
+  data = [],
+  headers = [],
+  hasNextPage = false,
+  hasPreviousPage = false,
+  onNext,
+  onPrev,
+}) => {
+  const rows = data ?? [];
   const navigate = useNavigate();
 
   return (
@@ -51,37 +58,20 @@ const UserTable = ({ data, headers = [] }) => {
                   key={user.id}
                   className="hover:bg-muted/30 transition-colors"
                 >
-                  {/* S.No */}
                   <TableCell className="text-foreground font-medium">
                     {index + 1}
                   </TableCell>
-
-                  {/* Employee ID */}
                   <TableCell className="capitalize">
                     {user.employee_id}
                   </TableCell>
-
-                  {/* Name */}
                   <TableCell className="capitalize">
                     {`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim()}
                   </TableCell>
-
-                  {/* Phone */}
                   <TableCell>{user.phone}</TableCell>
-
-                  {/* Aadhar Number */}
                   <TableCell>{user.adhar_number}</TableCell>
-
-                  {/* Branch */}
-                  <TableCell>{user.branch?.name}</TableCell>
-
-                  {/* Department */}
-                  <TableCell>{user.department?.name}</TableCell>
-
-                  {/* Role */}
-                  <TableCell>{user.role?.name}</TableCell>
-
-                  {/* Status */}
+                  <TableCell>{user.branch?.name || "—"}</TableCell>
+                  <TableCell>{user.department?.name || "—"}</TableCell>
+                  <TableCell>{user.role?.name || "—"}</TableCell>
                   <TableCell>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -93,11 +83,8 @@ const UserTable = ({ data, headers = [] }) => {
                       {user.is_active ? "Active" : "Inactive"}
                     </span>
                   </TableCell>
-
-                  {/* Action */}
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      {/* View */}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -109,7 +96,6 @@ const UserTable = ({ data, headers = [] }) => {
                         <Eye size={16} />
                       </Button>
 
-                      {/* Update */}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -121,7 +107,6 @@ const UserTable = ({ data, headers = [] }) => {
                         <Pencil size={16} />
                       </Button>
 
-                      {/* Delete */}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -137,7 +122,14 @@ const UserTable = ({ data, headers = [] }) => {
           </TableBody>
         </Table>
 
-        <Pagination />
+        <Pagination
+          currentPage={1}
+          totalPages={1}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPrev={onPrev}
+          onNext={onNext}
+        />
       </div>
     </div>
   );

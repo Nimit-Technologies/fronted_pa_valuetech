@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-
+import useUpdateDepartment from "../../hooks/department/useUpdateDepartment";
+import useAllDepartment from "../../hooks/department/useAllDepartment";
 import {
   Select,
   SelectContent,
@@ -30,23 +31,32 @@ const UpdateDepartment = ({
 
   defaultStatus = true,
 }) => {
+  const { update } = useUpdateDepartment();
+  const { allDepartment } = useAllDepartment();
+
   const [departmentName, setDepartmentName] = useState(defaultDepartmentName);
 
   const [status, setStatus] = useState(defaultStatus ? "active" : "inactive");
 
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log({
-      departmentId,
+    const payload = {
+      data: {
+        id: departmentId,
+        name: departmentName,
+        is_active: status === "active",
+      },
+    };
 
-      departmentName,
-
-      status,
-    });
-
+    try {
+      await update(payload);
+      allDepartment();
+    } catch (err) {
+      console.error("Failed to update department:", err);
+    }
     setOpen(false);
   };
 
