@@ -1,13 +1,15 @@
 import { Route, Routes } from "react-router-dom";
+
 import Navbar from "@/components/shared/navigation/navbar";
 import Footer from "@/components/shared/navigation/footer";
+
+import useVerifySession from "@/features/auth/hooks/useVerifySession";
+import PublicOnlyRoute from "@/features/auth/guards/publicOnlyRoute";
+import ProtectedRoute from "@/features/auth/guards/protectedRoute";
 
 import UserProfile from "@/components/shared/userProfile";
 
 import Login from "@/features/auth/pages/login";
-import ProtectedRoute from "@/features/auth/guards/protectedRoute";
-import PublicOnlyRoute from "@/features/auth/guards/publicOnlyRoute";
-import useVerifySession from "@/features/auth/hooks/useVerifySession";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Loader2 } from "lucide-react";
 
@@ -75,22 +77,14 @@ const App = () => {
               </PublicOnlyRoute>
             }
           />
-          <Route
-            path="/login"
-            element={
-              <PublicOnlyRoute>
-                <Login />
-              </PublicOnlyRoute>
-            }
-          />
 
           {/* super admin */}
           <Route
             path="/super-admin"
             element={
-              // <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
-              <SuperAdmin />
-              // </ProtectedRoute>
+              <ProtectedRoute allowedRoles={[ROLES.SUPER_ADMIN]}>
+                <SuperAdmin />
+              </ProtectedRoute>
             }
           >
             <Route index element={<SuperAdminHome />} />
@@ -108,9 +102,9 @@ const App = () => {
           <Route
             path="/coordinator"
             element={
-              // <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
-              <IndividualCoordinator />
-              // </ProtectedRoute>
+              <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
+                <IndividualCoordinator />
+              </ProtectedRoute>
             }
           >
             <Route index element={<IndividualCoordinatorHome />} />
@@ -140,9 +134,9 @@ const App = () => {
           <Route
             path="/branch-admin"
             element={
-              // <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
-              <BranchAdminPage />
-              // </ProtectedRoute>
+              <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
+                <BranchAdminPage />
+              </ProtectedRoute>
             }
           >
             <Route index element={<BranchAdminHome />} />
@@ -163,8 +157,8 @@ const App = () => {
             <Route path="role" element={<BranchAdminRole />} />
 
             <Route path="user" element={<BranchAdminUser />} />
-            {/* <Route path="user/create" element={<CreateUser />} /> */}
-            {/* <Route path="user/update/:id" element={<UpdateUser />} /> */}
+            <Route path="user/create" element={<CreateUser />} />
+            <Route path="user/update/:id" element={<UpdateUser />} />
             <Route path="user/view/:id" element={<BranchAdminViewUser />} />
           </Route>
         </Routes>

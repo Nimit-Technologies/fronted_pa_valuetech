@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLogin from "@/features/auth/hooks/useLogin";
-import logger from "@/utils/logger";
 import {
   ROLE_HOME_ROUTES,
   DEFAULT_AUTHENTICATED_ROUTE,
@@ -13,6 +12,7 @@ const LoginForm = () => {
 
   const [employee_id, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
+  const passwordRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,12 +22,9 @@ const LoginForm = () => {
       const destination =
         ROLE_HOME_ROUTES[user.role?.name] ?? DEFAULT_AUTHENTICATED_ROUTE;
       navigate(destination, { replace: true });
-    } catch (err) {
-      // useLogin already dispatched the failure to Redux and fired a toast;
-      // the inline `{error}` below renders the message. Nothing further to
-      // do beyond logging the actual error that was just caught (not the
-      // `error` state var, which is still one render behind at this point).
-      logger.error("Login failed", err);
+    } catch {
+      setPassword("");
+      passwordRef.current?.focus();
     }
   };
 
@@ -49,6 +46,7 @@ const LoginForm = () => {
       <div>
         <label className="block text-sm font-medium mb-2">Password</label>
         <input
+          ref={passwordRef}
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

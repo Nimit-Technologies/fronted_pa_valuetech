@@ -32,7 +32,6 @@ assertRequiredCredentials();
 export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`;
 export const apiBackendUrl = `${baseBackendUrl}/${CREDENTIALS.API_VERSION}`;
 
-
 function defineEndpoints(resource, actions) {
   const resourceBaseUrl = `${apiBackendUrl}/${resource}`;
   const endpoints = { baseUrl: resourceBaseUrl };

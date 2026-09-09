@@ -2,7 +2,6 @@ import React from "react";
 import {
   Popover,
   PopoverContent,
-  PopoverDescription,
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
@@ -42,12 +41,12 @@ const UserAvatar = () => {
           <PopoverTitle className="text-base font-semibold text-foreground capitalize">
             user details
           </PopoverTitle>
-          <PopoverDescription className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+          <div className="mt-3 space-y-1.5 text-sm text-muted-foreground">
             <p className="capitalize">{fullName || "-"}</p>
             <p>{profile?.phone || "-"}</p>
             <p className="capitalize">{profile?.role?.name || "-"}</p>
             <p className="capitalize">{profile?.department?.name || "-"}</p>
-          </PopoverDescription>
+          </div>
         </PopoverHeader>
         <div className="flex w-full items-center justify-between mt-3 pt-3 border-t border-border">
           <Link

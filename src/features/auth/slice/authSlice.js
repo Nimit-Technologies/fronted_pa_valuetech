@@ -21,10 +21,6 @@ const authSlice = createSlice({
       state.error = null;
     },
 
-    // action.payload.user is expected to already be normalized (see
-    // features/auth/services/normalizeUser.js) — this slice never touches
-    // the raw {success, message, data} envelope or backend field-naming
-    // quirks directly.
     loginSuccess: (state, action) => {
       state.user = action.payload.user;
       state.isAuthenticated = true;
@@ -39,17 +35,26 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
+    logoutStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+
     clearError: (state) => {
       state.error = null;
     },
 
-    // Returning initialState (rather than resetting fields one by one) keeps
-    // this in sync automatically if new fields are ever added above.
     logout: () => initialState,
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, clearError, logout } =
-  authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logoutStart,
+  clearError,
+  logout,
+} = authSlice.actions;
 
 export default authSlice.reducer;

@@ -52,7 +52,7 @@ api.interceptors.response.use(
         // freshly-loaded /login page doesn't rehydrate a stale
         // isAuthenticated: true and have to fire a redundant session check.
         store.dispatch(logout());
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     }
 

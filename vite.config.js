@@ -9,10 +9,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(({ mode }) => {
-  // vite.config.js is evaluated in Node before the dev server exists, so
-  // `import.meta.env` (used by src/constants/credentials.js) is not populated
-  // here. `loadEnv` reads the correct .env / .env.[mode] files for the
-  // current mode instead, keeping the proxy target dynamic per environment.
   const env = loadEnv(mode, process.cwd(), "");
 
   if (!env.VITE_SERVER_BASE_URL) {

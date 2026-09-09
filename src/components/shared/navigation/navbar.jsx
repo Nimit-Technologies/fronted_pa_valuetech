@@ -7,7 +7,7 @@ const Navbar = () => {
   const { pathname } = useLocation();
   const title = pathname.startsWith("/coordinator")
     ? "Coordinator Dashboard"
-    : "Super Admin Dashboard";
+    : "Welcome to PA Valuetech";
 
   return (
     <>

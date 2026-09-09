@@ -17,7 +17,8 @@ export const CREDENTIALS = {
   ENABLE_ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === "true",
   LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL,
 
-  // authentication
-  AUTH_COOKIE_NAME: import.meta.env.VITE_AUTH_COOKIE_NAME,
-  AUTH_TOKEN_STORAGE: import.meta.env.VITE_AUTH_TOKEN_STORAGE,
+  // NOTE: no auth token/cookie config here on purpose. The session is a
+  // backend-set httpOnly cookie the JS never reads or names — see
+  // src/utils/axiosInstance.js (withCredentials) and the backend's
+  // constant/cookie-option.js.
 };

@@ -1,25 +1,21 @@
-import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { logout as logoutRequest } from "@/features/auth/services";
-import { logout as logoutAction } from "@/features/auth/slice/authSlice";
+import {
+  logoutStart,
+  logout as logoutAction,
+} from "@/features/auth/slice/authSlice";
+import useSession from "@/features/auth/hooks/useSession";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
-/**
- * Mutation-shaped hook wrapping POST /auth/logout.
- *
- * Clears local auth state even if the server call itself fails — an
- * already-expired/invalid cookie shouldn't strand the user in a "logged in"
- * UI just because the logout request couldn't reach a valid session either.
- */
 export const useLogout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSession();
 
   const logout = async () => {
-    setLoading(true);
+    dispatch(logoutStart());
 
     try {
       await logoutRequest();
@@ -32,12 +28,11 @@ export const useLogout = () => {
       );
     } finally {
       dispatch(logoutAction());
-      setLoading(false);
-      navigate("/login", { replace: true });
+      navigate("/", { replace: true });
     }
   };
 
-  return { logout, loading };
+  return { logout, loading, error };
 };
 
 export default useLogout;

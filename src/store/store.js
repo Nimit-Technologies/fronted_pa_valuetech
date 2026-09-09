@@ -51,7 +51,6 @@ const rootReducer = combineReducers({
   // role: roleReducer,
 });
 
-
 const persistConfig = {
   key: "root",
   version: 1,
