@@ -21,63 +21,67 @@ import {
 } from "@/components/ui/select";
 
 import { Plus } from "lucide-react";
-
-import { roleData } from "@/features/superAdmin/data/role/roleTable";
+import useCreateRole from "../../hooks/role/useCreateRole";
+import useAllRole from "../../hooks/role/useAllRole";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
 
-// const depart = {
-// departName:""
-// };
-// const branchData = {
-//   branchName :""
-// }
 const IN_Data = {
   departName: "",
+  departmentId: "",
   branchName: "",
+  branchId: "",
 };
+
 const CreateRole = () => {
+  const { Create } = useCreateRole();
+  const { allRole } = useAllRole();
+
   const [roleName, setRoleName] = useState("");
-  const [department, setDepartment] = useState("");
-  // const [branch, setBranch] = useState(branchData);
   const [form, setForm] = useState(IN_Data);
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState(false);
 
-  const HandleDepartmentSel = (dep) => {
-    setForm((prev) => ({ ...prev, departName: dep }));
+  const HandleDepartmentSel = (department) => {
+    setForm((prev) => ({
+      ...prev,
+      departName: department?.name || "",
+      departmentId: department?.id || "",
+    }));
   };
-  const HandleBranchSel = (bra) => {
-    setForm((prev) => ({ ...prev, branchName: bra }));
-  };
-  // console.log("departmet: "+IN_Data.departName);
 
-  const handleSubmit = (e) => {
+  const HandleBranchSel = (branch) => {
+    setForm((prev) => ({
+      ...prev,
+      branchName: branch?.name || "",
+      branchId: branch?.id || "",
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!roleName.trim() || !department || !status) return;
+    if (!roleName.trim() || !form.departmentId || !status) return;
 
-    const selectedDepartment = roleData.data.find(
-      (dept) => dept.id === department,
-    );
+    try {
+      await Create({
+        name: roleName.trim(),
+        department_id: form.departmentId,
+      });
+      await allRole();
+    } catch (err) {
+      console.log(err);
+    }
 
-    console.log({
-      roleName,
-      departmentId: department,
-      departmentName: selectedDepartment?.name,
-      status,
-    });
-
-    // Reset Form
     setRoleName("");
-    setDepartment("");
+    setForm(IN_Data);
     setStatus("");
     setOpen(false);
   };
 
   const handleCancel = () => {
     setRoleName("");
-    setDepartment("");
+    setForm(IN_Data);
     setStatus("");
     setOpen(false);
   };
@@ -99,7 +103,6 @@ const CreateRole = () => {
         </PopoverHeader>
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-5">
-          {/* Role Name */}
           <div className="flex flex-col gap-2 w-full">
             <Label htmlFor="roleName">Role Name</Label>
 
@@ -112,7 +115,6 @@ const CreateRole = () => {
             />
           </div>
 
-          {/* Department */}
           <div className="flex flex-col gap-2 w-full">
             <Label htmlFor="department">Department</Label>
 
@@ -120,56 +122,16 @@ const CreateRole = () => {
               value={form.departName}
               onSelect={HandleDepartmentSel}
             ></DepartmentDropDown>
-            {/* <Select value={department} onValueChange={setDepartment}>
-              <SelectTrigger id="department" className="w-full">
-                <SelectValue placeholder="Select Department" />
-              </SelectTrigger>
-
-              <SelectContent
-                position="popper"
-                side="bottom"
-                align="start"
-                sideOffset={6}
-                className="w-[--radix-select-trigger-width]"
-              >
-                {roleData.data
-                  .filter((dept) => dept.is_active)
-                  .map((dept) => (
-                    <SelectItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select> */}
-            {/* Branch */}
           </div>
+
           <div className="flex flex-col gap-2 w-full">
             <label htmlFor="branch">Branch</label>
             <BranchDropDown
               value={form.branchName}
               onSelect={HandleBranchSel}
             ></BranchDropDown>
-
-            {/* <Select value={branch} onValueChange={setBranch}>
-
-              <SelectTrigger id="branch" className="w-full">
-                <SelectValue placeholder="Select Branch"></SelectValue>
-              </SelectTrigger>
-  
-              <SelectContent
-                position="popper"
-                side="bottom"
-                align="start"
-                sideOffset={6}
-                className="w-[--radix-select-trigger-width]"
-              >
-                <SelectItem key={0} value={"Zoho Developer"}>Zoho Developer</SelectItem>
-
-              </SelectContent> */}
-            {/* </Select> */}
           </div>
 
-          {/* Status */}
           <div className="flex flex-col gap-2 w-full">
             <Label htmlFor="status">Status</Label>
 
@@ -186,19 +148,17 @@ const CreateRole = () => {
                 className="w-[--radix-select-trigger-width]"
               >
                 <SelectItem value="active">Active</SelectItem>
-
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
 
-            <Button type="submit">Create Role</Button>
+            <Button type="submit">Create</Button>
           </div>
         </form>
       </PopoverContent>

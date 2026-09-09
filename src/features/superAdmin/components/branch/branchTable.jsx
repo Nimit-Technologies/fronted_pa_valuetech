@@ -12,8 +12,15 @@ import { Button } from "@/components/ui/button";
 import UpdateBranch from "@/features/superAdmin/components/branch/updateBranch";
 import Pagination from "@/features/superAdmin/components/pagination";
 
-const BranchTable = ({ data, headers = [] }) => {
-  const rows = data?.data ?? [];
+const BranchTable = ({
+  data,
+  headers = [],
+  hasNextPage = false,
+  hasPreviousPage = false,
+  onNext,
+  onPrev,
+}) => {
+  const rows = data ?? [];
 
   return (
     <div>
@@ -56,12 +63,12 @@ const BranchTable = ({ data, headers = [] }) => {
                   <TableCell>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        branch.is_active
+                        branch.isActive
                           ? "bg-green-100 text-green-800"
                           : "bg-red-500 text-white"
                       }`}
                     >
-                      {branch.is_active ? "Active" : "Inactive"}
+                      {branch.isActive ? "Active" : "Inactive"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -84,7 +91,14 @@ const BranchTable = ({ data, headers = [] }) => {
             )}
           </TableBody>
         </Table>
-        <Pagination />
+        <Pagination
+          currentPage={1}
+          totalPages={1}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPrev={onPrev}
+          onNext={onNext}
+        />
       </div>
     </div>
   );

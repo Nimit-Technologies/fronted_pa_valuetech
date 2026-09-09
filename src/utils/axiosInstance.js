@@ -1,6 +1,6 @@
 import axios from "axios";
 import { CREDENTIALS } from "@/constants/credentials";
-import { baseBackendUrl } from "@/constants/apiConfig";
+import { apiBackendUrl } from "@/constants/apiConfig";
 import logger from "@/utils/logger";
 import store from "@/store/store";
 import { logout } from "@/features/auth/slice/authSlice";
@@ -10,7 +10,7 @@ import { logout } from "@/features/auth/slice/authSlice";
 const PUBLIC_ROUTES = ["/", "/login"];
 
 const api = axios.create({
-  baseURL: baseBackendUrl,
+  baseURL: apiBackendUrl,
   withCredentials: true,
   timeout: CREDENTIALS.API_TIMEOUT,
   headers: {

@@ -23,34 +23,57 @@ import {
 
 import { Plus } from "lucide-react";
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
+import useAllBranch from "../../hooks/branch/useAllBranch";
+import useCreateDepartment from "../../hooks/department/useCreateDepartment";
+import useAllDepartment from "../../hooks/department/useAllDepartment";
+
 const CreateDepartment = () => {
+  const { Create } = useCreateDepartment();
+  const { allDepartment } = useAllDepartment();
+
   const branchData = {
     branchName: "",
+    branchId: "",
   };
 
   const [departmentName, setDepartmentName] = useState("");
   const [status, setStatus] = useState("");
   const [branch, setBranch] = useState(branchData);
   const [open, setOpen] = useState(false);
+  const { allBranch } = useAllBranch();
 
-  const handleSubmit = (e) => {
+  const handleOpenChange = (nextOpen) => {
+    setOpen(nextOpen);
+    if (nextOpen) allBranch();
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!departmentName.trim() || !status) return;
+    if (!departmentName.trim() || !status || !branch.branchId) return;
 
     console.log({
-      departmentName,
+      name: departmentName.trim(),
       status,
+      branch_id: branch.branchId,
     });
-
+    try {
+      await Create({ name: departmentName.trim(), branch_id: branch.branchId });
+      await allDepartment();
+    } catch (err) {
+      console.error("Failed to create department:", err);
+    }
     // Reset Form
     setDepartmentName("");
     setStatus("");
     setOpen(false);
   };
 
-  const HandleBranchSel = (bra) => {
-    setBranch((prev) => ({ ...prev, branchName: bra }));
+  const HandleBranchSel = (selectedBranch) => {
+    setBranch({
+      branchName: selectedBranch.name,
+      branchId: selectedBranch.id,
+    });
   };
 
   const handleCancel = () => {
@@ -60,7 +83,7 @@ const CreateDepartment = () => {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       {/* Button */}
       <PopoverTrigger asChild>
         <Button className="gap-2">
@@ -96,7 +119,7 @@ const CreateDepartment = () => {
           <div className="flex flex-col gap-2 w-full">
             <label htmlFor="branch">Branch</label>
             <BranchDropDown
-              value={branch.branchName}
+              value={{ name: branch.branchName, id: branch.branchId }}
               onSelect={HandleBranchSel}
             ></BranchDropDown>
             {/* <Select value={branch} onValueChange={setBranch}>

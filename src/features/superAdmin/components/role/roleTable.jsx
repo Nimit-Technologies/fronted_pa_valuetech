@@ -15,8 +15,15 @@ import { Button } from "@/components/ui/button";
 import UpdateRole from "./updateRole";
 import Pagination from "@/features/superAdmin/components/pagination";
 
-const RoleTable = ({ data, headers = [] }) => {
-  const rows = data?.data ?? [];
+const RoleTable = ({
+  data = [],
+  headers = [],
+  hasNextPage = false,
+  hasPreviousPage = false,
+  onNext,
+  onPrev,
+}) => {
+  const rows = data ?? [];
 
   return (
     <div>
@@ -48,47 +55,30 @@ const RoleTable = ({ data, headers = [] }) => {
             ) : (
               rows.map((role, index) => (
                 <TableRow key={role.id} className="hover:bg-muted/30">
-                  {/* S.No */}
                   <TableCell className="font-medium">{index + 1}</TableCell>
-
-                  {/* Role Name */}
                   <TableCell className="capitalize">{role.name}</TableCell>
-
-                  {/* Department */}
                   <TableCell className="capitalize">
                     {role.department?.name || "—"}
                   </TableCell>
-
-                  {/* Status */}
                   <TableCell>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        role.is_active
+                        role.isActive
                           ? "bg-green-100 text-green-800"
                           : "bg-red-500 text-white"
                       }`}
                     >
-                      {role.is_active ? "Active" : "Inactive"}
+                      {role.isActive ? "Active" : "Inactive"}
                     </span>
                   </TableCell>
-
-                  {/* Action */}
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      {/* <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Eye size={16} />
-                      </Button> */}
-
                       <UpdateRole
                         roleId={role.id}
-
                         defaultRoleName={role.name}
-
                         defaultDepartment={role.department?.id}
-
                         defaultDepartmentName={role.department?.name}
-
-                        defaultStatus={role.is_active}
+                        defaultStatus={role.isActive}
                       />
 
                       <Button
@@ -106,7 +96,14 @@ const RoleTable = ({ data, headers = [] }) => {
           </TableBody>
         </Table>
 
-        <Pagination />
+        <Pagination
+          currentPage={1}
+          totalPages={1}
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          onPrev={onPrev}
+          onNext={onNext}
+        />
       </div>
     </div>
   );

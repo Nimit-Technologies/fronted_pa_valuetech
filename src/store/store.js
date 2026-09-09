@@ -11,9 +11,10 @@ import {
   persistStore,
 } from "redux-persist";
 import authReducer from "@/features/auth/slice/authSlice";
-// Add future slices here as they're built, e.g.:
-// import productReducer from "@/features/product/slice/productSlice";
-// import roleReducer from "@/features/role/slice/roleSlice";
+import departmentReducer from "@/features/superAdmin/slice/department/departmentSlice";
+import branchReducer from "@/features/superAdmin/slice/branch/branchSlice";
+import roleReducer from "@/features/superAdmin/slice/role/roleSlice";
+import userReducer from "@/features/superAdmin/slice/user/userSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps
 // its default export, leaving storage.getItem undefined at runtime. A plain
@@ -47,10 +48,14 @@ const stripTransientFields = createTransform((inboundState, key) => {
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  // product: productReducer,
-  // role: roleReducer,
+  department: departmentReducer,
+  branch: branchReducer,
+  role: roleReducer,
+  user: userReducer,
 });
 
+// Only `auth` is persisted; the superAdmin slices (department/branch/role/user)
+// are server-cache-like and refetched on mount, so there's nothing to persist.
 const persistConfig = {
   key: "root",
   version: 1,

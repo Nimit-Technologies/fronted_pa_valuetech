@@ -11,16 +11,27 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
-
+import useCreateBranch from "../../hooks/branch/useCreateBranch";
+import useAllBranch from "../../hooks/branch/useAllBranch";
 const CreateBranch = () => {
+  const { Create } = useCreateBranch();
+  const { allBranch } = useAllBranch();
   const [branchName, setBranchName] = useState("");
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!branchName.trim()) return;
     // TODO: wire up with API
-    console.log("Creating branch:", branchName.trim());
+    // console.log("Creating branch:", branchName.trim());
+
+    try {
+      await Create({ name: branchName.trim() });
+      await allBranch();
+    } catch (err) {
+      console.error("Failed to create branch:", err);
+    }
+
     setBranchName("");
     setOpen(false);
   };

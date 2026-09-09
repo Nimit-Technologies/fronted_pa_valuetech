@@ -13,11 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { userTableData } from "@/features/branchAdmin/data/user/userTable";
+// import { userTableData } from "@/features/branchAdmin/data/user/userTable";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
 import RoleDropDown from "@/components/shared/dropdown/roleDropDown";
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
-
+import { useSelector } from "react-redux";
+import useUpdateUser from "../../hooks/user/useUpdateUser";
+import useAllUser from "../../hooks/user/useAllUser";
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">
     {children}
@@ -26,12 +28,21 @@ const RequiredLabel = ({ children }) => (
 );
 
 const UpdateUser = () => {
+  const { update } = useUpdateUser();
+  const { allUser } = useAllUser();
+  const userTableData = useSelector((state) => state.user);
+  // console.log("userTableData", userTableData.userData[0].id);
+  // console.log("id: ", useParams().id);
+  // userTableData.userData.find((item) => console.log("item.id", item.id));
   const { id } = useParams();
+  const user = userTableData.userData.find((item) => item.id === id);
+
   const navigate = useNavigate();
 
-  const user = userTableData.data.find((item) => item.id === id);
+  // const user = userTableData.data.find((item) => item.id === id);
 
   const [form, setForm] = useState({
+    id: user?.id ?? "",
     employeeId: user?.employee_id ?? "",
     firstName: user?.first_name ?? "",
     lastName: user?.last_name ?? "",
@@ -40,7 +51,9 @@ const UpdateUser = () => {
     aadharNumber: user?.adhar_number ?? "",
 
     branch: user?.branch?.name ?? "",
+    branchId: user?.branch?.id ?? "",
     department: user?.department?.name ?? "",
+    departmentId: user?.department?.id ?? "",
     role: user?.role?.name ?? "",
     status: user?.is_active ? "Active" : "Inactive",
 
@@ -79,10 +92,12 @@ const UpdateUser = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log("Updated User :", id, form);
+    await update(form);
+    await allUser();
   };
 
   if (!user) {
@@ -208,7 +223,7 @@ const UpdateUser = () => {
               <div className="flex flex-col gap-2 w-full">
                 <RequiredLabel>Branch</RequiredLabel>
                 <BranchDropDown
-                  value={form.branch}
+                  value={{ name: form.branch, id: form.branchId }}
                   onSelect={handleBranchSelect}
                 ></BranchDropDown>
                 {/* <Select
@@ -231,7 +246,7 @@ const UpdateUser = () => {
               <div className="flex flex-col gap-2 w-full">
                 <RequiredLabel>Department</RequiredLabel>
                 <DepartmentDropDown
-                  value={form.department}
+                  value={{ name: form.department, id: form.departmentId }}
                   onSelect={handleDepartmentSelect}
                 ></DepartmentDropDown>
                 {/* <Select

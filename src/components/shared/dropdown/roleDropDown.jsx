@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,69 +19,59 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-
-const roleData = [
-  { id: 1, name: "Super Admin", code: "admin" },
-  { id: 2, name: "Admin", code: "admin" },
-  { id: 3, name: "Branch Manager", code: "manager" },
-  { id: 4, name: "Department Manager", code: "manager" },
-];
+import useAllRole from "@/features/superAdmin/hooks/role/useAllRole";
 
 const ITEMS_PER_PAGE = 5;
 
 const RoleDropDown = ({ value, onSelect, disabled = false }) => {
+  const role = useSelector((state) => state.role);
+  const roleData = role.roleData || [];
+  const { allRole } = useAllRole();
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Filter banks based on search
-  const filteredBanks = roleData.filter(
-    (bank) =>
-      bank.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bank.code.toLowerCase().includes(searchTerm.toLowerCase()),
+  const selectedRoleName = typeof value === "object" ? value?.name : value;
+
+  const filteredRoles = roleData.filter(
+    (roleItem) =>
+      roleItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (roleItem.code || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredBanks.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentBanks = filteredBanks.slice(startIndex, endIndex);
+  const fetchRoles = async ({ direction = "next", cursorId = "" } = {}) => {
+    await allRole({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
+  };
 
-  const handleSelectBank = (bank) => {
-    onSelect?.(bank);
+  useEffect(() => {
+    if (!isOpen || roleData.length > 0) return;
+    fetchRoles();
+  }, [isOpen, roleData.length]);
+
+  const handleSelectRole = (roleItem) => {
+    onSelect?.(roleItem);
     setSearchTerm("");
-    setCurrentPage(1);
   };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+  const handleNextPage = async () => {
+    if (!role.hasNextPage) return;
+    await fetchRoles({ direction: "next", cursorId: role.roleLastId });
   };
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handlePrevPage = async () => {
+    if (!role.hasPreviousPage) return;
+    await fetchRoles({ direction: "previous", cursorId: role.roleFirstId });
   };
 
   return (
     <DropdownMenu onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild disabled={disabled}>
-        {/* <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          className="h-11 w-full justify-start font-normal"
-        >
-          {value || "Select Role"}
-        </Button> */}
         <Button
           type="button"
           variant="outline"
           className="flex h-11 w-full items-center justify-between px-3 font-normal"
         >
-          <span>{value || "Select Branch"}</span>
+          <span>{selectedRoleName || "Select Role"}</span>
           {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </Button>
       </DropdownMenuTrigger>
@@ -88,15 +79,13 @@ const RoleDropDown = ({ value, onSelect, disabled = false }) => {
         className="w-[calc(100vw-2rem)] sm:w-80"
         align="start"
       >
-        {/* Search Bar */}
         <div className="relative px-2 pt-2">
           <Search className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search Role..."
+            placeholder="Search role..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setCurrentPage(1);
             }}
             className="pl-8"
           />
@@ -104,55 +93,53 @@ const RoleDropDown = ({ value, onSelect, disabled = false }) => {
 
         <DropdownMenuSeparator />
 
-        {/* Bank Items */}
         <DropdownMenuGroup className="max-h-64 overflow-y-auto">
-          {currentBanks.length > 0 ? (
-            currentBanks.map((bank) => (
+          {filteredRoles.length > 0 ? (
+            filteredRoles.map((roleItem) => (
               <DropdownMenuItem
-                key={bank.id}
-                onClick={() => handleSelectBank(bank.name)}
+                key={roleItem.id}
+                onClick={() => handleSelectRole(roleItem)}
                 className="cursor-pointer"
-                data-active={value === bank.name}
+                data-active={selectedRoleName === roleItem.name}
               >
                 <div className="flex flex-col">
-                  <span>{bank.name}</span>
+                  <span>{roleItem.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {bank.code}
+                    {roleItem.code || roleItem.name}
                   </span>
                 </div>
               </DropdownMenuItem>
             ))
           ) : (
-            <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-              No banks found
+            <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+              No roles found
             </div>
           )}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        {/* Footer with Previous/Next buttons */}
         <div className="flex items-center justify-between px-2 py-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={handlePrevPage}
-            disabled={currentPage === 1 || filteredBanks.length === 0}
+            disabled={!role.hasPreviousPage || filteredRoles.length === 0}
             className="h-8 px-2"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Previous
           </Button>
           <span className="text-sm text-muted-foreground">
-            {filteredBanks.length > 0
-              ? `${startIndex + 1}-${Math.min(endIndex, filteredBanks.length)} of ${filteredBanks.length}`
+            {filteredRoles.length > 0
+              ? `${Math.min(1, filteredRoles.length)}-${filteredRoles.length} of ${role.roleLength || filteredRoles.length}`
               : "0 items"}
           </span>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleNextPage}
-            disabled={currentPage === totalPages || filteredBanks.length === 0}
+            disabled={!role.hasNextPage || filteredRoles.length === 0}
             className="h-8 px-2"
           >
             Next

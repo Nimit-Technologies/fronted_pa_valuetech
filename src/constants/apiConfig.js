@@ -29,6 +29,10 @@ function assertRequiredCredentials() {
 
 assertRequiredCredentials();
 
+// `baseBackendUrl` is host:port only; `apiBackendUrl` adds the versioned API
+// prefix. The shared axios instance (src/utils/axiosInstance.js) uses
+// `apiBackendUrl` as its baseURL, so relative call sites (e.g.
+// api.get("/branch/all-branch")) resolve against the versioned path.
 export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`;
 export const apiBackendUrl = `${baseBackendUrl}/${CREDENTIALS.API_VERSION}`;
 

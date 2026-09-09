@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,87 +18,70 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-
-const branchDropDownData = [
-  { id: 1, name: "Noida", code: "Noida" },
-  { id: 2, name: "Delhi", code: "DL" },
-  { id: 3, name: "Punjab", code: "PN" },
-  { id: 4, name: "Lucknow", code: "LUC" },
-  { id: 5, name: "Kanpur", code: "KAN" },
-  { id: 6, name: "Prayagraj", code: "PRY" },
-  //   { id: 4, name: "PNB", code: "PNB" },
-  //   { id: 5, name: "Axis Bank", code: "AXIS" },
-  //   { id: 6, name: "Bank of Baroda", code: "BOB" },
-  //   { id: 7, name: "Kotak Mahindra Bank", code: "KOTAK" },
-  //   { id: 8, name: "Canara Bank", code: "CNRB" },
-  //   { id: 9, name: "Union Bank of India", code: "UBIN" },
-  //   { id: 10, name: "IndusInd Bank", code: "INDB" },
-];
+import { useSelector } from "react-redux";
+import useAllBranch from "@/features/superAdmin/hooks/branch/useAllBranch";
 
 const ITEMS_PER_PAGE = 5;
 
 const BranchDropDown = ({ value, onSelect, disabled = false }) => {
+  const branch = useSelector((state) => state.branch);
+  const branchData = branch.branchData || [];
+  const { allBranch } = useAllBranch();
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Filter banks based on search
-  const filteredBanks = branchDropDownData.filter(
-    (bank) =>
-      bank.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bank.code.toLowerCase().includes(searchTerm.toLowerCase()),
+  const selectedBranchName = typeof value === "object" ? value?.name : value;
+
+  const filteredBranches = branchData.filter(
+    (branchItem) =>
+      branchItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (branchItem.code || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredBanks.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentBanks = filteredBanks.slice(startIndex, endIndex);
+  const fetchBranches = async ({ direction = "next", cursorId = "" } = {}) => {
+    await allBranch({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
+  };
 
-  const handleSelectBank = (bank) => {
-    onSelect?.(bank);
+  useEffect(() => {
+    if (!isOpen || branchData.length > 0) return;
+    fetchBranches();
+  }, [isOpen, branchData.length]);
+
+  const handleSelectBranch = (branchItem) => {
+    onSelect?.(branchItem);
     setSearchTerm("");
-    setCurrentPage(1);
   };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+  const handleNextPage = async () => {
+    if (!branch.hashNextPage) return;
+    await fetchBranches({ direction: "next", cursorId: branch.branchLastId });
   };
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handlePrevPage = async () => {
+    if (!branch.hashPreviousPage) return;
+    await fetchBranches({
+      direction: "previous",
+      cursorId: branch.branchFirstId,
+    });
   };
 
   return (
     <DropdownMenu onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild disabled={disabled}>
-        {/* <Button
-          type="button"
-          variant="outline"
-          disabled={disabled}
-          className="h-11 w-full justify-start font-normal"
-        >
-          {value || "Select Branch"}
-        </Button> */}
         <Button
           type="button"
           variant="outline"
           className="flex h-11 w-full items-center justify-between px-3 font-normal"
         >
-          <span>{value || "Select Branch"}</span>
+          <span>{selectedBranchName || "Select Branch"}</span>
           {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </Button>
-        {/* <ChevronDown size={20}></ChevronDown> */}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[calc(100vw-2rem)] sm:w-80"
         align="start"
       >
-        {/* Search Bar */}
         <div className="relative px-2 pt-2">
           <Search className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
           <Input
@@ -106,7 +89,6 @@ const BranchDropDown = ({ value, onSelect, disabled = false }) => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setCurrentPage(1);
             }}
             className="pl-8"
           />
@@ -114,55 +96,53 @@ const BranchDropDown = ({ value, onSelect, disabled = false }) => {
 
         <DropdownMenuSeparator />
 
-        {/* Bank Items */}
         <DropdownMenuGroup className="max-h-64 overflow-y-auto">
-          {currentBanks.length > 0 ? (
-            currentBanks.map((bank) => (
+          {filteredBranches.length > 0 ? (
+            filteredBranches.map((branchItem) => (
               <DropdownMenuItem
-                key={bank.id}
-                onClick={() => handleSelectBank(bank.name)}
+                key={branchItem.id}
+                onClick={() => handleSelectBranch(branchItem)}
                 className="cursor-pointer"
-                data-active={value === bank.name}
+                data-active={selectedBranchName === branchItem.name}
               >
                 <div className="flex flex-col">
-                  <span>{bank.name}</span>
+                  <span>{branchItem.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {bank.code}
+                    {branchItem.code || branchItem.name}
                   </span>
                 </div>
               </DropdownMenuItem>
             ))
           ) : (
-            <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-              No banks found
+            <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+              No branches found
             </div>
           )}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        {/* Footer with Previous/Next buttons */}
         <div className="flex items-center justify-between px-2 py-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={handlePrevPage}
-            disabled={currentPage === 1 || filteredBanks.length === 0}
+            disabled={!branch.hashPreviousPage || filteredBranches.length === 0}
             className="h-8 px-2"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Previous
           </Button>
           <span className="text-sm text-muted-foreground">
-            {filteredBanks.length > 0
-              ? `${startIndex + 1}-${Math.min(endIndex, filteredBanks.length)} of ${filteredBanks.length}`
+            {filteredBranches.length > 0
+              ? `${Math.min(1, filteredBranches.length)}-${filteredBranches.length} of ${branch.branchLength || filteredBranches.length}`
               : "0 items"}
           </span>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleNextPage}
-            disabled={currentPage === totalPages || filteredBanks.length === 0}
+            disabled={!branch.hashNextPage || filteredBranches.length === 0}
             className="h-8 px-2"
           >
             Next

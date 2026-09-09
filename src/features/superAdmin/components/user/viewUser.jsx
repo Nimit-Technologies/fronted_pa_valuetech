@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { userData } from "@/features/superAdmin/data/user/userTable";
+// import { userData } from "@/features/superAdmin/data/user/userTable";
+import { useSelector } from "react-redux";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">
@@ -22,8 +23,10 @@ const SectionTitle = ({ children }) => (
 
 const ViewUser = () => {
   const { id } = useParams();
+  const userTableData = useSelector((state) => state.user);
+  const admin = userTableData.userData.find((item) => item.id === id);
   const navigate = useNavigate();
-  const admin = userData.data.find((u) => u.id === id);
+  // const admin = userData.data.find((u) => u.id === id);
 
   if (!admin) {
     return (
