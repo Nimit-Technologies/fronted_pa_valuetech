@@ -1,10 +1,10 @@
-import DeleteBranchAPI from "@/features/superAdmin/services/branch/deleteBranch";
+import UpdateBranchStatusAPI from "@/features/superAdmin/services/branch/updateBranchStatus";
 import { toast } from "sonner";
 
-const useDeleteBranch = () => {
-  const Delete = async (payload) => {
+const useUpdateBranchStatus = () => {
+  const UpdateStatus = async (payload) => {
     try {
-      const response = await DeleteBranchAPI(payload);
+      const response = await UpdateBranchStatusAPI(payload);
       toast.success(response?.message, {
         duration: 700,
       });
@@ -14,13 +14,13 @@ const useDeleteBranch = () => {
         err?.response?.data?.message ||
           err?.response?.data?.errors?.[0]?.message ||
           err?.message ||
-          "Failed to delete branch",
+          "Failed to update branch status",
         { duration: 700 },
       );
       return err;
     }
   };
-  return { Delete };
+  return { UpdateStatus };
 };
 
-export default useDeleteBranch;
+export default useUpdateBranchStatus;

@@ -1,10 +1,10 @@
-import React from "react";
+import { apiConfig } from "@/constants/apiConfig";
 import api from "@/utils/axiosInstance";
-const AllBranchesAPI = async (params = {}) => {
-  const response = await api.get("/branch/all-branch", {
+const getAllBranches = async (params = {}) => {
+  const response = await api.get(`${apiConfig.branch.getAllBranches}`, {
     params,
   });
   return response.data;
 };
 
-export default AllBranchesAPI;
+export default getAllBranches;

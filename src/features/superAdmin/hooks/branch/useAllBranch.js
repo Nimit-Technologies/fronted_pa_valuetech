@@ -1,46 +1,81 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import AllBranchesAPI from "../../services/branch/allBranches";
+import { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import GetAllBranches from "@/features/superAdmin/services/branch/allBranches";
+import { normalizeBranches } from "@/features/superAdmin/services/branch/normalizeBranch";
 import {
-  setBranch,
   branchStart,
+  branchSuccess,
   branchFailure,
-} from "../../slice/branch/branchSlice";
-import { normalizeBranches } from "../../services/branch/normalizeBranch";
+} from "@/features/superAdmin/slice/branch/branchSlice";
+import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
 const useAllBranch = () => {
   const dispatch = useDispatch();
-  const allBranch = async ({
-    direction = "next",
-    cursorId = "",
-    dataLimit = 2,
-  } = {}) => {
-    try {
+
+  const {
+    branchData,
+    branchFirstId,
+    branchLastId,
+    hasNextPage,
+    hasPreviousPage,
+    branchLength,
+    dataLimit,
+    loading,
+    error,
+    totalCount,
+    totalActiveCount,
+    success,
+  } = useSelector((state) => state.branch);
+
+  const allBranch = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
       dispatch(branchStart());
-      const response = await AllBranchesAPI({ direction, cursorId, dataLimit });
-      const clearBranch = normalizeBranches(
-        response.data || response.branches || [],
-      );
+      try {
+        const response = await GetAllBranches({ direction, cursorId });
+        const branches = normalizeBranches(
+          response.data || response.branches || [],
+        );
 
-      dispatch(
-        setBranch({
-          data: clearBranch,
-          hasNextPage: response.hasNextPage,
-          hasPreviousPage: response.hasPreviousPage,
-          branchFirstId: response.branchFirstId,
-          branchLastId: response.branchLastId,
-          dataLimit: response.dataLimit || dataLimit,
-          branchLength: response.branchLength,
-        }),
-      );
+        dispatch(
+          branchSuccess({
+            data: branches,
+            branchFirstId: response.branchFirstId,
+            branchLastId: response.branchLastId,
+            hasNextPage: response.hasNextPage,
+            hasPreviousPage: response.hasPreviousPage,
+            dataLimit: response.dataLimit,
+            branchLength: response.branchLength,
+            totalCount: response.totalCount,
+            totalActiveCount: response.totalActiveCount,
+          }),
+        );
 
-      return clearBranch;
-    } catch (err) {
-      const message = err.message;
-      dispatch(branchFailure(message));
-    }
+        return branches;
+      } catch (err) {
+        dispatch(
+          branchFailure(extractErrorMessage(err, "Failed to load branches")),
+        );
+        return [];
+      }
+    },
+    [dispatch],
+  );
+
+  return {
+    allBranch,
+    branchData,
+    branchFirstId,
+    branchLastId,
+    hasNextPage,
+    hasPreviousPage,
+    branchLength,
+    dataLimit,
+    loading,
+    error,
+    totalCount,
+    totalActiveCount,
+    success,
   };
-  return { allBranch };
 };
 
 export default useAllBranch;

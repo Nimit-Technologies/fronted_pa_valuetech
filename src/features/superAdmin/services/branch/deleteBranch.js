@@ -1,9 +1,10 @@
 import React from "react";
 import api from "@/utils/axiosInstance";
-// import { branchData } from '../../data/branch/branchTable';
+import { apiConfig } from "@/constants/apiConfig";
 const DeleteBranchAPI = async (payload) => {
-  // const {id , ...branchData} = payload.data;
-  const response = await api.delete(`/soft-delete/${payload.id}`);
+  const response = await api.delete(
+    `${apiConfig.branch.softDeleteBranch}/${payload.id}`,
+  );
   return response.data;
 };
 

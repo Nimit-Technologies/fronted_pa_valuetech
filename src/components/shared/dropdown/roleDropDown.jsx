@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,14 +39,17 @@ const RoleDropDown = ({ value, onSelect, disabled = false }) => {
       (roleItem.code || "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const fetchRoles = async ({ direction = "next", cursorId = "" } = {}) => {
-    await allRole({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
-  };
+  const fetchRoles = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
+      await allRole({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
+    },
+    [allRole],
+  );
 
   useEffect(() => {
     if (!isOpen || roleData.length > 0) return;
     fetchRoles();
-  }, [isOpen, roleData.length]);
+  }, [isOpen, roleData.length, fetchRoles]);
 
   const handleSelectRole = (roleItem) => {
     onSelect?.(roleItem);

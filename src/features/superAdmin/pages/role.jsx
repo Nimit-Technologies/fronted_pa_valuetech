@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
 import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
@@ -14,13 +14,16 @@ const Role = () => {
   const { allRole } = useAllRole();
   const [search, setSearch] = useState("");
 
-  const fetchRoles = async ({ direction = "next", cursorId = "" } = {}) => {
-    await allRole({ direction, cursorId, dataLimit: 2 });
-  };
+  const fetchRoles = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
+      await allRole({ direction, cursorId, dataLimit: 2 });
+    },
+    [allRole],
+  );
 
   useEffect(() => {
     fetchRoles();
-  }, []);
+  }, [fetchRoles]);
 
   const filteredData = roleData.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase()),

@@ -1,7 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSession from "@/features/auth/hooks/useSession";
+import { ROLES } from "@/features/auth/constants/roles";
+import useGetUserById from "@/features/superAdmin/hooks/user/useGetUserById";
+import AadhaarRow from "@/components/shared/AadhaarRow";
 
 const InfoRow = ({ label, value }) => (
   <div className="flex flex-col gap-1">
@@ -22,9 +26,52 @@ const SectionTitle = ({ children }) => (
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const { user } = useSession();
+  const { id: paramId } = useParams();
+  const { user: sessionUser, role } = useSession();
 
-  if (!user) {
+  const routeId =
+    paramId && paramId !== "undefined" && paramId !== "null" ? paramId : null;
+  const canViewAnyUser = role === ROLES.SUPER_ADMIN;
+  const targetId = canViewAnyUser
+    ? (routeId ?? sessionUser?.id)
+    : sessionUser?.id;
+
+  const { getUserById } = useGetUserById();
+
+  const [result, setResult] = useState({ id: null, user: null, failed: false });
+
+  useEffect(() => {
+    if (!targetId) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const res = await getUserById(targetId);
+      if (cancelled) return;
+
+      const data = res?.data ?? res ?? null;
+      setResult({ id: targetId, user: data, failed: !data });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [targetId, getUserById]);
+
+  const settled = result.id === targetId;
+  const isLoading = Boolean(targetId) && !settled;
+  const notFound = !targetId || (settled && result.failed);
+  const user = settled ? result.user : null;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (notFound || !user) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <p className="text-muted-foreground text-sm">User profile not found.</p>
@@ -34,6 +81,8 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  const isOwnProfile = targetId === sessionUser?.id;
 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 w-full max-w-4xl mx-auto">
@@ -47,7 +96,7 @@ const UserProfile = () => {
           <ArrowLeft size={16} />
         </Button>
         <h1 className="text-lg font-semibold text-foreground capitalize">
-          My Profile
+          {isOwnProfile ? "My Profile" : "User Profile"}
         </h1>
       </div>
 
@@ -57,7 +106,10 @@ const UserProfile = () => {
             <SectionTitle>Personal Details</SectionTitle>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <InfoRow label="Employee ID" value={user.employee_id} />
-              <InfoRow label="Aadhaar Number" value={user.adhar_number} />
+              <AadhaarRow
+                maskedValue={user.aadhaar_number ?? user.adhar_number}
+                employeeId={user.employee_id}
+              />
               <InfoRow label="First Name" value={user.first_name} />
               <InfoRow label="Last Name" value={user.last_name} />
               <InfoRow label="Email" value={user.email} />

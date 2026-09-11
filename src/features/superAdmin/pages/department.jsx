@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
 import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
@@ -6,10 +6,8 @@ import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTa
 import DepartmentTable from "@/features/superAdmin/components/department/departmentTable";
 import CreateDepartment from "@/features/superAdmin/components/department/createDepartment";
 
-// import { departmentData } from "@/features/superAdmin/data/department/departmentTable";
 import { DepartmentTableHeader } from "@/features/superAdmin/data/department/departmentTableHeader";
 import useAllDepartment from "../hooks/department/useAllDepartment";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 const Department = () => {
@@ -18,16 +16,16 @@ const Department = () => {
   const { allDepartment } = useAllDepartment();
   const [search, setSearch] = useState("");
 
-  const fetchDepartments = async ({
-    direction = "next",
-    cursorId = "",
-  } = {}) => {
-    await allDepartment({ direction, cursorId, dataLimit: 2 });
-  };
+  const fetchDepartments = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
+      await allDepartment({ direction, cursorId, dataLimit: 2 });
+    },
+    [allDepartment],
+  );
 
   useEffect(() => {
     fetchDepartments();
-  }, []);
+  }, [fetchDepartments]);
 
   const filteredData = departmentData.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase()),

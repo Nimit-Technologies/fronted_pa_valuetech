@@ -51,7 +51,7 @@ const UserAvatar = () => {
         <div className="flex w-full items-center justify-between mt-3 pt-3 border-t border-border">
           <Link
             className="text-sm text-primary hover:text-primary/80 transition-colors duration-200"
-            to={`${basePath}/user-profile`}
+            to={`${basePath}/user-profile/${profile?.id}`}
           >
             view profile
           </Link>

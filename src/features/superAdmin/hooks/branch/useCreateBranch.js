@@ -1,23 +1,24 @@
-import React from "react";
-import CreateBranchAPI from "../../services/branch/createBranch";
-// import { ReducerType } from '@reduxjs/toolkit';
+import CreateBranchAPI from "@/features/superAdmin/services/branch/createBranch";
 import { toast } from "sonner";
 
 const useCreateBranch = () => {
   const Create = async (payload) => {
     try {
-      console.log("hook :  ", payload);
       const response = await CreateBranchAPI(payload);
-      console.log("hook res: ", response);
-      toast.success("Branch Created Successfully!", {
+      toast.success(response?.message, {
         duration: 700,
       });
-      return response.data;
+      return response?.data;
     } catch (err) {
-      toast.error(err.message, {
-        duration: 700,
-      });
-      return err;
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.data?.errors?.[0]?.message ||
+          err?.message ||
+          "Failed to create branch",
+        { duration: 700 },
+      );
+      // Rethrow so the caller can keep the form open with the user's input.
+      throw err;
     }
   };
   return { Create };

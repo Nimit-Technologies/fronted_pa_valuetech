@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,17 +42,17 @@ const DepartmentDropDown = ({ value, onSelect, disabled = false }) => {
         .includes(searchTerm.toLowerCase()),
   );
 
-  const fetchDepartments = async ({
-    direction = "next",
-    cursorId = "",
-  } = {}) => {
-    await allDepartment({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
-  };
+  const fetchDepartments = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
+      await allDepartment({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
+    },
+    [allDepartment],
+  );
 
   useEffect(() => {
     if (!isOpen || departmentData.length > 0) return;
     fetchDepartments();
-  }, [isOpen, departmentData.length]);
+  }, [isOpen, departmentData.length, fetchDepartments]);
 
   const handleSelectDepartment = (departmentItem) => {
     onSelect?.(departmentItem);

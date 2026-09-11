@@ -10,36 +10,52 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import useCreateBranch from "../../hooks/branch/useCreateBranch";
-import useAllBranch from "../../hooks/branch/useAllBranch";
-const CreateBranch = () => {
+
+const CreateBranch = ({ onCreated, disabled = false }) => {
   const { Create } = useCreateBranch();
-  const { allBranch } = useAllBranch();
   const [branchName, setBranchName] = useState("");
+  const [status, setStatus] = useState("true");
   const [open, setOpen] = useState(false);
+
+  const resetForm = () => {
+    setBranchName("");
+    setStatus("true");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!branchName.trim()) return;
-    // TODO: wire up with API
-    // console.log("Creating branch:", branchName.trim());
 
     try {
-      await Create({ name: branchName.trim() });
-      await allBranch();
+      await Create({ name: branchName.trim(), is_active: status === "true" });
     } catch (err) {
       console.error("Failed to create branch:", err);
+      return;
     }
 
-    setBranchName("");
+    onCreated?.();
+    resetForm();
     setOpen(false);
   };
 
+  const handleOpenChange = (next) => {
+    if (!next) resetForm();
+    setOpen(next);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button className="gap-2 whitespace-nowrap">
+        <Button className="gap-2 whitespace-nowrap" disabled={disabled}>
           <Plus size={16} />
           Create Branch
         </Button>
@@ -67,13 +83,27 @@ const CreateBranch = () => {
               required
             />
           </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="branchStatus" className="text-foreground">
+              Status
+            </Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger id="branchStatus" className="h-9 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Active</SelectItem>
+                <SelectItem value="false">In Active</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex gap-2 justify-end">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
               onClick={() => {
-                setBranchName("");
+                resetForm();
                 setOpen(false);
               }}
             >

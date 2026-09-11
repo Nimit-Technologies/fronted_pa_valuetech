@@ -1,5 +1,3 @@
-import React from "react";
-
 export const normalizeBranch = (rawBranch) => {
   if (!rawBranch) return null;
 
@@ -9,6 +7,7 @@ export const normalizeBranch = (rawBranch) => {
     name: branchData.name ?? branchData.branch_name ?? "N/A",
     code: branchData.code ?? branchData.branch_code ?? "",
     isActive: branchData.is_active ?? branchData.status === "ACTIVE",
+    isDeleted: branchData.is_deleted ?? Boolean(branchData.deleted_at),
   };
 };
 

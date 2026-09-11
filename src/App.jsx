@@ -4,15 +4,17 @@ import Navbar from "@/components/shared/navigation/navbar";
 import Footer from "@/components/shared/navigation/footer";
 
 import useVerifySession from "@/features/auth/hooks/useVerifySession";
+import Login from "@/features/auth/pages/login";
+
 import PublicOnlyRoute from "@/features/auth/guards/publicOnlyRoute";
 import ProtectedRoute from "@/features/auth/guards/protectedRoute";
 
 import UserProfile from "@/components/shared/userProfile";
 
-import Login from "@/features/auth/pages/login";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Loader2 } from "lucide-react";
 
+//super admin module
 import SuperAdmin from "@/pages/superAdmin";
 import SuperAdminHome from "@/features/superAdmin/pages/home";
 import Branch from "@/features/superAdmin/pages/branch";
@@ -95,7 +97,7 @@ const App = () => {
             <Route path="user/view/:id" element={<ViewUser />} />
             <Route path="user/create" element={<CreateUser />} />
             <Route path="user/update/:id" element={<UpdateUser />} />
-            <Route path="user-profile" element={<UserProfile />} />
+            <Route path="user-profile/:id?" element={<UserProfile />} />
           </Route>
 
           {/* coordinator */}
@@ -112,7 +114,7 @@ const App = () => {
             <Route path="case/create" element={<CreateCase />} />
             <Route path="case/view/:id" element={<ViewCase />} />
             <Route path="case/update/:id" element={<UpdateCase />} />
-            <Route path="user-profile" element={<UserProfile />} />
+            <Route path="user-profile/:id?" element={<UserProfile />} />
           </Route>
           {/* engineer */}
           <Route
@@ -127,7 +129,7 @@ const App = () => {
             <Route path="case" element={<EngineerCaseDashboard />} />
             <Route path="case/view/:id" element={<EngineerViewCase />} />
             <Route path="report/create/:id" element={<Report />} />
-            <Route path="user-profile" element={<UserProfile />} />
+            <Route path="user-profile/:id?" element={<UserProfile />} />
           </Route>
 
           {/* branch admin */}

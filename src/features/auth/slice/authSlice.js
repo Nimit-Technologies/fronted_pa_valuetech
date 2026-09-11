@@ -1,10 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// No `token` field: auth is httpOnly-cookie-only (see backend
-// auth.login.js) — the JWT is never returned in the JSON body, so a client
-// -side token field would always be null and implies a bearer-token flow
-// that doesn't exist. Session state lives in the cookie; this slice only
-// mirrors the *identity* the server told us about, for UI purposes.
 const initialState = {
   user: null,
   isAuthenticated: false,

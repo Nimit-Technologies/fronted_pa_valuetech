@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,20 +33,28 @@ const BranchDropDown = ({ value, onSelect, disabled = false }) => {
 
   const selectedBranchName = typeof value === "object" ? value?.name : value;
 
+  // A soft-deleted branch can't be assigned to anything, so keep it out
+  // of the picker even though the list API now returns deleted rows too.
   const filteredBranches = branchData.filter(
     (branchItem) =>
-      branchItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (branchItem.code || "").toLowerCase().includes(searchTerm.toLowerCase()),
+      !branchItem.isDeleted &&
+      (branchItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (branchItem.code || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())),
   );
 
-  const fetchBranches = async ({ direction = "next", cursorId = "" } = {}) => {
-    await allBranch({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
-  };
+  const fetchBranches = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
+      await allBranch({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
+    },
+    [allBranch],
+  );
 
   useEffect(() => {
     if (!isOpen || branchData.length > 0) return;
     fetchBranches();
-  }, [isOpen, branchData.length]);
+  }, [isOpen, branchData.length, fetchBranches]);
 
   const handleSelectBranch = (branchItem) => {
     onSelect?.(branchItem);
@@ -54,12 +62,12 @@ const BranchDropDown = ({ value, onSelect, disabled = false }) => {
   };
 
   const handleNextPage = async () => {
-    if (!branch.hashNextPage) return;
+    if (!branch.hasNextPage) return;
     await fetchBranches({ direction: "next", cursorId: branch.branchLastId });
   };
 
   const handlePrevPage = async () => {
-    if (!branch.hashPreviousPage) return;
+    if (!branch.hasPreviousPage) return;
     await fetchBranches({
       direction: "previous",
       cursorId: branch.branchFirstId,
@@ -127,7 +135,7 @@ const BranchDropDown = ({ value, onSelect, disabled = false }) => {
             variant="ghost"
             size="sm"
             onClick={handlePrevPage}
-            disabled={!branch.hashPreviousPage || filteredBranches.length === 0}
+            disabled={!branch.hasPreviousPage || filteredBranches.length === 0}
             className="h-8 px-2"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
@@ -142,7 +150,7 @@ const BranchDropDown = ({ value, onSelect, disabled = false }) => {
             variant="ghost"
             size="sm"
             onClick={handleNextPage}
-            disabled={!branch.hashNextPage || filteredBranches.length === 0}
+            disabled={!branch.hasNextPage || filteredBranches.length === 0}
             className="h-8 px-2"
           >
             Next

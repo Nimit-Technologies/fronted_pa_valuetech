@@ -10,38 +10,68 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Pencil } from "lucide-react";
 import useUpdateBranch from "../../hooks/branch/useUpdateBranch";
-import useAllBranch from "../../hooks/branch/useAllBranch";
 
-const UpdateBranch = ({ defaultName = "", branchId }) => {
+const UpdateBranch = ({
+  defaultName = "",
+  branchId,
+  defaultStatus = true,
+  onUpdated,
+}) => {
   const { Update } = useUpdateBranch();
-  const { allBranch } = useAllBranch();
   const [branchName, setBranchName] = useState(defaultName);
+  const [status, setStatus] = useState(defaultStatus ? "true" : "false");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!branchName.trim()) return;
+
     const payload = {
       data: {
         id: branchId,
         name: branchName.trim(),
+        is_active: status === "true",
       },
     };
-    e.preventDefault();
-    if (!branchName.trim()) return;
-    // TODO: wire up with API
-    console.log("Updating branch:", branchId, branchName.trim());
+
     try {
       await Update(payload);
-      await allBranch();
     } catch (err) {
       console.error("Failed to update branch:", err);
+      return;
     }
+    onUpdated?.();
     setOpen(false);
   };
 
+  const resetToDefaults = () => {
+    setBranchName(defaultName);
+    setStatus(defaultStatus ? "true" : "false");
+  };
+
+  const handleCancel = () => {
+    resetToDefaults();
+    setOpen(false);
+  };
+
+  // Re-seed the form from props every time the popover opens, so a row whose
+  // data changed since mount (after a reload or re-sort) shows current values.
+  const handleOpenChange = (next) => {
+    if (next) resetToDefaults();
+    setOpen(next);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -74,15 +104,26 @@ const UpdateBranch = ({ defaultName = "", branchId }) => {
               required
             />
           </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="branchStatus" className="text-foreground">
+              Status
+            </Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger id="branchStatus" className="h-9 w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Active</SelectItem>
+                <SelectItem value="false">In Active</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex gap-2 justify-end">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => {
-                setBranchName(defaultName);
-                setOpen(false);
-              }}
+              onClick={handleCancel}
             >
               Cancel
             </Button>

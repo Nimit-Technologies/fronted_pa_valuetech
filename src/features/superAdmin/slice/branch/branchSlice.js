@@ -1,14 +1,16 @@
-// import React, { act } from 'react'
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   branchData: [],
   branchFirstId: null,
   branchLastId: null,
-  hashNextPage: false,
-  hashPreviousPage: false,
-  dataLimit: 10,
-  direction: "next",
+  hasNextPage: false,
+  hasPreviousPage: false,
+  branchLength: 0,
+  totalCount: 0,
+  totalActiveCount: 0,
+  dataLimit: null,
+  direction: null,
   searchQuery: "",
   loading: false,
   error: null,
@@ -29,18 +31,25 @@ const branchSlice = createSlice({
         (state.error = action.payload));
     },
 
-    setBranch: (state, action) => {
+    branchSuccess: (state, action) => {
       const payload = action.payload || [];
       const data = Array.isArray(payload) ? payload : payload.data || [];
 
       state.branchData = data;
       state.branchFirstId = payload.branchFirstId || null;
       state.branchLastId = payload.branchLastId || null;
-      state.hashNextPage = payload.hasNextPage || false;
-      state.hashPreviousPage = payload.hasPreviousPage || false;
+      state.hasNextPage = payload.hasNextPage || false;
+      state.hasPreviousPage = payload.hasPreviousPage || false;
       state.dataLimit = payload.dataLimit || state.dataLimit;
       state.branchLength = payload.branchLength || data.length;
-
+      // Only a fresh view (first page) carries the totals; cursor pages send
+      // null, so keep the last known values while the user pages around.
+      if (typeof payload.totalCount === "number") {
+        state.totalCount = payload.totalCount;
+      }
+      if (typeof payload.totalActiveCount === "number") {
+        state.totalActiveCount = payload.totalActiveCount;
+      }
       state.loading = false;
       state.error = null;
       state.success = true;
@@ -59,7 +68,7 @@ const branchSlice = createSlice({
 export const {
   branchStart,
   branchFailure,
-  setBranch,
+  branchSuccess,
   setSearchQuery,
   setPageDirection,
 } = branchSlice.actions;

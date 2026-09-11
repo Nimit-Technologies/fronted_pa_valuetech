@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
@@ -17,13 +17,16 @@ const User = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  const fetchUsers = async ({ direction = "next", cursorId = "" } = {}) => {
-    await allUser({ direction, cursorId, dataLimit: 5 });
-  };
+  const fetchUsers = useCallback(
+    async ({ direction = "next", cursorId = "" } = {}) => {
+      await allUser({ direction, cursorId, dataLimit: 5 });
+    },
+    [allUser],
+  );
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const filteredData = userData.filter((item) => {
     const fullName = `${item.first_name ?? ""} ${item.last_name ?? ""}`

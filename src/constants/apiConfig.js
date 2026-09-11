@@ -1,20 +1,11 @@
 import { CREDENTIALS } from "./credentials.js";
 
-/**
- * Environment variables the API layer cannot function without. `key` is the
- * resolved field on CREDENTIALS; `envVar` is the underlying Vite env var
- * name, surfaced in the error so it points straight at the .env file.
- */
 const REQUIRED_CREDENTIALS = [
   { key: "BACKEND_URL", envVar: "VITE_SERVER_BASE_URL" },
   { key: "SERVER_PORT", envVar: "VITE_SERVER_PORT" },
   { key: "API_VERSION", envVar: "VITE_API_VERSION" },
 ];
 
-/**
- * Fails fast (at import time) if any required backend env var is missing,
- * rather than letting the app boot with a broken/undefined API base URL.
- */
 function assertRequiredCredentials() {
   const missing = REQUIRED_CREDENTIALS.filter(({ key }) => !CREDENTIALS[key]);
 
@@ -29,10 +20,6 @@ function assertRequiredCredentials() {
 
 assertRequiredCredentials();
 
-// `baseBackendUrl` is host:port only; `apiBackendUrl` adds the versioned API
-// prefix. The shared axios instance (src/utils/axiosInstance.js) uses
-// `apiBackendUrl` as its baseURL, so relative call sites (e.g.
-// api.get("/branch/all-branch")) resolve against the versioned path.
 export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`;
 export const apiBackendUrl = `${baseBackendUrl}/${CREDENTIALS.API_VERSION}`;
 
@@ -47,11 +34,6 @@ function defineEndpoints(resource, actions) {
   return Object.freeze(endpoints);
 }
 
-/**
- * Central, immutable registry of backend endpoints grouped by resource.
- * Add new resource groups here (via `defineEndpoints`) rather than building
- * ad-hoc URL strings at call sites.
- */
 export const apiConfig = Object.freeze({
   baseBackendUrl,
   apiBackendUrl,
@@ -60,5 +42,20 @@ export const apiConfig = Object.freeze({
     login: "login",
     logout: "logout",
     session: "session",
+  }),
+  user: defineEndpoints("user", {
+    getUserById: "",
+    getAadhaarByEmployeeId: "aadhaar",
+    createUser: "create-user",
+  }),
+  branch: defineEndpoints("branch", {
+    getAllBranches: "all-branch",
+    getBranchById: "",
+    createBranch: "create-branch",
+    updateBranch: "update",
+    deleteBranch: "delete",
+    softDeleteBranch: "soft-delete",
+    updateBranchStatus: "status",
+    restoreBranch: "restore",
   }),
 });

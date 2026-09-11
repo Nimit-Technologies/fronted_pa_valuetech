@@ -1,10 +1,10 @@
-import DeleteBranchAPI from "@/features/superAdmin/services/branch/deleteBranch";
+import RestoreBranchAPI from "@/features/superAdmin/services/branch/restoreBranch";
 import { toast } from "sonner";
 
-const useDeleteBranch = () => {
-  const Delete = async (payload) => {
+const useRestoreBranch = () => {
+  const Restore = async (payload) => {
     try {
-      const response = await DeleteBranchAPI(payload);
+      const response = await RestoreBranchAPI(payload);
       toast.success(response?.message, {
         duration: 700,
       });
@@ -14,13 +14,13 @@ const useDeleteBranch = () => {
         err?.response?.data?.message ||
           err?.response?.data?.errors?.[0]?.message ||
           err?.message ||
-          "Failed to delete branch",
+          "Failed to restore branch",
         { duration: 700 },
       );
       return err;
     }
   };
-  return { Delete };
+  return { Restore };
 };
 
-export default useDeleteBranch;
+export default useRestoreBranch;
