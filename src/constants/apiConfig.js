@@ -48,6 +48,7 @@ export const apiConfig = Object.freeze({
     getUserById: "",
     createUser: "create-user",
     updateUser: "update",
+    updateProfile: "profile",
     deleteUser: "delete",
     softDeleteUser: "soft-delete",
     updateUserStatus: "status",

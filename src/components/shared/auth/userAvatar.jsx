@@ -55,6 +55,12 @@ const UserAvatar = () => {
           >
             view profile
           </Link>
+          <Link
+            className="text-sm text-primary hover:text-primary/80 transition-colors duration-200"
+            to={`${basePath}/manage-profile`}
+          >
+            manage profile
+          </Link>
           <Logout />
         </div>
       </PopoverContent>
