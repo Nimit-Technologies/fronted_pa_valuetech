@@ -5,3 +5,4 @@ coverage
 .agents/*
 .claude/*
 .vscode/*
+docker-compose.yaml/*
