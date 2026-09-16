@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/superAdmin",
   reporter: "html",
   use: {
     baseURL: "http://localhost:5173",

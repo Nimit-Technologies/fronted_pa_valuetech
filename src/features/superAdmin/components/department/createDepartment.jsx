@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   Popover,
   PopoverContent,
@@ -8,11 +7,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-
 import {
   Select,
   SelectContent,
@@ -20,112 +14,92 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
-import useAllBranch from "../../hooks/branch/useAllBranch";
 import useCreateDepartment from "../../hooks/department/useCreateDepartment";
-import useAllDepartment from "../../hooks/department/useAllDepartment";
 
-const CreateDepartment = () => {
+const EMPTY_BRANCH = { branch_id: "", name: "" };
+
+const CreateDepartment = ({ onCreated, disabled = false }) => {
   const { Create } = useCreateDepartment();
-  const { allDepartment } = useAllDepartment();
-
-  const branchData = {
-    branchName: "",
-    branchId: "",
-  };
-
   const [departmentName, setDepartmentName] = useState("");
-  const [status, setStatus] = useState("");
-  const [branch, setBranch] = useState(branchData);
+  const [branch, setBranch] = useState(EMPTY_BRANCH);
   const [open, setOpen] = useState(false);
-  const { allBranch } = useAllBranch();
+  const [status, setStatus] = useState("");
 
-  const handleOpenChange = (nextOpen) => {
-    setOpen(nextOpen);
-    if (nextOpen) allBranch();
+  const resetForm = () => {
+    setDepartmentName("");
+    setBranch(EMPTY_BRANCH);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!departmentName.trim() || !branch.branch_id) return;
 
-    if (!departmentName.trim() || !status || !branch.branchId) return;
-
-    console.log({
-      name: departmentName.trim(),
-      status,
-      branch_id: branch.branchId,
-    });
     try {
-      await Create({ name: departmentName.trim(), branch_id: branch.branchId });
-      await allDepartment();
+      await Create({
+        name: departmentName.trim(),
+        branch_id: branch.branch_id,
+      });
     } catch (err) {
       console.error("Failed to create department:", err);
+      return;
     }
-    // Reset Form
-    setDepartmentName("");
-    setStatus("");
+
+    onCreated?.();
+    resetForm();
     setOpen(false);
   };
 
-  const HandleBranchSel = (selectedBranch) => {
-    setBranch({
-      branchName: selectedBranch.name,
-      branchId: selectedBranch.id,
-    });
-  };
-
-  const handleCancel = () => {
-    setDepartmentName("");
-    setStatus("");
-    setOpen(false);
+  const handleOpenChange = (next) => {
+    if (!next) resetForm();
+    setOpen(next);
   };
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      {/* Button */}
       <PopoverTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2 whitespace-nowrap" disabled={disabled}>
           <Plus size={16} />
           Create Department
         </Button>
       </PopoverTrigger>
-
-      {/* Popup */}
-      <PopoverContent align="end" className="w-[360px] p-5">
-        <PopoverHeader className="px-0 pt-0">
-          <PopoverTitle>Create Department</PopoverTitle>
-
-          <PopoverDescription>
-            Enter department details below.
+      <PopoverContent className="w-80" align="end">
+        <PopoverHeader>
+          <PopoverTitle className="text-base font-semibold text-foreground">
+            Create Department
+          </PopoverTitle>
+          <PopoverDescription className="text-sm text-muted-foreground">
+            Enter the name and branch for the new department.
           </PopoverDescription>
         </PopoverHeader>
-
-        <form onSubmit={handleSubmit} className="mt-5 space-y-5">
-          {/* Department Name */}
-          <div className="flex flex-col gap-2 w-full">
-            <Label>Department Name</Label>
-
+        <form onSubmit={handleSubmit} className="mt-4 grid gap-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="departmentName" className="text-foreground">
+              Department Name
+            </Label>
             <Input
-              placeholder="Enter Department Name"
+              id="departmentName"
               value={departmentName}
               onChange={(e) => setDepartmentName(e.target.value)}
-              className="w-full"
+              placeholder="e.g. Engineering"
+              className="h-9 bg-background border-border text-foreground placeholder:text-muted-foreground"
+              required
             />
           </div>
-          {/* Branch */}
-
+          <div className="grid gap-1.5">
+            <Label className="text-foreground">Branch</Label>
+            <BranchDropDown value={branch} onSelect={setBranch} />
+          </div>
           <div className="flex flex-col gap-2 w-full">
-            <label htmlFor="branch">Branch</label>
-            <BranchDropDown
-              value={{ name: branch.branchName, id: branch.branchId }}
-              onSelect={HandleBranchSel}
-            ></BranchDropDown>
-            {/* <Select value={branch} onValueChange={setBranch}>
+            <Label htmlFor="status">Status</Label>
 
-              <SelectTrigger id="branch" className="w-full">
-                <SelectValue placeholder="Select Branch"></SelectValue>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger id="status" className="w-full">
+                <SelectValue placeholder="Select Status" />
               </SelectTrigger>
 
               <SelectContent
@@ -135,36 +109,26 @@ const CreateDepartment = () => {
                 sideOffset={6}
                 className="w-[--radix-select-trigger-width]"
               >
-                <SelectItem key={0} value={"Zoho Developer"}>Noida</SelectItem>
-
-              </SelectContent>
-            </Select> */}
-          </div>
-
-          {/* Status */}
-          <div className="flex flex-col gap-2 w-full">
-            <Label>Status</Label>
-
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Status" />
-              </SelectTrigger>
-
-              <SelectContent>
                 <SelectItem value="active">Active</SelectItem>
-
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={handleCancel}>
+          <div className="flex gap-2 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                resetForm();
+                setOpen(false);
+              }}
+            >
               Cancel
             </Button>
-
-            <Button type="submit">Create Department</Button>
+            <Button type="submit" className="flex-1">
+              Create
+            </Button>
           </div>
         </form>
       </PopoverContent>

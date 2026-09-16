@@ -1,6 +1,6 @@
-import React from "react";
 import CreateUserAPI from "@/features/superAdmin/services/user/createUser";
 import { toast } from "sonner";
+
 const useCreateUser = () => {
   const create = async (payload) => {
     try {
@@ -8,18 +8,17 @@ const useCreateUser = () => {
       toast.success(response?.message || "User created successfully", {
         duration: 700,
       });
-      return response;
+      return response?.data;
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||
           err?.response?.data?.errors?.[0]?.message ||
           err?.message ||
           "Failed to create user",
-        {
-          duration: 700,
-        },
+        { duration: 700 },
       );
-      console.log("Error in create user", err);
+      // Rethrow so the caller can keep the form open with the user's input.
+      throw err;
     }
   };
   return { create };

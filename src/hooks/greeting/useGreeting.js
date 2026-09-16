@@ -1,8 +1,5 @@
 import useSession from "@/features/auth/hooks/useSession";
 
-// A real hook (not a plain function returning a string) because it calls
-// useSession internally; naming and calling it any other way is what the
-// react-hooks/rules-of-hooks lint error was catching.
 export const useGreetingUser = () => {
   const { user } = useSession();
   return user?.first_name ?? "";

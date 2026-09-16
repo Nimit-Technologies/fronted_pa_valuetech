@@ -1,6 +1,5 @@
 import React from "react";
-import { Trash2 } from "lucide-react";
-
+import { Trash2, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,24 +8,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Button } from "@/components/ui/button";
+import UpdateRole from "@/features/superAdmin/components/role/updateRole";
 
-import UpdateRole from "./updateRole";
-import Pagination from "@/features/superAdmin/components/pagination";
-
+// Rows are the raw list-API shape: id, name, is_active, department_id,
+// branch_id, department { id, name }, branch { id, name }. The list endpoint
+// filters out soft-deleted roles, so unlike departments there is no
+// "Deleted" / Restore state to render here.
 const RoleTable = ({
-  data = [],
+  data,
   headers = [],
-  hasNextPage = false,
-  hasPreviousPage = false,
-  onNext,
-  onPrev,
+  isLoading = false,
+  onEdited,
+  onDelete,
+  onToggleStatus,
 }) => {
   const rows = data ?? [];
+  const colSpan = headers.length || 6;
+
+  const firstLoad = isLoading && rows.length === 0;
+  const paging = isLoading && rows.length > 0;
 
   return (
-    <div>
+    <div className="relative">
       <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
         <Table>
           <TableHeader>
@@ -41,70 +45,99 @@ const RoleTable = ({
               ))}
             </TableRow>
           </TableHeader>
+          <TableBody
+            className={
+              paging
+                ? "opacity-50 pointer-events-none transition-opacity"
+                : "transition-opacity"
+            }
+          >
+            {firstLoad && (
+              <TableRow>
+                <TableCell colSpan={colSpan} className="py-16 text-center">
+                  <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading roles…
+                  </span>
+                </TableCell>
+              </TableRow>
+            )}
 
-          <TableBody>
-            {rows.length === 0 ? (
+            {!isLoading && rows.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={headers.length || 5}
-                  className="text-center text-muted-foreground py-12"
+                  colSpan={colSpan}
+                  className="text-center text-muted-foreground py-12 text-sm"
                 >
                   No roles found.
                 </TableCell>
               </TableRow>
-            ) : (
-              rows.map((role, index) => (
-                <TableRow key={role.id} className="hover:bg-muted/30">
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className="capitalize">{role.name}</TableCell>
-                  <TableCell className="capitalize">
-                    {role.department?.name || "—"}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        role.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-500 text-white"
-                      }`}
-                    >
-                      {role.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <UpdateRole
-                        roleId={role.id}
-                        defaultRoleName={role.name}
-                        defaultDepartment={role.department?.id}
-                        defaultDepartmentName={role.department?.name}
-                        defaultStatus={role.isActive}
-                      />
-
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:text-destructive"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
             )}
+
+            {rows.map((role, index) => (
+              <TableRow
+                key={role.id}
+                className="transition-colors hover:bg-muted/30"
+              >
+                <TableCell className="text-foreground font-medium">
+                  {index + 1}
+                </TableCell>
+                <TableCell className="capitalize text-foreground">
+                  {role.name}
+                </TableCell>
+                <TableCell className="capitalize text-foreground">
+                  {role.department?.name || "N/A"}
+                </TableCell>
+                <TableCell className="capitalize text-foreground">
+                  {role.branch?.name || "N/A"}
+                </TableCell>
+                <TableCell>
+                  <button
+                    type="button"
+                    onClick={() => onToggleStatus?.(role)}
+                    title="Click to toggle status"
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80 ${
+                      role.is_active
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-500 text-white"
+                    }`}
+                  >
+                    {role.is_active ? "Active" : "Inactive"}
+                  </button>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1.5">
+                    <UpdateRole
+                      defaultName={role.name}
+                      roleId={role.id}
+                      defaultStatus={role.is_active}
+                      defaultDepartment={{
+                        id: role.department_id ?? role.department?.id ?? "",
+                        name: role.department?.name ?? "",
+                      }}
+                      onUpdated={onEdited}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => onDelete?.(role)}
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
-
-        <Pagination
-          currentPage={1}
-          totalPages={1}
-          hasPreviousPage={hasPreviousPage}
-          hasNextPage={hasNextPage}
-          onPrev={onPrev}
-          onNext={onNext}
-        />
       </div>
+
+      {paging && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-card/50">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      )}
     </div>
   );
 };

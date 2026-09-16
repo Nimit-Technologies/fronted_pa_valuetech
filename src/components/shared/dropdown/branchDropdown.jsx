@@ -1,8 +1,6 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,152 +9,172 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { useSelector } from "react-redux";
+import Pagination from "@/components/shared/pagination";
+import SearchInput from "@/components/shared/searchInput";
 import useAllBranch from "@/features/superAdmin/hooks/branch/useAllBranch";
+import { usePaginationController } from "@/hooks/pagination/usePaginationController";
 
-const ITEMS_PER_PAGE = 5;
+const FEATURE_KEY = "branch-dropdown";
 
-const BranchDropDown = ({ value, onSelect, disabled = false }) => {
-  const branch = useSelector((state) => state.branch);
-  const branchData = branch.branchData || [];
-  const { allBranch } = useAllBranch();
+const BranchDropDown = ({
+  value,
+  onSelect,
+  disabled = false,
+  placeholder = "Select Branch",
+}) => {
+  const {
+    allBranch,
+    branchData,
+    branchFirstId,
+    branchLastId,
+    hasNextPage,
+    hasPreviousPage,
+    loading,
+  } = useAllBranch();
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const selectedBranchName = typeof value === "object" ? value?.name : value;
+  const isObjectValue = typeof value === "object" && value !== null;
+  const selectedId = isObjectValue
+    ? (value.branch_id ?? value.id ?? "")
+    : (value ?? "");
+  const selectedName = isObjectValue
+    ? value.name
+    : branchData.find((branchItem) => branchItem.id === selectedId)?.name;
 
-  // A soft-deleted branch can't be assigned to anything, so keep it out
-  // of the picker even though the list API now returns deleted rows too.
-  const filteredBranches = branchData.filter(
-    (branchItem) =>
-      !branchItem.isDeleted &&
-      (branchItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (branchItem.code || "")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())),
+  // Only live, active branches are assignable. The list API also returns
+  // soft-deleted and inactive rows, so hide those here.
+  const visibleBranches = branchData.filter(
+    (branchItem) => !branchItem.isDeleted && branchItem.isActive,
   );
 
   const fetchBranches = useCallback(
-    async ({ direction = "next", cursorId = "" } = {}) => {
-      await allBranch({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
-    },
-    [allBranch],
+    ({ direction = "next", cursorId = "" } = {}) =>
+      allBranch({ direction, cursorId, search: searchTerm }),
+    [allBranch, searchTerm],
   );
 
-  useEffect(() => {
-    if (!isOpen || branchData.length > 0) return;
-    fetchBranches();
-  }, [isOpen, branchData.length, fetchBranches]);
+  const {
+    currentPage,
+    canGoNext,
+    canGoPrevious,
+    handleNext,
+    handlePrevious,
+    resetToFirstPage,
+  } = usePaginationController({
+    featureKey: FEATURE_KEY,
+    isLoading: loading,
+    hasNextPage,
+    hasPreviousPage,
+    firstId: branchFirstId,
+    lastId: branchLastId,
+    onFetch: fetchBranches,
+  });
 
-  const handleSelectBranch = (branchItem) => {
-    onSelect?.(branchItem);
+  const handleOpenChange = (open) => {
+    setIsOpen(open);
+    if (!open) return;
     setSearchTerm("");
+    resetToFirstPage();
+    allBranch();
   };
 
-  const handleNextPage = async () => {
-    if (!branch.hasNextPage) return;
-    await fetchBranches({ direction: "next", cursorId: branch.branchLastId });
+  // Debounced by SearchInput. Every new term restarts from page 1.
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    resetToFirstPage();
+    allBranch({ search: term });
   };
 
-  const handlePrevPage = async () => {
-    if (!branch.hasPreviousPage) return;
-    await fetchBranches({
-      direction: "previous",
-      cursorId: branch.branchFirstId,
-    });
+  const handleSelect = (branchItem) => {
+    onSelect?.({ branch_id: branchItem.id, name: branchItem.name });
   };
+
+  const keepTypingInInput = (event) => {
+    if (event.key.length === 1) event.stopPropagation();
+  };
+
+  const showInitialLoading = loading && visibleBranches.length === 0;
 
   return (
-    <DropdownMenu onOpenChange={setIsOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild disabled={disabled}>
         <Button
           type="button"
           variant="outline"
           className="flex h-11 w-full items-center justify-between px-3 font-normal"
         >
-          <span>{selectedBranchName || "Select Branch"}</span>
-          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          <span
+            className={selectedName ? "capitalize" : "text-muted-foreground"}
+          >
+            {selectedName || placeholder}
+          </span>
+          <ChevronDown
+            size={20}
+            className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[calc(100vw-2rem)] sm:w-80"
         align="start"
       >
-        <div className="relative px-2 pt-2">
-          <Search className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
-          <Input
+        <div className="px-2 pt-2">
+          <SearchInput
             placeholder="Search branch..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-            }}
-            className="pl-8"
+            onSearch={handleSearch}
+            onKeyDown={keepTypingInInput}
+            disabled={disabled}
           />
         </div>
 
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup className="max-h-64 overflow-y-auto">
-          {filteredBranches.length > 0 ? (
-            filteredBranches.map((branchItem) => (
+          {showInitialLoading ? (
+            <div className="flex items-center justify-center gap-2 px-2 py-4 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading branches…
+            </div>
+          ) : visibleBranches.length > 0 ? (
+            visibleBranches.map((branchItem) => (
               <DropdownMenuItem
                 key={branchItem.id}
-                onClick={() => handleSelectBranch(branchItem)}
+                onClick={() => handleSelect(branchItem)}
                 className="cursor-pointer"
-                data-active={selectedBranchName === branchItem.name}
+                data-active={selectedId === branchItem.id}
               >
                 <div className="flex flex-col">
-                  <span>{branchItem.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {branchItem.code || branchItem.name}
-                  </span>
+                  <span className="capitalize">{branchItem.name}</span>
+                  {branchItem.code ? (
+                    <span className="text-xs text-muted-foreground">
+                      {branchItem.code}
+                    </span>
+                  ) : null}
                 </div>
               </DropdownMenuItem>
             ))
           ) : (
             <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-              No branches found
+              {searchTerm
+                ? `No branches match "${searchTerm}".`
+                : "No branches found"}
             </div>
           )}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        <div className="flex items-center justify-between px-2 py-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handlePrevPage}
-            disabled={!branch.hasPreviousPage || filteredBranches.length === 0}
-            className="h-8 px-2"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {filteredBranches.length > 0
-              ? `${Math.min(1, filteredBranches.length)}-${filteredBranches.length} of ${branch.branchLength || filteredBranches.length}`
-              : "0 items"}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNextPage}
-            disabled={!branch.hasNextPage || filteredBranches.length === 0}
-            className="h-8 px-2"
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
+        <Pagination
+          compact
+          currentPage={currentPage}
+          hasPreviousPage={canGoPrevious}
+          hasNextPage={canGoNext}
+          onPrev={handlePrevious}
+          onNext={handleNext}
+          disabled={loading}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );

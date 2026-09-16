@@ -1,28 +1,27 @@
-import React from "react";
-import updateDepartmentAPI from "../../services/department/updateDepartment";
+import UpdateDepartmentAPI from "@/features/superAdmin/services/department/updateDepartment";
 import { toast } from "sonner";
-import { useState } from "react";
-const useUpdateDepartment = () => {
-  const [setLoading] = useState(false);
 
-  const update = async (payload) => {
-    setLoading(true);
+const useUpdateDepartment = () => {
+  const Update = async (payload) => {
     try {
-      const response = await updateDepartmentAPI(payload);
-      console.log(response);
-      toast.success("Department updated successfully!", {
+      const response = await UpdateDepartmentAPI(payload);
+      toast.success(response?.message, {
         duration: 700,
       });
       return response;
     } catch (err) {
-      console.log(err);
-      toast.error(err.message, {
-        duration: 700,
-      });
-      return err;
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.data?.errors?.[0]?.message ||
+          err?.message ||
+          "Failed to update department",
+        { duration: 700 },
+      );
+      // Rethrow so the caller can keep the form open with the user's input.
+      throw err;
     }
   };
-  return { update };
+  return { Update };
 };
 
 export default useUpdateDepartment;

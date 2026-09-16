@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import getAadhaarByEmployeeIdAPI from "@/features/superAdmin/services/user/getAadhaarByEmployeeId";
 import { toast } from "sonner";
+import logger from "@/utils/logger";
 
 const useGetAadhaarByEmployeeId = () => {
   // Memoised so call sites can list it in a `useEffect`/`useCallback` dep array
@@ -19,7 +20,7 @@ const useGetAadhaarByEmployeeId = () => {
           duration: 700,
         },
       );
-      console.log("Error revealing Aadhaar", err);
+      logger.error("Failed to reveal Aadhaar number", err);
       return undefined;
     }
   }, []);

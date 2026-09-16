@@ -1,14 +1,14 @@
 export const ROLES = {
   SUPER_ADMIN: "super-admin",
   BRANCH_ADMIN: "branch-admin",
-  COORDINATOR: "coordinator",
+  CORDINATOR: "cordinator",
   ENGINEER: "engineer",
 };
 
 export const ROLE_HOME_ROUTES = {
   [ROLES.SUPER_ADMIN]: "/super-admin",
   [ROLES.BRANCH_ADMIN]: "/branch-admin",
-  [ROLES.COORDINATOR]: "/coordinator",
+  [ROLES.CORDINATOR]: "/cordinator",
   [ROLES.ENGINEER]: "/engineer",
 };
 

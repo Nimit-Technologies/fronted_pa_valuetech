@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import getUserByIdAPI from "@/features/superAdmin/services/user/getUserById";
 import { toast } from "sonner";
+import logger from "@/utils/logger";
 
 const useGetUserById = () => {
   // Memoised so callers can safely list it in a `useEffect` dependency array
@@ -19,7 +20,7 @@ const useGetUserById = () => {
           duration: 700,
         },
       );
-      console.log("Error in fetch user", err);
+      logger.error("Failed to fetch user", err);
       return undefined;
     }
   }, []);

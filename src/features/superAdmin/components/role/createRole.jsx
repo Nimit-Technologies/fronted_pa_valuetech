@@ -7,158 +7,108 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 import { Plus } from "lucide-react";
-import useCreateRole from "../../hooks/role/useCreateRole";
-import useAllRole from "../../hooks/role/useAllRole";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
-import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
+import useCreateRole from "../../hooks/role/useCreateRole";
 
-const IN_Data = {
-  departName: "",
-  departmentId: "",
-  branchName: "",
-  branchId: "",
-};
+const EMPTY_DEPARTMENT = { id: "", name: "" };
 
-const CreateRole = () => {
+const CreateRole = ({ onCreated, disabled = false }) => {
   const { Create } = useCreateRole();
-  const { allRole } = useAllRole();
-
   const [roleName, setRoleName] = useState("");
-  const [form, setForm] = useState(IN_Data);
-  const [status, setStatus] = useState("");
+  const [department, setDepartment] = useState(EMPTY_DEPARTMENT);
   const [open, setOpen] = useState(false);
 
-  const HandleDepartmentSel = (department) => {
-    setForm((prev) => ({
-      ...prev,
-      departName: department?.name || "",
-      departmentId: department?.id || "",
-    }));
+  const resetForm = () => {
+    setRoleName("");
+    setDepartment(EMPTY_DEPARTMENT);
   };
 
-  const HandleBranchSel = (branch) => {
-    setForm((prev) => ({
-      ...prev,
-      branchName: branch?.name || "",
-      branchId: branch?.id || "",
-    }));
+  // DepartmentDropDown hands back the raw department row; keep only what the
+  // form needs so nothing else leaks into the request.
+  const handleDepartmentSelect = (selected) => {
+    setDepartment({ id: selected?.id ?? "", name: selected?.name ?? "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!roleName.trim() || !form.departmentId || !status) return;
+    if (!roleName.trim() || !department.id) return;
 
     try {
-      await Create({
-        name: roleName.trim(),
-        department_id: form.departmentId,
-      });
-      await allRole();
+      // The branch is derived server-side from the department, so a role can
+      // never point at a different branch than its department.
+      await Create({ name: roleName.trim(), department_id: department.id });
     } catch (err) {
-      console.log(err);
+      console.error("Failed to create role:", err);
+      return;
     }
 
-    setRoleName("");
-    setForm(IN_Data);
-    setStatus("");
+    onCreated?.();
+    resetForm();
     setOpen(false);
   };
 
-  const handleCancel = () => {
-    setRoleName("");
-    setForm(IN_Data);
-    setStatus("");
-    setOpen(false);
+  const handleOpenChange = (next) => {
+    if (!next) resetForm();
+    setOpen(next);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2 whitespace-nowrap" disabled={disabled}>
           <Plus size={16} />
           Create Role
         </Button>
       </PopoverTrigger>
-
-      <PopoverContent align="end" className="w-[360px] p-5">
-        <PopoverHeader className="px-0 pt-0">
-          <PopoverTitle>Create Role</PopoverTitle>
-
-          <PopoverDescription>Enter role details below.</PopoverDescription>
+      <PopoverContent className="w-80" align="end">
+        <PopoverHeader>
+          <PopoverTitle className="text-base font-semibold text-foreground">
+            Create Role
+          </PopoverTitle>
+          <PopoverDescription className="text-sm text-muted-foreground">
+            Enter the name and department for the new role.
+          </PopoverDescription>
         </PopoverHeader>
-
-        <form onSubmit={handleSubmit} className="mt-5 space-y-5">
-          <div className="flex flex-col gap-2 w-full">
-            <Label htmlFor="roleName">Role Name</Label>
-
+        <form onSubmit={handleSubmit} className="mt-4 grid gap-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="roleName" className="text-foreground">
+              Role Name
+            </Label>
             <Input
               id="roleName"
-              placeholder="Enter Role Name"
               value={roleName}
               onChange={(e) => setRoleName(e.target.value)}
-              className="w-full"
+              placeholder="e.g. Frontend Engineer"
+              className="h-9 bg-background border-border text-foreground placeholder:text-muted-foreground"
+              required
             />
           </div>
-
-          <div className="flex flex-col gap-2 w-full">
-            <Label htmlFor="department">Department</Label>
-
+          <div className="grid gap-1.5">
+            <Label className="text-foreground">Department</Label>
             <DepartmentDropDown
-              value={form.departName}
-              onSelect={HandleDepartmentSel}
-            ></DepartmentDropDown>
+              value={department}
+              onSelect={handleDepartmentSelect}
+            />
           </div>
-
-          <div className="flex flex-col gap-2 w-full">
-            <label htmlFor="branch">Branch</label>
-            <BranchDropDown
-              value={form.branchName}
-              onSelect={HandleBranchSel}
-            ></BranchDropDown>
-          </div>
-
-          <div className="flex flex-col gap-2 w-full">
-            <Label htmlFor="status">Status</Label>
-
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="status" className="w-full">
-                <SelectValue placeholder="Select Status" />
-              </SelectTrigger>
-
-              <SelectContent
-                position="popper"
-                side="bottom"
-                align="start"
-                sideOffset={6}
-                className="w-[--radix-select-trigger-width]"
-              >
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={handleCancel}>
+          <div className="flex gap-2 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                resetForm();
+                setOpen(false);
+              }}
+            >
               Cancel
             </Button>
-
-            <Button type="submit">Create</Button>
+            <Button type="submit" className="flex-1">
+              Create
+            </Button>
           </div>
         </form>
       </PopoverContent>

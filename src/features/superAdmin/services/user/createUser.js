@@ -1,8 +1,9 @@
 import api from "@/utils/axiosInstance";
+import { apiConfig } from "@/constants/apiConfig";
 
-const createUser = async (payload) => {
-  const response = await api.post("/user/create-user", payload);
+const CreateUserAPI = async (payload) => {
+  const response = await api.post(apiConfig.user.createUser, payload);
   return response.data;
 };
 
-export default createUser;
+export default CreateUserAPI;

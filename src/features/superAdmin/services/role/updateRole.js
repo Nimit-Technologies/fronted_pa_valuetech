@@ -1,9 +1,13 @@
-import React from "react";
 import api from "@/utils/axiosInstance";
-const updateRole = async (payload) => {
+import { apiConfig } from "@/constants/apiConfig";
+
+const UpdateRoleAPI = async (payload) => {
   const { id, ...roleData } = payload.data;
-  const response = await api.put(`/branch/update/${id}`, roleData);
+  const response = await api.put(
+    `${apiConfig.role.updateRole}/${id}`,
+    roleData,
+  );
   return response.data;
 };
 
-export default updateRole;
+export default UpdateRoleAPI;

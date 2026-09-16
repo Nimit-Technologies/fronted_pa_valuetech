@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   Popover,
   PopoverContent,
@@ -8,12 +7,9 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import useUpdateDepartment from "../../hooks/department/useUpdateDepartment";
-import useAllDepartment from "../../hooks/department/useAllDepartment";
 import {
   Select,
   SelectContent,
@@ -21,137 +17,134 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Pencil } from "lucide-react";
+import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
+import useUpdateDepartment from "../../hooks/department/useUpdateDepartment";
+
+const EMPTY_BRANCH = { branch_id: "", name: "" };
 
 const UpdateDepartment = ({
+  defaultName = "",
   departmentId,
-
-  defaultDepartmentName = "Engineering",
-
   defaultStatus = true,
+  // Current parent branch as { branch_id, name }; pre-selects the dropdown.
+  defaultBranch = EMPTY_BRANCH,
+  onUpdated,
 }) => {
-  const { update } = useUpdateDepartment();
-  const { allDepartment } = useAllDepartment();
-
-  const [departmentName, setDepartmentName] = useState(defaultDepartmentName);
-
-  const [status, setStatus] = useState(defaultStatus ? "active" : "inactive");
-
+  const { Update } = useUpdateDepartment();
+  const [departmentName, setDepartmentName] = useState(defaultName);
+  const [status, setStatus] = useState(defaultStatus ? "true" : "false");
+  const [branch, setBranch] = useState(defaultBranch);
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!departmentName.trim() || !branch.branch_id) return;
 
-    const payload = {
-      data: {
-        id: departmentId,
-        name: departmentName,
-        is_active: status === "active",
-      },
+    const data = {
+      id: departmentId,
+      name: departmentName.trim(),
+      is_active: status === "true",
     };
+    // Only send branch_id when the user actually moved the department, so an
+    // unchanged branch never trips the backend's duplicate-name or
+    // branch-existence checks.
+    if (branch.branch_id !== defaultBranch.branch_id) {
+      data.branch_id = branch.branch_id;
+    }
 
     try {
-      await update(payload);
-      allDepartment();
+      await Update({ data });
     } catch (err) {
       console.error("Failed to update department:", err);
+      return;
     }
+    onUpdated?.();
     setOpen(false);
+  };
+
+  const resetToDefaults = () => {
+    setDepartmentName(defaultName);
+    setStatus(defaultStatus ? "true" : "false");
+    setBranch(defaultBranch);
   };
 
   const handleCancel = () => {
-    setDepartmentName(defaultDepartmentName);
-
-    setStatus(defaultStatus ? "active" : "inactive");
-
+    resetToDefaults();
     setOpen(false);
   };
 
+  // Re-seed the form from props every time the popover opens, so a row whose
+  // data changed since mount (after a reload or re-sort) shows current values.
+  const handleOpenChange = (next) => {
+    if (next) resetToDefaults();
+    setOpen(next);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-
-          size="icon"
-
-          className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
+          size="icon-sm"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
         >
           <Pencil size={14} />
         </Button>
       </PopoverTrigger>
-
-      <PopoverContent
-        align="end"
-
-        className="w-[360px] p-5"
-      >
-        <PopoverHeader className="px-0 pt-0">
-          <PopoverTitle>Update Department</PopoverTitle>
-
-          <PopoverDescription>
-            Update department details below.
+      <PopoverContent className="w-80" align="end">
+        <PopoverHeader>
+          <PopoverTitle className="text-base font-semibold text-foreground">
+            Update Department
+          </PopoverTitle>
+          <PopoverDescription className="text-sm text-muted-foreground">
+            Edit the name, branch or status of the department.
           </PopoverDescription>
         </PopoverHeader>
-
-        <form
-          onSubmit={handleSubmit}
-
-          className="mt-5 space-y-5"
-        >
-          {/* Department Name */}
-
-          <div className="flex flex-col gap-2 w-full">
-            <Label>Department Name</Label>
-
+        <form onSubmit={handleSubmit} className="mt-4 grid gap-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="departmentName" className="text-foreground">
+              Department Name
+            </Label>
             <Input
+              id="departmentName"
               value={departmentName}
-
               onChange={(e) => setDepartmentName(e.target.value)}
-
-              placeholder="Enter Department Name"
-
-              className="w-full"
+              placeholder="e.g. Engineering"
+              className="h-9 bg-background border-border text-foreground placeholder:text-muted-foreground"
+              required
             />
           </div>
-
-          {/* Status */}
-
-          <div className="flex flex-col gap-2 w-full">
-            <Label>Status</Label>
-
-            <Select
-              value={status}
-
-              onValueChange={setStatus}
-            >
-              <SelectTrigger className="w-full">
+          <div className="grid gap-1.5">
+            <Label className="text-foreground">Branch</Label>
+            <BranchDropDown value={branch} onSelect={setBranch} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="departmentStatus" className="text-foreground">
+              Status
+            </Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger id="departmentStatus" className="h-9 w-full">
                 <SelectValue />
               </SelectTrigger>
-
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="true">Active</SelectItem>
+                <SelectItem value="false">In Active</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {/* Buttons */}
-
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex gap-2 justify-end">
             <Button
               type="button"
-
               variant="outline"
-
+              className="flex-1"
               onClick={handleCancel}
             >
               Cancel
             </Button>
-
-            <Button type="submit">Update</Button>
+            <Button type="submit" className="flex-1">
+              Update
+            </Button>
           </div>
         </form>
       </PopoverContent>

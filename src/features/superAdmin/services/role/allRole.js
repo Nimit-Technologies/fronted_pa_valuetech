@@ -1,12 +1,9 @@
-import React from "react";
 import api from "@/utils/axiosInstance";
+import { apiConfig } from "@/constants/apiConfig";
 
-const allRole = async (params = {}) => {
-  const response = await api.get("/role/all-role", {
-    params,
-  });
-  console.log(response);
+const AllRoleAPI = async (params = {}) => {
+  const response = await api.get(apiConfig.role.getAllRole, { params });
   return response.data;
 };
 
-export default allRole;
+export default AllRoleAPI;

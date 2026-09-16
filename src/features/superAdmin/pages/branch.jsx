@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import SuperAdminCard from "@/features/superAdmin/components/superAdminCard";
 import SuperAdminTableHeader from "@/features/superAdmin/components/superAdminTableHeader";
-import Pagination from "@/features/superAdmin/components/pagination";
+import { Button } from "@/components/ui/button";
+import Pagination from "@/components/shared/pagination";
 import ConfirmDialog from "@/components/shared/confirmDialog";
 import BranchTable from "@/features/superAdmin/components/branch/branchTable";
 import CreateBranch from "@/features/superAdmin/components/branch/createBranch";
@@ -53,6 +54,7 @@ const Branch = () => {
     hasNextPage,
     hasPreviousPage,
     loading,
+    error,
     totalCount,
     totalActiveCount,
   } = useAllBranch();
@@ -158,6 +160,25 @@ const Branch = () => {
           <CreateBranch onCreated={reloadFromStart} disabled={loading} />
         }
       />
+
+      {/* A failed list request used to fall through to "No branches found",
+          which is indistinguishable from an empty table. Say what happened. */}
+      {error && !loading ? (
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span>Couldn&apos;t load branches: {error}</span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={reloadFromStart}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : null}
 
       {noSearchResults ? (
         <div className="py-12 text-center text-sm text-muted-foreground">

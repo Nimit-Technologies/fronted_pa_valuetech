@@ -1,11 +1,10 @@
-import React from "react";
 import api from "@/utils/axiosInstance";
-
-const allDepartments = async (params = {}) => {
-  const response = await api.get("/department/all-department", {
+import { apiConfig } from "@/constants/apiConfig";
+const getAllDepartments = async (params = {}) => {
+  const response = await api.get(`${apiConfig.department.getAllDepartment}`, {
     params,
   });
   return response.data;
 };
 
-export default allDepartments;
+export default getAllDepartments;

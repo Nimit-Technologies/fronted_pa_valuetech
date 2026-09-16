@@ -1,13 +1,3 @@
-/**
- * Per-feature persistence for a table's current page number, so paging state
- * can survive a remount instead of snapping back to page 1. Every access is
- * guarded — a disabled or unavailable localStorage must never take the table
- * down with it.
- *
- * Note: only useful for lists whose rows are also cached (redux, react-query,
- * …). A list that always refetches its first page on mount has nothing to
- * resume onto, so it should leave `restorePage` off in usePaginationController.
- */
 const KEY_PREFIX = "pagination:page:";
 
 const storageKey = (featureKey) => `${KEY_PREFIX}${featureKey}`;

@@ -1,25 +1,27 @@
-import React from "react";
-import UpdateRoleAPI from "../../services/role/updateRole";
+import UpdateRoleAPI from "@/features/superAdmin/services/role/updateRole";
 import { toast } from "sonner";
 
 const useUpdateRole = () => {
   const Update = async (payload) => {
     try {
       const response = await UpdateRoleAPI(payload);
-      console.log(response);
-      toast.success("Role updated successfully!", {
+      // The update route returns { success, data } without a message.
+      toast.success(response?.message || "Role updated successfully", {
         duration: 700,
       });
       return response;
     } catch (err) {
-      console.log(err.message);
-      toast.error(err.message, {
-        duration: 700,
-      });
-      return err;
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.data?.errors?.[0]?.message ||
+          err?.message ||
+          "Failed to update role",
+        { duration: 700 },
+      );
+      // Rethrow so the caller can keep the form open with the user's input.
+      throw err;
     }
   };
-
   return { Update };
 };
 

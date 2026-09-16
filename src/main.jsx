@@ -23,7 +23,7 @@ const root = (
 );
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  import.meta.env.MODE === "development" ? (
+  import.meta.env.VITE_ENV === "development" ? (
     <React.StrictMode>{root}</React.StrictMode>
   ) : (
     root

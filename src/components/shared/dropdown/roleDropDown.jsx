@@ -1,9 +1,6 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useCallback, useState } from "react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,143 +9,182 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import Pagination from "@/components/shared/pagination";
+import SearchInput from "@/components/shared/searchInput";
 import useAllRole from "@/features/superAdmin/hooks/role/useAllRole";
+import { usePaginationController } from "@/hooks/pagination/usePaginationController";
 
-const ITEMS_PER_PAGE = 5;
+const FEATURE_KEY = "role-dropdown";
 
-const RoleDropDown = ({ value, onSelect, disabled = false }) => {
-  const role = useSelector((state) => state.role);
-  const roleData = role.roleData || [];
-  const { allRole } = useAllRole();
+const RoleDropDown = ({
+  value,
+  onSelect,
+  disabled = false,
+  placeholder = "Select Role",
+}) => {
+  const {
+    allRole,
+    roleData,
+    roleFirstId,
+    roleLastId,
+    hasNextPage,
+    hasPreviousPage,
+    loading,
+  } = useAllRole();
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const selectedRoleName = typeof value === "object" ? value?.name : value;
+  const isObjectValue = typeof value === "object" && value !== null;
+  const selectedId = isObjectValue
+    ? (value.id ?? value.role_id ?? "")
+    : (value ?? "");
+  // Older callers pass the role *name* as a plain string; when no loaded row
+  // matches it as an id, show the string itself.
+  const rawName = isObjectValue
+    ? value.name
+    : (roleData.find((item) => item.id === selectedId)?.name ?? value);
+  const selectedName = typeof rawName === "string" ? rawName : "";
 
-  const filteredRoles = roleData.filter(
-    (roleItem) =>
-      roleItem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (roleItem.code || "").toLowerCase().includes(searchTerm.toLowerCase()),
+  // Only live, active roles are assignable. The list API already drops
+  // soft-deleted roles; the is_deleted check keeps this correct if that
+  // ever changes.
+  const visibleRoles = roleData.filter(
+    (item) => !item.is_deleted && item.is_active,
   );
 
+  // Paging keeps the current search so page 2 of "eng" is still "eng".
   const fetchRoles = useCallback(
-    async ({ direction = "next", cursorId = "" } = {}) => {
-      await allRole({ direction, cursorId, dataLimit: ITEMS_PER_PAGE });
-    },
-    [allRole],
+    ({ direction = "next", cursorId = "" } = {}) =>
+      allRole({ direction, cursorId, search: searchTerm }),
+    [allRole, searchTerm],
   );
 
-  useEffect(() => {
-    if (!isOpen || roleData.length > 0) return;
-    fetchRoles();
-  }, [isOpen, roleData.length, fetchRoles]);
+  const {
+    currentPage,
+    canGoNext,
+    canGoPrevious,
+    handleNext,
+    handlePrevious,
+    resetToFirstPage,
+  } = usePaginationController({
+    featureKey: FEATURE_KEY,
+    isLoading: loading,
+    hasNextPage,
+    hasPreviousPage,
+    firstId: roleFirstId,
+    lastId: roleLastId,
+    onFetch: fetchRoles,
+  });
 
-  const handleSelectRole = (roleItem) => {
-    onSelect?.(roleItem);
+  const handleOpenChange = (open) => {
+    setIsOpen(open);
+    if (!open) return;
     setSearchTerm("");
+    resetToFirstPage();
+    allRole();
   };
 
-  const handleNextPage = async () => {
-    if (!role.hasNextPage) return;
-    await fetchRoles({ direction: "next", cursorId: role.roleLastId });
+  // Debounced by SearchInput. Every new term restarts from page 1.
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    resetToFirstPage();
+    allRole({ search: term });
   };
 
-  const handlePrevPage = async () => {
-    if (!role.hasPreviousPage) return;
-    await fetchRoles({ direction: "previous", cursorId: role.roleFirstId });
+  const handleSelect = (item) => {
+    onSelect?.({
+      id: item.id,
+      name: item.name,
+      department_id: item.department_id ?? item.department?.id ?? "",
+      branch_id: item.branch_id ?? item.branch?.id ?? "",
+    });
   };
+
+  const keepTypingInInput = (event) => {
+    if (event.key.length === 1) event.stopPropagation();
+  };
+
+  const showInitialLoading = loading && visibleRoles.length === 0;
 
   return (
-    <DropdownMenu onOpenChange={setIsOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild disabled={disabled}>
         <Button
           type="button"
           variant="outline"
           className="flex h-11 w-full items-center justify-between px-3 font-normal"
         >
-          <span>{selectedRoleName || "Select Role"}</span>
-          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          <span
+            className={selectedName ? "capitalize" : "text-muted-foreground"}
+          >
+            {selectedName || placeholder}
+          </span>
+          <ChevronDown
+            size={20}
+            className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[calc(100vw-2rem)] sm:w-80"
         align="start"
       >
-        <div className="relative px-2 pt-2">
-          <Search className="absolute left-4 top-4 h-4 w-4 text-muted-foreground" />
-          <Input
+        <div className="px-2 pt-2">
+          <SearchInput
             placeholder="Search role..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-            }}
-            className="pl-8"
+            onSearch={handleSearch}
+            onKeyDown={keepTypingInInput}
+            disabled={disabled}
           />
         </div>
 
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup className="max-h-64 overflow-y-auto">
-          {filteredRoles.length > 0 ? (
-            filteredRoles.map((roleItem) => (
+          {showInitialLoading ? (
+            <div className="flex items-center justify-center gap-2 px-2 py-4 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading roles…
+            </div>
+          ) : visibleRoles.length > 0 ? (
+            visibleRoles.map((item) => (
               <DropdownMenuItem
-                key={roleItem.id}
-                onClick={() => handleSelectRole(roleItem)}
+                key={item.id}
+                onClick={() => handleSelect(item)}
                 className="cursor-pointer"
-                data-active={selectedRoleName === roleItem.name}
+                data-active={selectedId === item.id}
               >
                 <div className="flex flex-col">
-                  <span>{roleItem.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {roleItem.code || roleItem.name}
-                  </span>
+                  <span className="capitalize">{item.name}</span>
+                  {item.department?.name ? (
+                    <span className="text-xs capitalize text-muted-foreground">
+                      {item.department.name}
+                    </span>
+                  ) : null}
                 </div>
               </DropdownMenuItem>
             ))
           ) : (
             <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-              No roles found
+              {searchTerm
+                ? `No roles match "${searchTerm}".`
+                : "No roles found"}
             </div>
           )}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 
-        <div className="flex items-center justify-between px-2 py-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handlePrevPage}
-            disabled={!role.hasPreviousPage || filteredRoles.length === 0}
-            className="h-8 px-2"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {filteredRoles.length > 0
-              ? `${Math.min(1, filteredRoles.length)}-${filteredRoles.length} of ${role.roleLength || filteredRoles.length}`
-              : "0 items"}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNextPage}
-            disabled={!role.hasNextPage || filteredRoles.length === 0}
-            className="h-8 px-2"
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
+        <Pagination
+          compact
+          currentPage={currentPage}
+          hasPreviousPage={canGoPrevious}
+          hasNextPage={canGoNext}
+          onPrev={handlePrevious}
+          onNext={handleNext}
+          disabled={loading}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );
