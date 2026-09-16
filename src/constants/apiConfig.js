@@ -1,9 +1,7 @@
 import { CREDENTIALS } from "./credentials.js";
 
 const REQUIRED_CREDENTIALS = [
-  { key: "BACKEND_URL", envVar: "VITE_SERVER_BASE_URL" },
-  { key: "SERVER_PORT", envVar: "VITE_SERVER_PORT" },
-  { key: "API_VERSION", envVar: "VITE_API_VERSION" },
+  { key: "BACKEND_URL", envVar: "VITE_BACKEND_URL" },
 ];
 
 function assertRequiredCredentials() {
@@ -20,8 +18,12 @@ function assertRequiredCredentials() {
 
 assertRequiredCredentials();
 
-export const baseBackendUrl = `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`;
-export const apiBackendUrl = `${baseBackendUrl}/${CREDENTIALS.API_VERSION}`;
+export const baseBackendUrl = CREDENTIALS.SERVER_PORT
+  ? `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`
+  : CREDENTIALS.BACKEND_URL;
+export const apiBackendUrl = CREDENTIALS.API_VERSION
+  ? `${baseBackendUrl}/${CREDENTIALS.API_VERSION}`
+  : baseBackendUrl;
 
 function defineEndpoints(resource, actions) {
   const resourceBaseUrl = `${apiBackendUrl}/${resource}`;

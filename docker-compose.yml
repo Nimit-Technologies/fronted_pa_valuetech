@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_NAME: ${VITE_APP_NAME:-PA_ValueTech}
+        VITE_APP_DESCRIPTION: ${VITE_APP_DESCRIPTION:-Admin_Management_Portal}
+        VITE_ENVIRONMENT: ${VITE_ENVIRONMENT:-production}
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:5000}
+        VITE_SERVER_PORT: ${VITE_SERVER_PORT:-}
+        VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-30000}
+        VITE_API_VERSION: ${VITE_API_VERSION:-}
+        VITE_ENV: ${VITE_ENV:-production}
+        VITE_ENABLE_DEBUG_MODE: ${VITE_ENABLE_DEBUG_MODE:-false}
+        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-true}
+        VITE_AUTH_COOKIE_NAME: ${VITE_AUTH_COOKIE_NAME:-auth}
+        VITE_AUTH_TOKEN_STORAGE: ${VITE_AUTH_TOKEN_STORAGE:-localStorage}
+        VITE_LOG_LEVEL: ${VITE_LOG_LEVEL:-error}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+    image: pa-valuetech-frontend:local
+    container_name: pa-valuetech-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
