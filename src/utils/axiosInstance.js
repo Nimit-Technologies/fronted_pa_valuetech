@@ -1,6 +1,5 @@
 import axios from "axios";
 import { CREDENTIALS } from "@/constants/credentials";
-import { apiBackendUrl } from "@/constants/apiConfig";
 import logger from "@/utils/logger";
 import store from "@/store/store";
 import { logout } from "@/features/auth/slice/authSlice";
@@ -9,8 +8,10 @@ import { logout } from "@/features/auth/slice/authSlice";
 // force-redirect if we're already on one.
 const PUBLIC_ROUTES = ["/", "/login"];
 
+// No baseURL here: every call site passes a full absolute URL already built
+// from apiConfig (see src/constants/apiConfig.js), and axios ignores baseURL
+// whenever the request URL is absolute.
 const api = axios.create({
-  baseURL: apiBackendUrl,
   withCredentials: true,
   timeout: CREDENTIALS.API_TIMEOUT,
   headers: {

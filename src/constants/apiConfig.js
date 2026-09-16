@@ -1,8 +1,6 @@
 import { CREDENTIALS } from "./credentials.js";
 
-const REQUIRED_CREDENTIALS = [
-  { key: "BACKEND_URL", envVar: "VITE_BACKEND_URL" },
-];
+const REQUIRED_CREDENTIALS = [{ key: "API_URL", envVar: "VITE_API_URL" }];
 
 function assertRequiredCredentials() {
   const missing = REQUIRED_CREDENTIALS.filter(({ key }) => !CREDENTIALS[key]);
@@ -18,12 +16,9 @@ function assertRequiredCredentials() {
 
 assertRequiredCredentials();
 
-export const baseBackendUrl = CREDENTIALS.SERVER_PORT
-  ? `${CREDENTIALS.BACKEND_URL}:${CREDENTIALS.SERVER_PORT}`
-  : CREDENTIALS.BACKEND_URL;
-export const apiBackendUrl = CREDENTIALS.API_VERSION
-  ? `${baseBackendUrl}/${CREDENTIALS.API_VERSION}`
-  : baseBackendUrl;
+// Strip any trailing slash(es) so defineEndpoints' `${apiBackendUrl}/${resource}`
+// never produces a double slash regardless of how VITE_API_URL is set.
+export const apiBackendUrl = CREDENTIALS.API_URL.replace(/\/+$/, "");
 
 function defineEndpoints(resource, actions) {
   const resourceBaseUrl = `${apiBackendUrl}/${resource}`;
@@ -37,7 +32,6 @@ function defineEndpoints(resource, actions) {
 }
 
 export const apiConfig = Object.freeze({
-  baseBackendUrl,
   apiBackendUrl,
 
   auth: defineEndpoints("auth", {

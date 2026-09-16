@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        "/api": {
+        "/api/v1/": {
           target: serverBaseUrl,
           changeOrigin: true,
           secure: false,

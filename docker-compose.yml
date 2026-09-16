@@ -9,8 +9,8 @@ services:
         VITE_ENVIRONMENT: ${VITE_ENVIRONMENT:-production}
         VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:5000}
         VITE_SERVER_PORT: ${VITE_SERVER_PORT:-}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api/v1}
         VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-30000}
-        VITE_API_VERSION: ${VITE_API_VERSION:-}
         VITE_ENV: ${VITE_ENV:-production}
         VITE_ENABLE_DEBUG_MODE: ${VITE_ENABLE_DEBUG_MODE:-false}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-true}
