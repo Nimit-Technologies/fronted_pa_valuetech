@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { userTableData } from "../../data/user/userTable";
+import { userTableData } from "@/features/branchAdmin/data/user/userTable";
 
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">

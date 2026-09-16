@@ -1,24 +1,20 @@
-import { Search } from "lucide-react";
 import React from "react";
+import SearchInput from "@/components/shared/searchInput";
 
+// Page-level search box. It reports every keystroke because the table hooks
+// (useTableSearch) already debounce on their side.
 const SuperAdminSearchbar = ({
   onSearch,
-  placeholder = "Search branch...",
+  placeholder = "Search...",
+  disabled = false,
 }) => {
   return (
-    <div className="w-full max-w-md min-w-40">
-      <div className="relative flex items-center">
-        <Search
-          size={16}
-          className="absolute left-3 text-muted-foreground pointer-events-none"
-        />
-        <input
-          onChange={(e) => onSearch?.(e.target.value)}
-          className="w-full bg-background placeholder:text-muted-foreground text-foreground text-sm border border-border rounded-md pl-9 pr-3 py-2 transition-colors duration-200 focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 hover:border-ring/50 shadow-sm"
-          placeholder={placeholder}
-        />
-      </div>
-    </div>
+    <SearchInput
+      className="w-full max-w-md min-w-40"
+      placeholder={placeholder}
+      disabled={disabled}
+      onValueChange={onSearch}
+    />
   );
 };
 

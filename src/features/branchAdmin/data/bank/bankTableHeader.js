@@ -3,7 +3,7 @@ export const bankTableHeader = [
   "bank name",
   "branch",
   "branch code",
-  "gst",
+  "GST",
   "status",
   "Action",
 ];

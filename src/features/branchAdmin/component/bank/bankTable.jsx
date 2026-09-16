@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
-import Pagination from "@/features/superAdmin/components/pagination";
+import Pagination from "@/components/shared/pagination";
 
 const BankTable = ({ data, headers = [] }) => {
   const rows = data?.data ?? [];

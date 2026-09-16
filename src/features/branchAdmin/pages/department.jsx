@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 
-import SuperAdminCard from "../../superAdmin/components/superAdminCard";
-import SuperAdminTableHeader from "../../superAdmin/components/superAdminTableHeader";
+import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
+import BranchAdminSearchbar from "@/features/branchAdmin/component/branchAdminTableHeader";
 
-import DepartmentTable from "../component/Department/DepartmentTable";
-import CreateDepartment from "../component/Department/createDepartment";
+import DepartmentTable from "@/features/branchAdmin/component/department/departmentTable";
+// import CreateDepartment from "@/features/branchAdmin/component/department/createDepartment";
 
 import {
   departmentData,
   departmentTableHeader,
-} from "../data/department/departmentTable";
+} from "@/features/branchAdmin/data/department/departmentTable";
 
 const Department = () => {
   const [search, setSearch] = useState("");
@@ -27,7 +27,7 @@ const Department = () => {
       {/* Card */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <SuperAdminCard
+        <BranchAdminCard
           title="Total Department"
 
           value={departmentData.total_department}
@@ -36,10 +36,10 @@ const Department = () => {
 
       {/* Search + Create */}
 
-      <SuperAdminTableHeader
+      <BranchAdminSearchbar
         onSearch={setSearch}
-
-        createButton={<CreateDepartment />}
+        placeholder="Search department..."
+        // createButton={<CreateDepartment />}
       />
 
       {/* Table */}

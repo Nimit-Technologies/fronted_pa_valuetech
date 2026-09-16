@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import SuperAdminCard from "../../superAdmin/components/superAdminCard";
-import SuperAdminTableHeader from "../../superAdmin/components/superAdminTableHeader";
+import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
+import BranchAdminTableHeader from "@/features/branchAdmin/component/branchAdminTableHeader";
 
-import RoleTable from "../component/role/roleTable";
-import CreateRole from "../component/role/createRole";
+import RoleTable from "@/features/branchAdmin/component/role/roleTable";
+// import CreateRole from "@/features/branchAdmin/component/role/createRole";
 
-import { roleData } from "../data/role/roleTable";
-import { roleTableHeader } from "../data/role/roleTableHeader";
+import { roleData } from "@/features/branchAdmin/data/role/roleTable";
+import { roleTableHeader } from "@/features/branchAdmin/data/role/roleTableHeader";
 
 const Role = () => {
   const [search, setSearch] = useState("");
@@ -22,13 +22,14 @@ const Role = () => {
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto">
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <SuperAdminCard title="Total Cases" value={roleData.total_role} />
+        <BranchAdminCard title="Total Roles" value={roleData.total_role} />
       </div>
 
       {/* Search + Create Button */}
-      <SuperAdminTableHeader
+      <BranchAdminTableHeader
         onSearch={setSearch}
-        createButton={<CreateRole />}
+        placeholder="Search role..."
+        // createButton={<CreateRole />}
       />
 
       {/* Table */}

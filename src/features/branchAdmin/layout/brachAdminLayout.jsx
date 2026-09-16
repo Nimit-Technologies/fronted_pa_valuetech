@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/shared/navigation/sidebar";
-import { sidebarItems } from "../data/branchAdminSidebarItems";
+import { sidebarItems } from "@/features/branchAdmin/data/branchAdminSidebarItems";
 
 const BranchAdminLayout = () => {
   return (

@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { bankData } from "../../data/bank/bankTable";
+import { bankData } from "@/features/branchAdmin/data/bank/bankTable";
 
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">

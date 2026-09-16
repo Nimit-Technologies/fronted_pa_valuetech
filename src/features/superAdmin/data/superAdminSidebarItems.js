@@ -1,4 +1,10 @@
-import { GitBranch, Users, HomeIcon } from "lucide-react";
+import {
+  GitBranch,
+  Users,
+  HomeIcon,
+  ShieldCheck,
+  Building2,
+} from "lucide-react";
 
 export const sidebarItems = [
   {
@@ -6,7 +12,10 @@ export const sidebarItems = [
     items: [
       { label: "Home", path: "/super-admin", icon: HomeIcon, exact: true },
       { label: "Branch", path: "/super-admin/branch", icon: GitBranch },
-      { label: "Branch Admin", path: "/super-admin/branch-admin", icon: Users },
+      { label: "User", path: "/super-admin/user", icon: Users },
+
+      { label: "Department", path: "/super-admin/department", icon: Building2 },
+      { label: "Role", path: "/super-admin/role", icon: ShieldCheck },
     ],
   },
 ];

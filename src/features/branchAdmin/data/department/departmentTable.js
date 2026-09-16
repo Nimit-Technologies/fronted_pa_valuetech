@@ -24,5 +24,5 @@ export const departmentTableHeader = [
   "S.No",
   "Department Name",
   "Status",
-  "Action",
+  // "Action",
 ];

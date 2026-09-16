@@ -38,5 +38,6 @@ document/*
 .agents/*
 .claude/*
 
+
 # ShipStudio metadata
 .shipstudio/

@@ -6,7 +6,7 @@ import { sidebarItems } from "@/features/superAdmin/data/superAdminSidebarItems"
 const SuperAdminLayout = () => {
   return (
     <div className="flex h-full overflow-hidden">
-      <Sidebar menu={sidebarItems} />` `
+      <Sidebar menu={sidebarItems} />
       <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>

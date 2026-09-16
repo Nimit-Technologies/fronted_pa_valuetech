@@ -11,7 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 const bankData = [
   { id: 1, name: "HDFC", code: "HDFC" },
@@ -31,6 +37,7 @@ const ITEMS_PER_PAGE = 5;
 const BankDropDown = ({ value, onSelect, disabled = false }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Filter banks based on search
   const filteredBanks = bankData.filter(
@@ -64,15 +71,23 @@ const BankDropDown = ({ value, onSelect, disabled = false }) => {
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild disabled={disabled}>
-        <Button
+        {/* <Button
           type="button"
           variant="outline"
           disabled={disabled}
           className="h-11 w-full justify-start font-normal"
         >
           {value || "Select Bank"}
+        </Button> */}
+        <Button
+          type="button"
+          variant="outline"
+          className="flex h-11 w-full items-center justify-between px-3 font-normal"
+        >
+          <span>{value || "Select Bank"}</span>
+          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

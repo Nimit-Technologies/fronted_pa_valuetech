@@ -22,7 +22,7 @@ import {
 
 import { Plus } from "lucide-react";
 
-import { departmentData } from "../../data/role/roleTable";
+import { departmentData } from "@/features/branchAdmin/data/role/roleTable";
 
 const CreateRole = () => {
   const [roleName, setRoleName] = useState("");
