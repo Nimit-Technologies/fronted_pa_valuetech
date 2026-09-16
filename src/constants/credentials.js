@@ -4,7 +4,7 @@ export const CREDENTIALS = {
   ENVIRONMENT: import.meta.env.VITE_ENVIRONMENT,
 
   SERVER_PORT: import.meta.env.VITE_SERVER_PORT,
-  BACKEND_URL: import.meta.env.VITE_SERVER_BASE_URL,
+  BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
   API_TIMEOUT: Number(import.meta.env.VITE_API_TIMEOUT ?? 30000),
   API_VERSION: import.meta.env.VITE_API_VERSION,
 

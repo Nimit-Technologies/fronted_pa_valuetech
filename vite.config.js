@@ -11,15 +11,15 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  if (!env.VITE_SERVER_BASE_URL) {
+  if (!env.VITE_BACKEND_URL) {
     throw new Error(
-      `VITE_SERVER_BASE_URL is not defined in the environment variables for mode "${mode}".`,
+      `VITE_BACKEND_URL is not defined in the environment variables for mode "${mode}".`,
     );
   }
 
   const serverBaseUrl = env.VITE_SERVER_PORT
-    ? `${env.VITE_SERVER_BASE_URL}:${env.VITE_SERVER_PORT}`
-    : env.VITE_SERVER_BASE_URL;
+    ? `${env.VITE_BACKEND_URL}:${env.VITE_SERVER_PORT}`
+    : env.VITE_BACKEND_URL;
 
   return {
     define: {

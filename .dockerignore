@@ -1,0 +1,38 @@
+# Version control
+.git
+.gitattributes
+.gitignore
+
+# Dependencies (installed fresh in the deps stage)
+node_modules
+
+# Build output
+dist
+dist-ssr
+
+# Env files - pass values via --build-arg instead of baking a .env into the image
+.env
+.env.*
+!.env.example
+
+# Test artifacts / test sources not needed for the production build
+coverage
+playwright-report
+test-results
+tests
+
+# Editor / tooling / agent metadata
+.vscode
+.idea
+.agents
+.claude
+.shipstudio
+
+# Docker files themselves
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Misc
+*.log
+README.md
