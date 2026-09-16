@@ -19,7 +19,7 @@ WORKDIR /app
 ARG VITE_APP_NAME=PA_ValueTech
 ARG VITE_APP_DESCRIPTION=Admin_Management_Portal
 ARG VITE_ENVIRONMENT=production
-ARG VITE_BACKEND_URL=http://localhost:5000
+ARG VITE_BACKEND_URL=https://paserver.nimitconsultancy.in
 ARG VITE_SERVER_PORT=
 ARG VITE_API_TIMEOUT=30000
 ARG VITE_API_VERSION=
@@ -71,10 +71,10 @@ USER app
 ENV HOME=/tmp \
     NODE_ENV=production
 
-EXPOSE 3000
+EXPOSE 5173
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://127.0.0.1:3000', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+    CMD node -e "require('http').get('http://127.0.0.1:5173', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["serve", "-s", ".", "-l", "3000", "--no-clipboard"]
+CMD ["serve", "-s", ".", "-l", "5173", "--no-clipboard"]
