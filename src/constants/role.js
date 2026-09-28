@@ -1,7 +1,7 @@
-export const roleStatus = ["super-admin", "branch-admin", "coordinator"];
+export const roleStatus = ["super admin", "branch admin", "cordinator"];
 
 export const roleTitleMap = {
   "super-admin": "Super Admin Dashboard",
   "branch-admin": "Branch Admin Dashboard",
-  coordinator: "Coordinator Dashboard",
+  cordinator: "Cordinator Dashboard",
 };

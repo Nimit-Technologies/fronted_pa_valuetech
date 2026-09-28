@@ -12,10 +12,9 @@ export const sidebarItems = [
     items: [
       { label: "Home", path: "/super-admin", icon: HomeIcon, exact: true },
       { label: "Branch", path: "/super-admin/branch", icon: GitBranch },
-      { label: "User", path: "/super-admin/user", icon: Users },
-
       { label: "Department", path: "/super-admin/department", icon: Building2 },
       { label: "Role", path: "/super-admin/role", icon: ShieldCheck },
+      { label: "User", path: "/super-admin/user", icon: Users },
     ],
   },
 ];

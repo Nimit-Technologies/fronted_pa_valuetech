@@ -1,7 +1,7 @@
-import React from "react";
+import Bank from "@/features/branchAdmin/pages/bank";
 
-const bankDashboard = () => {
-  return <div>bankDashboard</div>;
+const BankDashboard = () => {
+  return <Bank />;
 };
 
-export default bankDashboard;
+export default BankDashboard;

@@ -35,7 +35,7 @@ const CaseDashboard = () => {
 
       <CoordinatorTableHeader
         onSearch={setSearch}
-        createRoute="/coordinator/case/create"
+        createRoute="/cordinator/case/create"
         createLabel="Create Case"
       />
 

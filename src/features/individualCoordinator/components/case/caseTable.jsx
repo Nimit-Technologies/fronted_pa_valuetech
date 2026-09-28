@@ -98,7 +98,7 @@ const CaseTable = ({ data, headers = [] }) => {
                       size="icon-sm"
                       className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
                     >
-                      <Link to={`/coordinator/case/view/${caseItem.id}`}>
+                      <Link to={`/cordinator/case/view/${caseItem.id}`}>
                         <Eye size={14} />
                       </Link>
                     </Button>
@@ -108,7 +108,7 @@ const CaseTable = ({ data, headers = [] }) => {
                       size="icon-sm"
                       className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
                     >
-                      <Link to={`/coordinator/case/update/${caseItem.id}`}>
+                      <Link to={`/cordinator/case/update/${caseItem.id}`}>
                         <Pencil size={14} />
                       </Link>
                     </Button>

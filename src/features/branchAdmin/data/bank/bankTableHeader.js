@@ -1,9 +1,10 @@
 export const bankTableHeader = [
   "serial no",
   "bank name",
-  "branch",
+  "display name",
+  "bank branch",
   "branch code",
-  "GST",
+  "gst number",
   "status",
-  "Action",
+  "action",
 ];

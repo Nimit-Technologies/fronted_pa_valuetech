@@ -79,13 +79,12 @@ const BranchAdminDepartment = lazy(
 const Engineer = lazy(() => import("@/features/branchAdmin/pages/engineer"));
 const BranchAdminRole = lazy(() => import("@/features/branchAdmin/pages/role"));
 const BranchAdminUser = lazy(() => import("@/features/branchAdmin/pages/user"));
-// import CreateUser from "@/features/branchAdmin/pages/user/createUser";
-// import UpdateUser from "@/features/branchAdmin/pages/user/updateUser";
+
 const BranchAdminViewUser = lazy(
   () => import("@/features/branchAdmin/pages/user/viewUser"),
 );
 const CreateBank = lazy(
-  () => import("./features/branchAdmin/component/bank/createBank"),
+  () => import("@/features/branchAdmin/component/bank/createBank"),
 );
 const UpdateBank = lazy(
   () => import("@/features/branchAdmin/component/bank/updateBank"),
@@ -150,13 +149,13 @@ const App = () => {
               <Route path="manage-profile" element={<ManageUser />} />
             </Route>
 
-            {/* coordinator */}
+            {/* cordinator */}
             <Route
-              path="/coordinator"
+              path="/cordinator"
               element={
-                <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
-                  <IndividualCoordinator />
-                </ProtectedRoute>
+                // <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
+                <IndividualCoordinator />
+                // </ProtectedRoute>
               }
             >
               <Route index element={<IndividualCoordinatorHome />} />
@@ -188,9 +187,9 @@ const App = () => {
             <Route
               path="/branch-admin"
               element={
-                <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
-                  <BranchAdminPage />
-                </ProtectedRoute>
+                // <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
+                <BranchAdminPage />
+                // </ProtectedRoute>
               }
             >
               <Route index element={<BranchAdminHome />} />
