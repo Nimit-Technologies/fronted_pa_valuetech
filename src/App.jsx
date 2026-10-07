@@ -187,28 +187,21 @@ const App = () => {
             <Route
               path="/branch-admin"
               element={
-                // <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
-                <BranchAdminPage />
-                // </ProtectedRoute>
+                <ProtectedRoute allowedRoles={[ROLES.BRANCH_ADMIN]}>
+                  <BranchAdminPage />
+                </ProtectedRoute>
               }
             >
               <Route index element={<BranchAdminHome />} />
-
               <Route path="bank" element={<Bank />} />
               <Route path="bank/create" element={<CreateBank />} />
               <Route path="bank/update/:id" element={<UpdateBank />} />
               <Route path="bank/view/:id" element={<ViewBank />} />
-
               <Route path="business" element={<Business />} />
-
               <Route path="case" element={<Case />} />
-
               <Route path="department" element={<BranchAdminDepartment />} />
-
               <Route path="engineer" element={<Engineer />} />
-
               <Route path="role" element={<BranchAdminRole />} />
-
               <Route path="user" element={<BranchAdminUser />} />
               <Route path="user/create" element={<CreateUser />} />
               <Route path="user/update/:id" element={<UpdateUser />} />

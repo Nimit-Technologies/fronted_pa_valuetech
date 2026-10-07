@@ -1,11 +1,7 @@
 import { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AllUserAPI from "@/features/superAdmin/services/user/allUser";
-import {
-  userStart,
-  userFailure,
-  setUser,
-} from "@/features/superAdmin/slice/user/userSlice";
+import { userStart, userFailure, setUser } from "@/store/slice/user/userSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
 const useAllUser = () => {

@@ -90,5 +90,6 @@ export const apiConfig = Object.freeze({
   }),
   dashboard: defineEndpoints("dashboard", {
     superAdminSummary: "super-admin",
+    branchAdminSummary: "branch-admin",
   }),
 });

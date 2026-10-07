@@ -10,20 +10,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// import { Button } from "@/components/ui/button";
-
-// import UpdateRole from "./updateRole";
-import Pagination from "@/features/branchAdmin/component/pagination";
-
 const RoleTable = ({ data, headers = [] }) => {
-  const rows = data?.data ?? [];
+  const rows = data ?? [];
 
   return (
     <div>
       <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
+            <TableRow className="bg-muted/50 hover:bg-muted/50 ">
               {headers.map((header) => (
                 <TableHead
                   key={header}
@@ -73,13 +68,13 @@ const RoleTable = ({ data, headers = [] }) => {
                   </TableCell>
 
                   {/* Action */}
-                  <TableCell>
-                    {/* <div className="flex items-center gap-1.5"> */}
-                    {/* <Button variant="ghost" size="icon" className="h-8 w-8">
+                  {/* <TableCell> */}
+                  {/* <div className="flex items-center gap-1.5"> */}
+                  {/* <Button variant="ghost" size="icon" className="h-8 w-8">
                         <Eye size={16} />
                       </Button> */}
 
-                    {/* <UpdateRole
+                  {/* <UpdateRole
                         roleId={role.id}
 
                         defaultRoleName={role.name}
@@ -89,22 +84,22 @@ const RoleTable = ({ data, headers = [] }) => {
                         defaultStatus={role.is_active}
                       /> */}
 
-                    {/* <Button
+                  {/* <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 hover:text-destructive"
                       >
                         <Trash2 size={16} />
                       </Button> */}
-                    {/* </div> */}
-                  </TableCell>
+                  {/* </div> */}
+                  {/* </TableCell> */}
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
 
-        <Pagination />
+        {/* <Pagination /> */}
       </div>
     </div>
   );

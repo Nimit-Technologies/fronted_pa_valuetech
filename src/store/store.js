@@ -11,10 +11,10 @@ import {
   persistStore,
 } from "redux-persist";
 import authReducer from "@/features/auth/slice/authSlice";
-import departmentReducer from "@/features/superAdmin/slice/department/departmentSlice";
-import branchReducer from "@/features/superAdmin/slice/branch/branchSlice";
-import roleReducer from "@/features/superAdmin/slice/role/roleSlice";
-import userReducer from "@/features/superAdmin/slice/user/userSlice";
+import departmentReducer from "@/store/slice/department/departmentSlice";
+import branchReducer from "@/store/branch/branchSlice";
+import roleReducer from "@/store/slice/role/roleSlice";
+import userReducer from "@/store/slice/user/userSlice";
 import bankReducer from "@/features/branchAdmin/slice/bank/bankSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps

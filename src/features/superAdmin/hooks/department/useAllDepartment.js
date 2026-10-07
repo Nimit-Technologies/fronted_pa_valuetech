@@ -6,7 +6,7 @@ import {
   departmentStart,
   departmentFailure,
   setDepartment,
-} from "@/features/superAdmin/slice/department/departmentSlice";
+} from "@/store/slice/department/departmentSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
 const useAllDepartment = () => {

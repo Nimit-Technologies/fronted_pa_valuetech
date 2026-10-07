@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
-
+// import ConfirmDialog from "@/components/shared/confirmDialog";
 import BranchAdminCard from "@/features/branchAdmin/component/branchAdminCard";
 import BranchAdminTableHeader from "@/features/branchAdmin/component/branchAdminTableHeader";
 import BankTable from "@/features/branchAdmin/component/bank/bankTable";
@@ -14,6 +14,7 @@ import ConfirmDialog from "@/components/shared/confirmDialog";
 import useAllBank from "@/features/branchAdmin/hooks/bank/useAllBank";
 import useDeleteBank from "@/features/branchAdmin/hooks/bank/useDeleteBank";
 import useUpdateBankStatus from "@/features/branchAdmin/hooks/bank/useUpdateBankStatus";
+import useRestoreBank from "@/features/branchAdmin/hooks/bank/useRestoreBank";
 import { useTableSearch } from "@/hooks/search/useTableSearch";
 import { usePaginationController } from "@/hooks/pagination/usePaginationController";
 
@@ -23,9 +24,16 @@ const CONFIRM_ACTIONS = {
   delete: {
     title: "Delete bank",
     describe: (bank) =>
-      `"${bank.displayName || bank.name}" will be moved to deleted banks.`,
+      `"${bank.displayName || bank.name}" will be moved to deleted banks. You can restore it later.`,
     confirmLabel: "Delete",
     destructive: true,
+  },
+  restore: {
+    title: "Restore bank",
+    describe: (bank) =>
+      `"${bank.displayName || bank.name}" will be moved back to active banks.`,
+    confirmLabel: "Restore",
+    destructive: false,
   },
   status: {
     title: "Change bank status",
@@ -56,6 +64,7 @@ const Bank = () => {
 
   const { Delete } = useDeleteBank();
   const { UpdateStatus } = useUpdateBankStatus();
+  const { Restore } = useRestoreBank();
 
   const fetchBanks = useCallback(
     ({ direction = "next", cursorId = "" } = {}) =>
@@ -108,7 +117,7 @@ const Bank = () => {
   const runPendingAction = useCallback(async () => {
     if (!pendingAction) return;
     const { type, bank } = pendingAction;
-    const services = { delete: Delete, status: UpdateStatus };
+    const services = { delete: Delete, status: UpdateStatus, restore: Restore };
 
     setActionLoading(true);
     try {
@@ -118,7 +127,7 @@ const Bank = () => {
       setActionLoading(false);
       setPendingAction(null);
     }
-  }, [pendingAction, Delete, UpdateStatus, reloadFromStart]);
+  }, [pendingAction, Delete, UpdateStatus, Restore, reloadFromStart]);
 
   const loadedActiveCount = bankData.filter(
     (item) => item.isActive && !item.isDeleted,
@@ -185,6 +194,7 @@ const Bank = () => {
             headers={bankTableHeader}
             isLoading={loading}
             onDelete={(bank) => setPendingAction({ type: "delete", bank })}
+            onRestore={(bank) => setPendingAction({ type: "restore", bank })}
             onToggleStatus={(bank) =>
               setPendingAction({ type: "status", bank })
             }

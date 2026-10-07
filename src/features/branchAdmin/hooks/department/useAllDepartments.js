@@ -1,72 +1,76 @@
 import { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AllRoleAPI from "@/features/superAdmin/services/role/allRole";
-import { roleStart, roleFailure, setRole } from "@/store/slice/role/roleSlice";
+// import GetAllDepartments from "@/features/superAdmin/services/department/allDepartments";
+import GetAllDepartments from "../../services/department/allDepartment";
+import {
+  departmentStart,
+  departmentFailure,
+  setDepartment,
+} from "@/store/slice/department/departmentSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
-const useAllRole = () => {
+const useAllDepartment = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
 
   const {
-    roleData,
-    roleFirstId,
-    roleLastId,
+    departmentData,
+    departmentFirstId,
+    departmentLastId,
     hasNextPage,
     hasPreviousPage,
-    roleLength,
+    departmentLength,
     dataLimit,
-    direction,
-    searchQuery,
     loading,
     error,
     totalCount,
     totalActiveCount,
     success,
-  } = useSelector((state) => state.role);
+  } = useSelector((state) => state.department);
 
-  // Page size is fixed server-side (DATA_LIMIT). Older callers still pass a
-  // `dataLimit` argument; it is accepted and ignored.
-  const allRole = useCallback(
+  const allDepartment = useCallback(
     async ({ direction = "next", cursorId = "", search = "" } = {}) => {
       const term = String(search ?? "").trim();
       const requestId = ++latestRequest.current;
 
-      dispatch(roleStart());
+      dispatch(departmentStart());
       try {
         const params = { direction, cursorId };
         if (term) params.search = term;
 
-        const response = await AllRoleAPI(params);
+        const response = await GetAllDepartments(params);
+
         // Rows are stored exactly as the API sends them: id, name, is_active,
-        // department_id, branch_id, department { id, name }, branch { id, name }.
-        const roles = response.data || [];
+        // is_deleted, branch_id and branch { id, name }.
+        const departments = response.data || [];
 
         // A newer call from this hook instance started while we were waiting
         // (e.g. the user kept typing, or paged again). Let that one own the
         // slice instead of clobbering it with this stale response.
-        if (requestId !== latestRequest.current) return roles;
+        if (requestId !== latestRequest.current) return departments;
 
         dispatch(
-          setRole({
-            data: roles,
-            roleFirstId: response.roleFirstId,
-            roleLastId: response.roleLastId,
+          setDepartment({
+            data: departments,
+            departmentFirstId: response.departmentFirstId,
+            departmentLastId: response.departmentLastId,
             hasNextPage: response.hasNextPage,
             hasPreviousPage: response.hasPreviousPage,
             dataLimit: response.dataLimit,
-            roleLength: response.roleLength,
+            departmentLength: response.departmentLength,
             totalCount: response.totalCount,
             totalActiveCount: response.totalActiveCount,
-            direction,
-            searchQuery: term,
           }),
         );
 
-        return roles;
+        return departments;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
-        dispatch(roleFailure(extractErrorMessage(err, "Failed to load roles")));
+        dispatch(
+          departmentFailure(
+            extractErrorMessage(err, "Failed to load departments"),
+          ),
+        );
         return [];
       }
     },
@@ -74,16 +78,14 @@ const useAllRole = () => {
   );
 
   return {
-    allRole,
-    roleData,
-    roleFirstId,
-    roleLastId,
+    allDepartment,
+    departmentData,
+    departmentFirstId,
+    departmentLastId,
     hasNextPage,
     hasPreviousPage,
-    roleLength,
+    departmentLength,
     dataLimit,
-    direction,
-    searchQuery,
     loading,
     error,
     totalCount,
@@ -92,4 +94,4 @@ const useAllRole = () => {
   };
 };
 
-export default useAllRole;
+export default useAllDepartment;

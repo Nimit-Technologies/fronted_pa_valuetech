@@ -1,20 +1,21 @@
 import { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AllRoleAPI from "@/features/superAdmin/services/role/allRole";
-import { roleStart, roleFailure, setRole } from "@/store/slice/role/roleSlice";
-import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
-const useAllRole = () => {
+import { userStart, userFailure, setUser } from "@/store/slice/user/userSlice";
+import { extractErrorMessage } from "@/utils/extractErrorMessage";
+// import AllUserAPI from "@/features/superAdmin/services/user/allUser";
+import AllUserAPI from "../../services/user/allUser";
+const useAllUser = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
 
   const {
-    roleData,
-    roleFirstId,
-    roleLastId,
+    userData,
+    userFirstId,
+    userLastId,
     hasNextPage,
     hasPreviousPage,
-    roleLength,
+    userLength,
     dataLimit,
     direction,
     searchQuery,
@@ -23,39 +24,42 @@ const useAllRole = () => {
     totalCount,
     totalActiveCount,
     success,
-  } = useSelector((state) => state.role);
+  } = useSelector((state) => state.user);
 
   // Page size is fixed server-side (DATA_LIMIT). Older callers still pass a
   // `dataLimit` argument; it is accepted and ignored.
-  const allRole = useCallback(
+
+  const allUser = useCallback(
     async ({ direction = "next", cursorId = "", search = "" } = {}) => {
       const term = String(search ?? "").trim();
       const requestId = ++latestRequest.current;
 
-      dispatch(roleStart());
+      dispatch(userStart());
       try {
         const params = { direction, cursorId };
         if (term) params.search = term;
 
-        const response = await AllRoleAPI(params);
-        // Rows are stored exactly as the API sends them: id, name, is_active,
-        // department_id, branch_id, department { id, name }, branch { id, name }.
-        const roles = response.data || [];
+        const response = await AllUserAPI(params);
+
+        // Rows are stored exactly as the API sends them: id, employee_id,
+        // first_name, last_name, email, phone, aadhaar_number (masked),
+        // is_active, is_deleted, address, branch/department/role { id, name }.
+        const users = response.data || [];
 
         // A newer call from this hook instance started while we were waiting
         // (e.g. the user kept typing, or paged again). Let that one own the
         // slice instead of clobbering it with this stale response.
-        if (requestId !== latestRequest.current) return roles;
+        if (requestId !== latestRequest.current) return users;
 
         dispatch(
-          setRole({
-            data: roles,
-            roleFirstId: response.roleFirstId,
-            roleLastId: response.roleLastId,
+          setUser({
+            data: users,
+            userFirstId: response.userFirstId,
+            userLastId: response.userLastId,
             hasNextPage: response.hasNextPage,
             hasPreviousPage: response.hasPreviousPage,
             dataLimit: response.dataLimit,
-            roleLength: response.roleLength,
+            userLength: response.userLength,
             totalCount: response.totalCount,
             totalActiveCount: response.totalActiveCount,
             direction,
@@ -63,10 +67,10 @@ const useAllRole = () => {
           }),
         );
 
-        return roles;
+        return users;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
-        dispatch(roleFailure(extractErrorMessage(err, "Failed to load roles")));
+        dispatch(userFailure(extractErrorMessage(err, "Failed to load users")));
         return [];
       }
     },
@@ -74,13 +78,13 @@ const useAllRole = () => {
   );
 
   return {
-    allRole,
-    roleData,
-    roleFirstId,
-    roleLastId,
+    allUser,
+    userData,
+    userFirstId,
+    userLastId,
     hasNextPage,
     hasPreviousPage,
-    roleLength,
+    userLength,
     dataLimit,
     direction,
     searchQuery,
@@ -92,4 +96,4 @@ const useAllRole = () => {
   };
 };
 
-export default useAllRole;
+export default useAllUser;

@@ -1,9 +1,10 @@
+import React from "react";
 import { useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AllRoleAPI from "@/features/superAdmin/services/role/allRole";
+// import AllRoleAPI from '@/features/superAdmin/services/role/allRole';
+import AllRoleAPI from "../../services/role/allRole";
 import { roleStart, roleFailure, setRole } from "@/store/slice/role/roleSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
-
 const useAllRole = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
@@ -25,8 +26,6 @@ const useAllRole = () => {
     success,
   } = useSelector((state) => state.role);
 
-  // Page size is fixed server-side (DATA_LIMIT). Older callers still pass a
-  // `dataLimit` argument; it is accepted and ignored.
   const allRole = useCallback(
     async ({ direction = "next", cursorId = "", search = "" } = {}) => {
       const term = String(search ?? "").trim();

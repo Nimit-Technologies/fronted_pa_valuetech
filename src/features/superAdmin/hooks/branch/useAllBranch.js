@@ -6,7 +6,7 @@ import {
   branchStart,
   branchSuccess,
   branchFailure,
-} from "@/features/superAdmin/slice/branch/branchSlice";
+} from "@/store/branch/branchSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
 const useAllBranch = () => {

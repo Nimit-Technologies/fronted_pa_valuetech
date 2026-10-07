@@ -3,7 +3,7 @@ import branchReducer, {
   branchStart,
   branchSuccess,
   branchFailure,
-} from "@/features/superAdmin/slice/branch/branchSlice";
+} from "@/store/branch/branchSlice";
 
 const initialState = {
   branchData: [],

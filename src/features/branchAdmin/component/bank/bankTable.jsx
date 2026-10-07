@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -17,6 +17,7 @@ const BankTable = ({
   headers = [],
   isLoading = false,
   onDelete,
+  onRestore,
   onToggleStatus,
 }) => {
   const navigate = useNavigate();
@@ -60,7 +61,9 @@ const BankTable = ({
             data.map((bank, index) => (
               <TableRow
                 key={bank.id}
-                className="hover:bg-muted/30 transition-colors"
+                className={`transition-colors hover:bg-muted/30 ${
+                  bank.isDeleted ? "opacity-60" : ""
+                }`}
               >
                 <TableCell className="text-foreground font-medium">
                   {index + 1}
@@ -77,17 +80,23 @@ const BankTable = ({
                 <TableCell>{bank.gstNumber}</TableCell>
 
                 <TableCell>
-                  <button
-                    type="button"
-                    onClick={() => onToggleStatus?.(bank)}
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80 ${
-                      bank.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {bank.isActive ? "Active" : "Inactive"}
-                  </button>
+                  {bank.isDeleted ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                      Deleted
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onToggleStatus?.(bank)}
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80 ${
+                        bank.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {bank.isActive ? "Active" : "Inactive"}
+                    </button>
+                  )}
                 </TableCell>
 
                 <TableCell>
@@ -113,15 +122,26 @@ const BankTable = ({
                     >
                       <Pencil size={16} />
                     </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => onDelete?.(bank)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
+                    {bank.isDeleted ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                        onClick={() => onRestore?.(bank)}
+                      >
+                        <RotateCcw size={14} />
+                        Restore
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => onDelete?.(bank)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

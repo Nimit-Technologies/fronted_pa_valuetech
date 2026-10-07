@@ -19,8 +19,10 @@ const LoginForm = () => {
 
     try {
       const user = await login({ employee_id, password });
+
       const destination =
         ROLE_HOME_ROUTES[user.role?.name] ?? DEFAULT_AUTHENTICATED_ROUTE;
+
       navigate(destination, { replace: true });
     } catch {
       setPassword("");

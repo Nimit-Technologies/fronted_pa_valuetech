@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   EMPTY_USER_FILTERS,
   setUserFilter,
@@ -7,9 +8,6 @@ import {
   clearUserFilters,
 } from "@/store/slice/user/userSlice";
 
-// Which columns can be filtered and how to read them off a raw user row.
-// `label` must match the header text in userTableHeader so the table can
-// place the control in the right column.
 export const USER_FILTER_COLUMNS = {
   branch: {
     label: "Branch",
@@ -27,7 +25,6 @@ export const USER_FILTER_COLUMNS = {
     getLabel: (user) => user.role?.name ?? "",
   },
 };
-
 // Distinct values of one column across `rows`, ready for ColumnFilter.
 export const buildFilterOptions = (rows, column) => {
   const { getId, getLabel } = USER_FILTER_COLUMNS[column];
@@ -48,7 +45,6 @@ export const applyUserFilters = (rows, filters = EMPTY_USER_FILTERS) =>
       return selected == null || selected.includes(getId(row));
     }),
   );
-
 const useUserFilters = () => {
   const dispatch = useDispatch();
   const filters = useSelector(
