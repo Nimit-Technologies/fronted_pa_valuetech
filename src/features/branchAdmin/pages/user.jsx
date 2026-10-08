@@ -241,8 +241,7 @@ const User = () => {
                 ? "No users on this page match the current filters."
                 : "No users found."
             }
-            // onDelete={(user) => setPendingAction({ type: "delete", user })}
-            // onRestore={(user) => setPendingAction({ type: "restore", user })}
+            // onDelete={(user)git
             // onToggleStatus={(user) =>
             //   setPendingAction({ type: "status", user })
             // }

@@ -13,7 +13,7 @@ export const sidebarItems = [
         icon: Building2,
       },
       { label: "Role", path: "/branch-admin/role", icon: ShieldCheck },
-      // { label: "Business", path: "/branch-admin/business", icon: Briefcase },
+      { label: "Business", path: "/branch-admin/business", icon: Building2 },
       // { label: "Case", path: "/branch-admin/case", icon: FolderKanban },
       // { label: "Engineer", path: "/branch-admin/engineer", icon: Wrench },
     ],

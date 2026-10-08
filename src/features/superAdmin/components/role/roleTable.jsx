@@ -1,5 +1,5 @@
 import React from "react";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2, Loader2, RotateCcw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -11,21 +11,18 @@ import {
 import { Button } from "@/components/ui/button";
 import UpdateRole from "@/features/superAdmin/components/role/updateRole";
 
-// Rows are the raw list-API shape: id, name, is_active, department_id,
-// branch_id, department { id, name }, branch { id, name }. The list endpoint
-// filters out soft-deleted roles, so unlike departments there is no
-// "Deleted" / Restore state to render here.
+// Rows use the raw list-API shape, including is_deleted for soft-deleted roles.
 const RoleTable = ({
   data,
   headers = [],
   isLoading = false,
   onEdited,
   onDelete,
+  onRestore,
   onToggleStatus,
 }) => {
   const rows = data ?? [];
   const colSpan = headers.length || 6;
-
   const firstLoad = isLoading && rows.length === 0;
   const paging = isLoading && rows.length > 0;
 
@@ -77,7 +74,9 @@ const RoleTable = ({
             {rows.map((role, index) => (
               <TableRow
                 key={role.id}
-                className="transition-colors hover:bg-muted/30"
+                className={`transition-colors hover:bg-muted/30 ${
+                  role.is_deleted ? "opacity-60" : ""
+                }`}
               >
                 <TableCell className="text-foreground font-medium">
                   {index + 1}
@@ -92,39 +91,61 @@ const RoleTable = ({
                   {role.branch?.name || "N/A"}
                 </TableCell>
                 <TableCell>
-                  <button
-                    type="button"
-                    onClick={() => onToggleStatus?.(role)}
-                    title="Click to toggle status"
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80 ${
-                      role.is_active
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-500 text-white"
-                    }`}
-                  >
-                    {role.is_active ? "Active" : "Inactive"}
-                  </button>
+                  {role.is_deleted ? (
+                    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                      Deleted
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => onToggleStatus?.(role)}
+                      title="Click to toggle status"
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80 ${
+                        role.is_active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-500 text-white"
+                      }`}
+                    >
+                      {role.is_active ? "Active" : "Inactive"}
+                    </button>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1.5">
-                    <UpdateRole
-                      defaultName={role.name}
-                      roleId={role.id}
-                      defaultStatus={role.is_active}
-                      defaultDepartment={{
-                        id: role.department_id ?? role.department?.id ?? "",
-                        name: role.department?.name ?? "",
-                      }}
-                      onUpdated={onEdited}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => onDelete?.(role)}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
+                    {role.is_deleted ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        onClick={() => onRestore?.(role)}
+                      >
+                        <RotateCcw size={14} />
+                        Restore
+                      </Button>
+                    ) : (
+                      <>
+                        <UpdateRole
+                          defaultName={role.name}
+                          roleId={role.id}
+                          defaultStatus={role.is_active}
+                          defaultDepartment={{
+                            id: role.department_id ?? role.department?.id ?? "",
+                            name: role.department?.name ?? "",
+                          }}
+                          onUpdated={onEdited}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => onDelete?.(role)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

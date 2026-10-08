@@ -10,6 +10,7 @@ import { roleTableHeader } from "@/features/superAdmin/data/role/roleTableHeader
 
 import useAllRole from "@/features/superAdmin/hooks/role/useAllRole";
 import useDeleteRole from "@/features/superAdmin/hooks/role/useDeleteRole";
+import useRestoreRole from "@/features/superAdmin/hooks/role/useRestoreRole";
 import useUpdateRoleStatus from "@/features/superAdmin/hooks/role/useUpdateRoleStatus";
 import useSearchRole from "@/features/superAdmin/hooks/role/useSearchRole";
 import { useTableSearch } from "@/hooks/search/useTableSearch";
@@ -17,15 +18,19 @@ import { usePaginationController } from "@/hooks/pagination/usePaginationControl
 
 const FEATURE_KEY = "role";
 
-// Copy for each row action the confirm dialog gates. The list API hides
-// soft-deleted roles, so there is no restore action on this page.
 const CONFIRM_ACTIONS = {
   delete: {
     title: "Delete role",
     describe: (role) =>
-      `"${role.name}" will be removed from the roles list. Users holding it keep their assignment until they are re-assigned.`,
+      `"${role.name}" will be moved to deleted roles. You can restore it later.`,
     confirmLabel: "Delete",
     destructive: true,
+  },
+  restore: {
+    title: "Restore role",
+    describe: (role) => `"${role.name}" will be moved back to active roles.`,
+    confirmLabel: "Restore",
+    destructive: false,
   },
   status: {
     title: "Change role status",
@@ -51,6 +56,7 @@ const Role = () => {
   } = useAllRole();
 
   const { Delete } = useDeleteRole();
+  const { Restore } = useRestoreRole();
   const { UpdateStatus } = useUpdateRoleStatus();
   const { searchRole } = useSearchRole();
 
@@ -104,7 +110,11 @@ const Role = () => {
   const runPendingAction = useCallback(async () => {
     if (!pendingAction) return;
     const { type, role } = pendingAction;
-    const services = { delete: Delete, status: UpdateStatus };
+    const services = {
+      delete: Delete,
+      restore: Restore,
+      status: UpdateStatus,
+    };
 
     setActionLoading(true);
     try {
@@ -114,12 +124,14 @@ const Role = () => {
       setActionLoading(false);
       setPendingAction(null);
     }
-  }, [pendingAction, Delete, UpdateStatus, reloadFromStart]);
+  }, [pendingAction, Delete, Restore, UpdateStatus, reloadFromStart]);
 
   // ========== DERIVED ==========
   // Backend sends the table-wide active total; fall back to counting the
   // loaded page until the first response lands.
-  const loadedActiveCount = roleData.filter((item) => item.is_active).length;
+  const loadedActiveCount = roleData.filter(
+    (item) => item.is_active && !item.is_deleted,
+  ).length;
   const activeCount = totalActiveCount || loadedActiveCount;
 
   const actionCopy = pendingAction ? CONFIRM_ACTIONS[pendingAction.type] : null;
@@ -161,6 +173,7 @@ const Role = () => {
             isLoading={loading}
             onEdited={reloadFromStart}
             onDelete={(role) => setPendingAction({ type: "delete", role })}
+            onRestore={(role) => setPendingAction({ type: "restore", role })}
             onToggleStatus={(role) =>
               setPendingAction({ type: "status", role })
             }

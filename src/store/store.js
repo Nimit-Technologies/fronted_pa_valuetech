@@ -16,6 +16,7 @@ import branchReducer from "@/store/branch/branchSlice";
 import roleReducer from "@/store/slice/role/roleSlice";
 import userReducer from "@/store/slice/user/userSlice";
 import bankReducer from "@/features/branchAdmin/slice/bank/bankSlice";
+import businessReducer from "@/features/branchAdmin/slice/business/businessSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps
 // its default export, leaving storage.getItem undefined at runtime. A plain
@@ -54,11 +55,12 @@ const rootReducer = combineReducers({
   role: roleReducer,
   user: userReducer,
   bank: bankReducer,
+  business: businessReducer,
 });
 
 // Only `auth` is persisted; the superAdmin slices (department/branch/role/user)
-// and the branchAdmin `bank` slice are server-cache-like and refetched on
-// mount, so there's nothing to persist.
+// and the branchAdmin `bank`/`business` slices are server-cache-like and
+// refetched on mount, so there's nothing to persist.
 const persistConfig = {
   key: "root",
   version: 1,

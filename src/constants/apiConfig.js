@@ -88,6 +88,17 @@ export const apiConfig = Object.freeze({
     updateBankStatus: "status",
     restoreBank: "restore",
   }),
+  business: defineEndpoints("business", {
+    getAllBusiness: "all-business-types",
+    getBusinessById: "",
+    createBusiness: "create-business-type",
+    updateBusiness: "update",
+    deleteBusiness: "delete",
+    softDeleteBusiness: "soft-delete",
+    updateBusinessStatus: "status",
+    restoreBusiness: "restore",
+  }),
+
   dashboard: defineEndpoints("dashboard", {
     superAdminSummary: "super-admin",
     branchAdminSummary: "branch-admin",

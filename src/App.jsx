@@ -86,6 +86,12 @@ const BranchAdminViewUser = lazy(
 const CreateBank = lazy(
   () => import("@/features/branchAdmin/component/bank/createBank"),
 );
+const CreateBusiness = lazy(
+  () => import("@/features/branchAdmin/component/business/createBusiness"),
+);
+const UpdateBusiness = lazy(
+  () => import("@/features/branchAdmin/component/business/updateBusiness"),
+);
 const UpdateBank = lazy(
   () => import("@/features/branchAdmin/component/bank/updateBank"),
 );
@@ -198,6 +204,8 @@ const App = () => {
               <Route path="bank/update/:id" element={<UpdateBank />} />
               <Route path="bank/view/:id" element={<ViewBank />} />
               <Route path="business" element={<Business />} />
+              <Route path="business/create" element={<CreateBusiness />} />
+              <Route path="business/update/:id" element={<UpdateBusiness />} />
               <Route path="case" element={<Case />} />
               <Route path="department" element={<BranchAdminDepartment />} />
               <Route path="engineer" element={<Engineer />} />
