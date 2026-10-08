@@ -27,8 +27,6 @@ const UpdateBusiness = () => {
   useEffect(() => {
     let cancelled = false;
 
-    setLoaded(false);
-    setForm(null);
     getBusinessById(id).then((business) => {
       if (cancelled) return;
       if (business) setForm({ name: business.name });

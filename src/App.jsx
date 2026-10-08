@@ -159,9 +159,9 @@ const App = () => {
             <Route
               path="/cordinator"
               element={
-                // <ProtectedRoute allowedRoles={[ROLES.COORDINATOR]}>
-                <IndividualCoordinator />
-                // </ProtectedRoute>
+                <ProtectedRoute allowedRoles={[ROLES.CORDINATOR]}>
+                  <IndividualCoordinator />
+                </ProtectedRoute>
               }
             >
               <Route index element={<IndividualCoordinatorHome />} />
