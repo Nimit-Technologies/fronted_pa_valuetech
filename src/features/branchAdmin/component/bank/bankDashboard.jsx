@@ -1,4 +1,4 @@
-import Bank from "@/features/branchAdmin/pages/bank";
+import Bank from "@/features/branchAdmin/pages/BankListPage";
 
 const BankDashboard = () => {
   return <Bank />;

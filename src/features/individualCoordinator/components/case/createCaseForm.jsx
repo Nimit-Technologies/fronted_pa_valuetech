@@ -1,14 +1,23 @@
-import React, { useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BankDropDown from "@/components/shared/dropdown/bankDropDown";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { caseData } from "@/features/individualCoordinator/data/case/caseTable";
-import { userProfileData } from "@/data/userProfile";
+import BankSelect from "@/features/individualCoordinator/components/case/BankSelect";
+import SimilarCasesTable from "@/components/shared/case/similarCasesTable";
+import useCreateCase from "@/features/individualCoordinator/hooks/case/useCreateCase";
+import useSimilarCases from "@/features/individualCoordinator/hooks/case/useSimilarCases";
+import useMyBusinessType from "@/features/individualCoordinator/hooks/businessType/useMyBusinessType";
+import useSessionDraft from "@/hooks/draft/useSessionDraft";
+import { validateCaseFields } from "@/features/individualCoordinator/utils/validateCaseFields";
+import { zodFieldErrors } from "@/utils/zodFieldErrors";
 
-const RequiredLabel = ({ children }) => (
+const RequiredLabel = ({ children, optional = false }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">
     {children}
-    <span className="text-destructive text-base leading-none">*</span>
+    {optional ? null : (
+      <span className="text-destructive text-base leading-none">*</span>
+    )}
   </label>
 );
 
@@ -16,106 +25,190 @@ const INITIAL_FORM = {
   file_number: "",
   banker_name: "",
   customer_name: "",
-  customer_phone_number: "",
+  customer_contact_number: "",
   case_type: "",
-  business_type: "",
-  bank: "",
-  branch: "",
   city: "",
   district: "",
   state: "",
-  pincode: "",
-  country: "",
+  pin_code: "",
+  country: "India",
   lane: "",
   landmark: "",
-  engineer_name: "",
-  engineer_mobile_number: "",
-  drafter_name: "",
-  drafter_mobile_number: "",
-  appraiser_name: "",
-  appraiser_mobile_number: "",
 };
+
+// What has been typed is held in the tab's storage, not just in state: the
+// duplicate panel links out to the cases it found, and following one of those
+// links unmounts this form. Without a draft, Back would come back to twelve
+// empty fields and no matches — which is how a user loses the work twice over,
+// since the second attempt hits the same duplicate warning.
+//
+// Three keys rather than one object so each piece is restored, and discarded,
+// on its own terms.
+const DRAFT_KEYS = {
+  form: "coordinator:create-case:form",
+  bank: "coordinator:create-case:bank",
+  duplicates: "coordinator:create-case:duplicates",
+};
+
+// Whatever is in storage was written by some build of this form, not
+// necessarily this one, and every field here is read with .trim() when the
+// payload is built. Keeping only the known keys, and only as strings, is what
+// makes a stale draft something that gets ignored rather than something that
+// throws mid-render.
+const reviveForm = (stored) => {
+  if (!stored || typeof stored !== "object") return undefined;
+
+  return Object.keys(INITIAL_FORM).reduce((acc, key) => {
+    acc[key] =
+      typeof stored[key] === "string" ? stored[key] : INITIAL_FORM[key];
+    return acc;
+  }, {});
+};
+
+// A bank is only worth restoring if it still carries the id the create needs.
+const reviveBank = (stored) =>
+  stored && typeof stored === "object" && stored.id ? stored : undefined;
+
+// Only the fields the create schema declares — it is `.strict()`, so an extra
+// key is a 400. Blank optionals are left out rather than sent empty, which is
+// what lets the server apply its own default for country.
+//
+// branch_id is not sent: the backend derives the case's branch from the bank,
+// and re-derives it even when a client asserts one.
+//
+// The address is built by buildAddress so the create and the similar-case
+// search that pages its matches send the same object — the server's duplicate
+// ranking is over this address, and a second definition here would be free to
+// drift from it.
+const buildAddress = (form) => {
+  const address = {
+    city: form.city.trim(),
+    district: form.district.trim(),
+    state: form.state.trim(),
+    pin_code: form.pin_code.trim(),
+  };
+  if (form.country.trim()) address.country = form.country.trim();
+  if (form.lane.trim()) address.lane = form.lane.trim();
+  if (form.landmark.trim()) address.landmark = form.landmark.trim();
+
+  return address;
+};
+
+const buildPayload = ({ form, bank, businessTypeId, confirmDuplicate }) => {
+  const address = buildAddress(form);
+
+  return {
+    file_number: form.file_number.trim(),
+    banker_name: form.banker_name.trim(),
+    customer_name: form.customer_name.trim(),
+    customer_contact_number: form.customer_contact_number.trim(),
+    case_type: form.case_type.trim(),
+    business_type_id: businessTypeId ?? "",
+    bank_id: bank?.id ?? "",
+    address,
+    ...(confirmDuplicate ? { confirm_duplicate: true } : {}),
+  };
+};
+
+const FIELD_CLASS =
+  "h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground";
 
 const CreateCaseForm = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState(INITIAL_FORM);
+  const { create } = useCreateCase();
+  const { businessTypeId, name: businessTypeName } = useMyBusinessType();
+  // Opened when the backend holds the create back over possible duplicates.
+  // The same payload is then resubmitted with confirm_duplicate; the hook owns
+  // the matches themselves and pages them on demand.
+  const {
+    review: duplicates,
+    loadingMore,
+    open: openReview,
+    dismiss: dismissReview,
+    loadMore,
+  } = useSimilarCases({ draftKey: DRAFT_KEYS.duplicates });
+
+  const [form, setForm, clearFormDraft] = useSessionDraft(
+    DRAFT_KEYS.form,
+    INITIAL_FORM,
+    reviveForm,
+  );
+  const [bank, setBank, clearBankDraft] = useSessionDraft(
+    DRAFT_KEYS.bank,
+    null,
+    reviveBank,
+  );
+  // Field errors and the in-flight flag are deliberately not drafted: they
+  // describe one attempt, not what the user typed.
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const discardDraft = useCallback(() => {
+    clearFormDraft();
+    clearBankDraft();
+    dismissReview();
+  }, [clearFormDraft, clearBankDraft, dismissReview]);
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) =>
+      prev[name] ? { ...prev, [name]: undefined } : prev,
+    );
   };
 
-  const handleBankSelect = (bankName) => {
-    setForm((prev) => ({ ...prev, bank: bankName }));
+  const submit = async (confirmDuplicate) => {
+    // Checked here as well as on the server: a required field left blank or a
+    // half-typed phone number is a 400 the user can be told about without a
+    // round trip, and the messages match the ones the API would have sent.
+    const invalid = validateCaseFields({ form, bank, businessTypeId });
+    if (Object.keys(invalid).length) {
+      setFieldErrors(invalid);
+      return;
+    }
+
+    setSubmitting(true);
+    setFieldErrors({});
+    try {
+      const result = await create(
+        buildPayload({ form, bank, businessTypeId, confirmDuplicate }),
+      );
+
+      if (result.status === "duplicate") {
+        // The query is snapshotted alongside the matches: paging them is by
+        // offset into one ranked result set, so later pages have to be asked
+        // for with the values that produced the first one, not with whatever
+        // the form holds by then.
+        openReview(result, {
+          customerContactNumber: form.customer_contact_number.trim(),
+          address: buildAddress(form),
+        });
+        return;
+      }
+
+      // The case exists now, so the draft has done its job. This is the only
+      // path that throws the input away on its own.
+      discardDraft();
+      navigate("/cordinator/case");
+    } catch (err) {
+      // The hook has already surfaced the message; this puts each validation
+      // failure on its own field.
+      setFieldErrors(zodFieldErrors(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const currentUser = userProfileData.data[0];
-    const now = new Date().toISOString();
-    const nextIndex = caseData.data.length + 1;
-
-    const newCase = {
-      id: `case_${String(nextIndex).padStart(4, "0")}`,
-      file_number: form.file_number,
-      customer_name: form.customer_name,
-      customer_phone_number: form.customer_phone_number,
-
-      branch: {
-        branch_id: `branch_${String(nextIndex).padStart(3, "0")}`,
-        name: form.branch,
-      },
-
-      bank: {
-        bank_id: `bank_${String(nextIndex).padStart(3, "0")}`,
-        display_name: form.bank,
-        name: form.bank,
-      },
-
-      banker: form.banker_name,
-      case_type: form.case_type,
-      business_type: {
-        business_type_id: `bt_${String(nextIndex).padStart(3, "0")}`,
-        name: form.business_type,
-      },
-
-      address: {
-        lane: form.lane,
-        landmark: form.landmark,
-        city: form.city,
-        district: form.district,
-        state: form.state,
-        pin_code: form.pincode,
-        country: form.country,
-      },
-
-      created_by: {
-        id: currentUser.id,
-        first_name: currentUser.first_name,
-      },
-
-      updated_by: [],
-
-      engineer: {
-        id: `eng_${String(nextIndex).padStart(3, "0")}`,
-        name: form.engineer_name,
-        phone_number: form.engineer_mobile_number,
-      },
-
-      remarks: [],
-
-      status: "OPEN",
-      created_at: now,
-      updated_at: now,
-      deleted_at: null,
-      is_active: true,
-    };
-
-    caseData.data.push(newCase);
-    caseData.meta.total_cases = caseData.data.length;
-
-    navigate("/coordinator/case");
+    if (submitting) return;
+    submit(false);
   };
+
+  const error = (key) =>
+    fieldErrors[key] ? (
+      <p className="mt-1 text-xs text-destructive">{fieldErrors[key]}</p>
+    ) : null;
 
   return (
     <div className="bg-card border border-border rounded-md py-6 shadow-sm">
@@ -124,6 +217,16 @@ const CreateCaseForm = () => {
         onSubmit={handleSubmit}
         className="max-w-3xl w-full mx-auto space-y-8 px-4"
       >
+        {!businessTypeId ? (
+          <div
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            Your account has no business type set, so a case cannot be filed
+            under it. Ask an administrator to assign one.
+          </div>
+        ) : null}
+
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
             Case Details
@@ -135,9 +238,10 @@ const CreateCaseForm = () => {
                 name="file_number"
                 value={form.file_number}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter file number"
               />
+              {error("file_number")}
             </div>
 
             <div>
@@ -146,9 +250,10 @@ const CreateCaseForm = () => {
                 name="banker_name"
                 value={form.banker_name}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter banker name"
               />
+              {error("banker_name")}
             </div>
 
             <div>
@@ -157,20 +262,24 @@ const CreateCaseForm = () => {
                 name="customer_name"
                 value={form.customer_name}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter customer name"
               />
+              {error("customer_name")}
             </div>
 
             <div>
-              <RequiredLabel>Customer Phone Number</RequiredLabel>
+              <RequiredLabel>Customer Contact Number</RequiredLabel>
               <Input
-                name="customer_phone_number"
-                value={form.customer_phone_number}
+                name="customer_contact_number"
+                value={form.customer_contact_number}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter customer phone number"
+                inputMode="numeric"
+                maxLength={10}
+                className={FIELD_CLASS}
+                placeholder="10-digit mobile number"
               />
+              {error("customer_contact_number")}
             </div>
 
             <div>
@@ -179,35 +288,40 @@ const CreateCaseForm = () => {
                 name="case_type"
                 value={form.case_type}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter case type"
               />
+              {error("case_type")}
             </div>
 
             <div>
+              {/* A coordinator handles exactly one business line, and the
+                  backend refuses a case filed under any other, so this is
+                  shown rather than chosen. */}
               <RequiredLabel>Business type</RequiredLabel>
               <Input
-                name="business_type"
-                value={form.business_type}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter business type"
+                value={businessTypeName || businessTypeId || ""}
+                disabled
+                className={`${FIELD_CLASS} capitalize`}
               />
+              {error("business_type_id")}
             </div>
 
             <div>
               <RequiredLabel>Bank</RequiredLabel>
-              <BankDropDown value={form.bank} onSelect={handleBankSelect} />
+              <BankSelect value={bank} onSelect={setBank} />
+              {error("bank_id")}
             </div>
 
             <div>
-              <RequiredLabel>Bank Branch</RequiredLabel>
+              {/* The case's branch follows the bank's, which is why this is
+                  read-only: picking a bank picks the branch. */}
+              <RequiredLabel optional>Bank Branch</RequiredLabel>
               <Input
-                name="branch"
-                value={form.branch}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter bank branch"
+                value={bank?.bank_branch || ""}
+                disabled
+                className={`${FIELD_CLASS} capitalize`}
+                placeholder="Follows the selected bank"
               />
             </div>
           </div>
@@ -215,7 +329,7 @@ const CreateCaseForm = () => {
 
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
-            Address
+            Property Address
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
@@ -224,9 +338,10 @@ const CreateCaseForm = () => {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter city"
               />
+              {error("address.city")}
             </div>
 
             <div>
@@ -235,9 +350,10 @@ const CreateCaseForm = () => {
                 name="district"
                 value={form.district}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter district"
               />
+              {error("address.district")}
             </div>
 
             <div>
@@ -246,20 +362,24 @@ const CreateCaseForm = () => {
                 name="state"
                 value={form.state}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter state"
               />
+              {error("address.state")}
             </div>
 
             <div>
               <RequiredLabel>Pincode</RequiredLabel>
               <Input
-                name="pincode"
-                value={form.pincode}
+                name="pin_code"
+                value={form.pin_code}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter pincode"
+                inputMode="numeric"
+                maxLength={6}
+                className={FIELD_CLASS}
+                placeholder="6-digit pin code"
               />
+              {error("address.pin_code")}
             </div>
 
             <div>
@@ -268,101 +388,111 @@ const CreateCaseForm = () => {
                 name="country"
                 value={form.country}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter country"
+                className={FIELD_CLASS}
+                placeholder="India"
               />
+              {error("address.country")}
             </div>
 
             <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-              <RequiredLabel>Lane</RequiredLabel>
+              <RequiredLabel optional>Lane</RequiredLabel>
               <Input
                 name="lane"
                 value={form.lane}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter lane / street"
               />
+              {error("address.lane")}
             </div>
 
             <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-              <RequiredLabel>Landmark</RequiredLabel>
+              <RequiredLabel optional>Landmark</RequiredLabel>
               <Input
                 name="landmark"
                 value={form.landmark}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                className={FIELD_CLASS}
                 placeholder="Enter landmark"
               />
+              {error("address.landmark")}
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
-            Allocated User
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <RequiredLabel>Engineer Name</RequiredLabel>
-              <Input
-                name="engineer_name"
-                value={form.engineer_name}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter engineer name"
-              />
-            </div>
-            <div>
-              <RequiredLabel>Engineer Mobile Number</RequiredLabel>
-              <Input
-                name="engineer_mobile_number"
-                value={form.engineer_mobile_number}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter engineer mobile number"
-              />
-            </div>
-            <div>
-              <RequiredLabel>Drafter name</RequiredLabel>
-              <Input
-                name="drafter_name"
-                value={form.drafter_name}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter drafter name"
-              />
-            </div>
-            <div>
-              <RequiredLabel>Drafter Mobile Number</RequiredLabel>
-              <Input
-                name="drafter_mobile_number"
-                value={form.drafter_mobile_number}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter drafter mobile number"
-              />
-            </div>
-            <div>
-              <RequiredLabel>Appraiser name</RequiredLabel>
-              <Input
-                name="appraiser_name"
-                value={form.appraiser_name}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter appraiser name"
-              />
-            </div>
-            <div>
-              <RequiredLabel>Appraiser Mobile Number</RequiredLabel>
-              <Input
-                name="appraiser_mobile_number"
-                value={form.appraiser_mobile_number}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter appraiser mobile number"
-              />
+        {/* The one advisory refusal: an existing case shares the customer's
+            number or reads like the same property. The matches are named by
+            file number and business line only — a case in another business
+            line is not this coordinator's to read past that. */}
+        {duplicates ? (
+          <div
+            role="alert"
+            className="space-y-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100"
+          >
+            <p className="font-medium">
+              {duplicates.message || "Similar cases already exist."}
+            </p>
+
+            <SimilarCasesTable
+              cases={duplicates.cases}
+              hasNextPage={duplicates.hasNextPage}
+              loadingMore={loadingMore}
+              onLoadMore={loadMore}
+            />
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={submitting}
+                onClick={() => submit(true)}
+              >
+                Create anyway
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={submitting}
+                onClick={dismissReview}
+              >
+                Let me check
+              </Button>
             </div>
           </div>
+        ) : null}
+
+        <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <Button
+            type="submit"
+            className="max-w-xs w-full py-5 text-base capitalize sm:w-auto sm:px-12"
+            disabled={submitting || !businessTypeId}
+          >
+            {submitting ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Creating
+              </span>
+            ) : (
+              "Create Case"
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="py-5 text-base capitalize sm:px-10"
+            disabled={submitting}
+            // Cancel is the user saying they do not want this case, so the
+            // draft goes with it. Every other way off this page — the sidebar,
+            // a duplicate's View link — keeps it.
+            onClick={() => {
+              discardDraft();
+              navigate("/cordinator/case");
+            }}
+          >
+            Cancel
+          </Button>
         </div>
       </form>
     </div>

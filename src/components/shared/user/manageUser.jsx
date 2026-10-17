@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useSession from "@/features/auth/hooks/useSession";
+import { roleBasePath } from "@/features/auth/constants/roles";
 import useGetUserById from "@/features/superAdmin/hooks/user/useGetUserById";
 import useUpdateProfile from "@/features/user/hooks/useUpdateProfile";
 
@@ -329,17 +330,10 @@ const ManageUserForm = ({ user, maskedAadhaar, onDone }) => {
 
 const ManageUser = () => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const { user: sessionUser } = useSession();
+  const { user: sessionUser, role } = useSession();
   const { getUserById } = useGetUserById();
 
-  const basePath = pathname.startsWith("/coordinator")
-    ? "/coordinator"
-    : pathname.startsWith("/engineer")
-      ? "/engineer"
-      : pathname.startsWith("/branch-admin")
-        ? "/branch-admin"
-        : "/super-admin";
+  const basePath = roleBasePath(role);
 
   const sessionUserId = sessionUser?.id;
   const [result, setResult] = useState({ id: null, user: null, failed: false });
@@ -367,7 +361,10 @@ const ManageUser = () => {
   const notFound = !sessionUserId || (settled && result.failed);
   const user = settled ? result.user : null;
 
-  const goToProfile = () => navigate(`${basePath}/user-profile`);
+  // After a successful save, land on the read-only profile in this role's own
+  // dashboard; with no dashboard to go to, fall back to wherever they came from.
+  const goToProfile = () =>
+    basePath ? navigate(`${basePath}/user-profile`) : navigate(-1);
 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto">

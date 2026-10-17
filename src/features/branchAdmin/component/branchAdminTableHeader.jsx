@@ -1,5 +1,5 @@
 import React from "react";
-import BranchAdminSearchbar from "./branchAdminSearchbar";
+import BranchAdminSearchbar from "./BranchAdminSearchbar";
 
 const BranchAdminTableHeader = ({ onSearch, placeholder, createButton }) => {
   return (

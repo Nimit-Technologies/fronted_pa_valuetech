@@ -1,10 +1,14 @@
 import CreateDepartmentAPI from "@/features/superAdmin/services/department/createDepartment";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useCreateDepartment = () => {
+  // Drops the cached department list so the next read refetches.
+  const { invalidate } = useResourceCache("department");
   const Create = async (payload) => {
     try {
       const response = await CreateDepartmentAPI(payload);
+      invalidate();
       toast.success(response?.message, {
         duration: 700,
       });

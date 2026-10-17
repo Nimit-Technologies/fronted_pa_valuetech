@@ -1,21 +1,20 @@
 import { Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
+import FilterableTableHead from "@/components/shared/filterableTableHead";
 
+// `columnFilters` is keyed by header text and carries the props for an
+// Excel-style ColumnFilter rendered inside that header cell:
+//   { "bank name": { label, options, selected, onChange } }
 const BankTable = ({
   data = [],
   headers = [],
   isLoading = false,
+  columnFilters = {},
+  emptyMessage = "No banks found.",
   onDelete,
   onRestore,
   onToggleStatus,
@@ -25,18 +24,11 @@ const BankTable = ({
   return (
     <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
       <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50 hover:bg-muted/50">
-            {headers.map((header) => (
-              <TableHead
-                key={header}
-                className="capitalize font-semibold text-foreground whitespace-nowrap text-sm"
-              >
-                {header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
+        <FilterableTableHead
+          headers={headers}
+          columnFilters={columnFilters}
+          disabled={isLoading}
+        />
 
         <TableBody>
           {isLoading ? (
@@ -54,7 +46,7 @@ const BankTable = ({
                 colSpan={headers.length}
                 className="text-center text-muted-foreground py-12 text-sm"
               >
-                No banks found.
+                {emptyMessage}
               </TableCell>
             </TableRow>
           ) : (
@@ -112,16 +104,12 @@ const BankTable = ({
                       <Eye size={16} />
                     </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      onClick={() =>
-                        navigate(`/branch-admin/bank/update/${bank.id}`)
-                      }
-                    >
-                      <Pencil size={16} />
-                    </Button>
+                    {/* Restore replaces edit and delete on a soft-deleted
+                        row: PUT /bank/update/:id answers "Bank is
+                        soft-deleted; restore it before updating", so an edit
+                        button here would only lead to a rejected save. View
+                        stays available either way — getBankById does not
+                        filter on deleted_at. */}
                     {bank.isDeleted ? (
                       <Button
                         variant="ghost"
@@ -133,14 +121,27 @@ const BankTable = ({
                         Restore
                       </Button>
                     ) : (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => onDelete?.(bank)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          onClick={() =>
+                            navigate(`/branch-admin/bank/update/${bank.id}`)
+                          }
+                        >
+                          <Pencil size={16} />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => onDelete?.(bank)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </TableCell>

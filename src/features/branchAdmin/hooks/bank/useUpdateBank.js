@@ -1,10 +1,14 @@
 import { toast } from "sonner";
 import UpdateBankAPI from "@/features/branchAdmin/services/bank/updateBank";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useUpdateBank = () => {
+  // Drops the cached bank list so the next read refetches.
+  const { invalidate } = useResourceCache("bank");
   const Update = async (payload) => {
     try {
       const response = await UpdateBankAPI(payload);
+      invalidate();
       toast.success(response?.message || "Bank updated successfully", {
         duration: 700,
       });

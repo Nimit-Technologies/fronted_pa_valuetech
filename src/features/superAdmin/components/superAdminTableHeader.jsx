@@ -1,5 +1,5 @@
 import React from "react";
-import SuperAdminSearchbar from "@/features/superAdmin/components/superAdminSearchbar";
+import SuperAdminSearchbar from "@/features/superAdmin/components/SuperAdminSearchbar";
 const SuperAdminTableHeader = ({
   onSearch,
   createButton,

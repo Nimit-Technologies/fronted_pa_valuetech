@@ -6,12 +6,13 @@ const CoordinatorButton = ({
   onClick,
   type = "submit",
   className = "",
+  disabled = false,
 }) => {
   return (
     <Button
       type={type}
       onClick={onClick}
-
+      disabled={disabled}
       className={`capitalize px-6 rounded-md ${className}`}
     >
       {children}

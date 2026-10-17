@@ -8,10 +8,15 @@ import {
   setDepartment,
 } from "@/store/slice/department/departmentSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
+import {
+  buildCacheKey,
+  useResourceCache,
+} from "@/hooks/cache/useResourceCache";
 
 const useAllDepartment = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
+  const { isFresh, markFetched, getRows } = useResourceCache("department");
 
   const {
     departmentData,
@@ -29,8 +34,18 @@ const useAllDepartment = () => {
   } = useSelector((state) => state.department);
 
   const allDepartment = useCallback(
-    async ({ direction = "next", cursorId = "", search = "" } = {}) => {
+    async ({
+      direction = "next",
+      cursorId = "",
+      search = "",
+      force = false,
+    } = {}) => {
       const term = String(search ?? "").trim();
+      const cacheKey = buildCacheKey({ direction, cursorId, search: term });
+      // Same query, still fresh: the store already holds these rows.
+      if (!force && isFresh(cacheKey))
+        return getRows("department", "departmentData");
+
       const requestId = ++latestRequest.current;
 
       dispatch(departmentStart());
@@ -63,6 +78,8 @@ const useAllDepartment = () => {
           }),
         );
 
+        markFetched(cacheKey);
+
         return departments;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
@@ -74,7 +91,7 @@ const useAllDepartment = () => {
         return [];
       }
     },
-    [dispatch],
+    [dispatch, isFresh, markFetched, getRows],
   );
 
   return {

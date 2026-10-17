@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import GetAllDepartments from "@/features/superAdmin/services/department/allDepartments";
+import { allDepartments as GetAllDepartments } from "@/features/superAdmin";
 
 const useSearchDepartment = () => {
   // Must return the same raw row shape as useAllDepartment, because

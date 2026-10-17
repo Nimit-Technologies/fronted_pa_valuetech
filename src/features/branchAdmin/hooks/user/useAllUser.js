@@ -5,9 +5,14 @@ import { userStart, userFailure, setUser } from "@/store/slice/user/userSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 // import AllUserAPI from "@/features/superAdmin/services/user/allUser";
 import AllUserAPI from "../../services/user/allUser";
+import {
+  buildCacheKey,
+  useResourceCache,
+} from "@/hooks/cache/useResourceCache";
 const useAllUser = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
+  const { isFresh, markFetched, getRows } = useResourceCache("user");
 
   const {
     userData,
@@ -30,7 +35,21 @@ const useAllUser = () => {
   // `dataLimit` argument; it is accepted and ignored.
 
   const allUser = useCallback(
-    async ({ direction = "next", cursorId = "", search = "" } = {}) => {
+    async ({
+      direction = "next",
+      cursorId = "",
+      search = "",
+      force = false,
+    } = {}) => {
+      const cacheKeyTerm = String(search ?? "").trim();
+      const cacheKey = buildCacheKey({
+        direction,
+        cursorId,
+        search: cacheKeyTerm,
+      });
+      // Same query, still fresh: the store already holds these rows.
+      if (!force && isFresh(cacheKey)) return getRows("user", "userData");
+
       const term = String(search ?? "").trim();
       const requestId = ++latestRequest.current;
 
@@ -67,6 +86,8 @@ const useAllUser = () => {
           }),
         );
 
+        markFetched(cacheKey);
+
         return users;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
@@ -74,7 +95,7 @@ const useAllUser = () => {
         return [];
       }
     },
-    [dispatch],
+    [dispatch, isFresh, markFetched, getRows],
   );
 
   return {

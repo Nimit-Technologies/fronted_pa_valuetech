@@ -63,11 +63,14 @@ describe("normalizeBranch", () => {
 
   it("unwraps a nested .data wrapper", () => {
     const raw = { data: { id: "b6", name: "Nested", code: "N" } };
+    // Neither is_active nor status is present, and the normalizer's job is a
+    // consistent internal shape: every field falls back to a defined value, so
+    // an unknown active flag reads as false rather than undefined.
     expect(normalizeBranch(raw)).toEqual({
       id: "b6",
       name: "Nested",
       code: "N",
-      isActive: undefined,
+      isActive: false,
       isDeleted: false,
     });
   });

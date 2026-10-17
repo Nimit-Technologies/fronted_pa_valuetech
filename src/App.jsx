@@ -18,38 +18,45 @@ import { Loader2 } from "lucide-react";
 
 //super admin module
 const SuperAdmin = lazy(() => import("@/pages/superAdmin"));
-const SuperAdminHome = lazy(() => import("@/features/superAdmin/pages/home"));
-const Branch = lazy(() => import("@/features/superAdmin/pages/branch"));
-const User = lazy(() => import("@/features/superAdmin/pages/user"));
-const Department = lazy(() => import("@/features/superAdmin/pages/department"));
-const Role = lazy(() => import("@/features/superAdmin/pages/role"));
+const SuperAdminHome = lazy(
+  () => import("@/features/superAdmin/pages/HomePage"),
+);
+const Branch = lazy(() => import("@/features/superAdmin/pages/BranchListPage"));
+const User = lazy(() => import("@/features/superAdmin/pages/UserListPage"));
+const Department = lazy(
+  () => import("@/features/superAdmin/pages/DepartmentListPage"),
+);
+const Role = lazy(() => import("@/features/superAdmin/pages/RoleListPage"));
+const Business = lazy(
+  () => import("@/features/superAdmin/pages/BusinessListPage"),
+);
 const CreateUser = lazy(
-  () => import("@/features/superAdmin/components/user/createUser"),
+  () => import("@/features/superAdmin/components/user/CreateUser"),
 );
 const UpdateUser = lazy(
-  () => import("@/features/superAdmin/components/user/updateUser"),
+  () => import("@/features/superAdmin/components/user/UpdateUser"),
 );
 const ViewUser = lazy(
-  () => import("@/features/superAdmin/components/user/viewUser"),
+  () => import("@/features/superAdmin/components/user/ViewUser"),
 );
 
 const IndividualCoordinator = lazy(
   () => import("@/pages/individualCoordinator"),
 );
 const IndividualCoordinatorHome = lazy(
-  () => import("@/features/individualCoordinator/pages/home"),
+  () => import("@/features/individualCoordinator/pages/HomePage"),
 );
 const CaseDashboard = lazy(
-  () => import("@/features/individualCoordinator/pages/caseDashboard"),
+  () => import("@/features/individualCoordinator/pages/CaseDashboardPage"),
 );
 const CreateCase = lazy(
-  () => import("@/features/individualCoordinator/pages/createCase"),
+  () => import("@/features/individualCoordinator/pages/CreateCasePage"),
 );
 const UpdateCase = lazy(
-  () => import("@/features/individualCoordinator/pages/updateCase"),
+  () => import("@/features/individualCoordinator/pages/UpdateCasePage"),
 );
 const ViewCase = lazy(
-  () => import("@/features/individualCoordinator/pages/viewCase"),
+  () => import("@/features/individualCoordinator/pages/ViewCasePage"),
 );
 const IndividualEngineerHome = lazy(
   () => import("@/features/individualEngineer/pages/home"),
@@ -68,35 +75,34 @@ const Report = lazy(
 // Branch Admin
 const BranchAdminPage = lazy(() => import("@/pages/branchAdmin"));
 const BranchAdminHome = lazy(
-  () => import("@/features/branchAdmin/pages/branchAdminHome"),
+  () => import("@/features/branchAdmin/pages/BranchAdminHomePage"),
 );
-const Bank = lazy(() => import("@/features/branchAdmin/pages/bank"));
-const Business = lazy(() => import("@/features/branchAdmin/pages/business"));
-const Case = lazy(() => import("@/features/branchAdmin/pages/case"));
+const Bank = lazy(() => import("@/features/branchAdmin/pages/BankListPage"));
+const Case = lazy(() => import("@/features/branchAdmin/pages/CaseListPage"));
 const BranchAdminDepartment = lazy(
-  () => import("@/features/branchAdmin/pages/department"),
+  () => import("@/features/branchAdmin/pages/DepartmentListPage"),
 );
-const Engineer = lazy(() => import("@/features/branchAdmin/pages/engineer"));
-const BranchAdminRole = lazy(() => import("@/features/branchAdmin/pages/role"));
-const BranchAdminUser = lazy(() => import("@/features/branchAdmin/pages/user"));
+const Engineer = lazy(
+  () => import("@/features/branchAdmin/pages/EngineerListPage"),
+);
+const BranchAdminRole = lazy(
+  () => import("@/features/branchAdmin/pages/RoleListPage"),
+);
+const BranchAdminUser = lazy(
+  () => import("@/features/branchAdmin/pages/UserListPage"),
+);
 
 const BranchAdminViewUser = lazy(
-  () => import("@/features/branchAdmin/pages/user/viewUser"),
+  () => import("@/features/branchAdmin/pages/user/ViewUserPage"),
 );
 const CreateBank = lazy(
-  () => import("@/features/branchAdmin/component/bank/createBank"),
-);
-const CreateBusiness = lazy(
-  () => import("@/features/branchAdmin/component/business/createBusiness"),
-);
-const UpdateBusiness = lazy(
-  () => import("@/features/branchAdmin/component/business/updateBusiness"),
+  () => import("@/features/branchAdmin/component/bank/CreateBank"),
 );
 const UpdateBank = lazy(
-  () => import("@/features/branchAdmin/component/bank/updateBank"),
+  () => import("@/features/branchAdmin/component/bank/UpdateBank"),
 );
 const ViewBank = lazy(
-  () => import("@/features/branchAdmin/component/bank/viewBank"),
+  () => import("@/features/branchAdmin/component/bank/ViewBank"),
 );
 
 // Same fallback style as the session-check screen below, so a route chunk
@@ -148,6 +154,7 @@ const App = () => {
               <Route path="user" element={<User />} />
               <Route path="department" element={<Department />} />
               <Route path="role" element={<Role />} />
+              <Route path="business" element={<Business />} />
               <Route path="user/view/:id" element={<ViewUser />} />
               <Route path="user/create" element={<CreateUser />} />
               <Route path="user/update/:id" element={<UpdateUser />} />
@@ -203,9 +210,6 @@ const App = () => {
               <Route path="bank/create" element={<CreateBank />} />
               <Route path="bank/update/:id" element={<UpdateBank />} />
               <Route path="bank/view/:id" element={<ViewBank />} />
-              <Route path="business" element={<Business />} />
-              <Route path="business/create" element={<CreateBusiness />} />
-              <Route path="business/update/:id" element={<UpdateBusiness />} />
               <Route path="case" element={<Case />} />
               <Route path="department" element={<BranchAdminDepartment />} />
               <Route path="engineer" element={<Engineer />} />

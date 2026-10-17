@@ -1,7 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Excel-style column filters applied client-side to the loaded rows. `null`
+// means the column is unfiltered; an array lists the relation ids to keep.
+// Kept in the store so they survive a remount of the list page.
+export const EMPTY_DEPARTMENT_FILTERS = Object.freeze({
+  branch: null,
+});
+
 const initialState = {
   departmentData: [],
+
+  filters: { ...EMPTY_DEPARTMENT_FILTERS },
+
   departmentFirstId: null,
   departmentLastId: null,
   hasNextPage: false,
@@ -64,6 +74,23 @@ const departmentSlice = createSlice({
     setPageDirection: (state, action) => {
       state.direction = action.payload;
     },
+
+    // payload: { column, values } — values is an array of ids, or null to
+    // remove the filter on that column.
+    setDepartmentFilter: (state, action) => {
+      const { column, values } = action.payload || {};
+      if (!(column in EMPTY_DEPARTMENT_FILTERS)) return;
+      state.filters[column] = Array.isArray(values) ? values : null;
+    },
+
+    clearDepartmentFilter: (state, action) => {
+      const column = action.payload;
+      if (column in EMPTY_DEPARTMENT_FILTERS) state.filters[column] = null;
+    },
+
+    clearDepartmentFilters: (state) => {
+      state.filters = { ...EMPTY_DEPARTMENT_FILTERS };
+    },
   },
 });
 
@@ -73,6 +100,9 @@ export const {
   setDepartment,
   setSearchQuery,
   setPageDirection,
+  setDepartmentFilter,
+  clearDepartmentFilter,
+  clearDepartmentFilters,
 } = departmentSlice.actions;
 
 export default departmentSlice.reducer;

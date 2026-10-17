@@ -1,16 +1,9 @@
 import React from "react";
 import { Eye, Pencil, Trash2, RotateCcw, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import ColumnFilter from "@/components/shared/columnFilter";
+import FilterableTableHead from "@/components/shared/filterableTableHead";
 
 // Rows are the raw list-API shape: id, employee_id, first_name, last_name,
 // phone, aadhaar_number (masked to the last 4 digits), is_active, is_deleted,
@@ -42,26 +35,11 @@ const UserTable = ({
     <div className="relative">
       <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              {headers.map((header) => {
-                const filter = columnFilters[header];
-                return (
-                  <TableHead
-                    key={header}
-                    className="capitalize font-semibold text-foreground whitespace-nowrap text-sm"
-                  >
-                    <span className="inline-flex items-center">
-                      {header}
-                      {filter ? (
-                        <ColumnFilter {...filter} disabled={isLoading} />
-                      ) : null}
-                    </span>
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          </TableHeader>
+          <FilterableTableHead
+            headers={headers}
+            columnFilters={columnFilters}
+            disabled={isLoading}
+          />
           <TableBody
             className={
               paging

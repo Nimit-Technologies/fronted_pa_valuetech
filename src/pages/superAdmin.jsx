@@ -1,5 +1,5 @@
 import React from "react";
-import SuperAdminLayout from "@/features/superAdmin/layout/superAdminLayout";
+import SuperAdminLayout from "@/features/superAdmin/layout/SuperAdminLayout";
 
 const SuperAdmin = () => {
   return <SuperAdminLayout />;

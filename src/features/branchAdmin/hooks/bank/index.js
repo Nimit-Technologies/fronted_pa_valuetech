@@ -5,3 +5,4 @@ export { default as useUpdateBank } from "@/features/branchAdmin/hooks/bank/useU
 export { default as useDeleteBank } from "@/features/branchAdmin/hooks/bank/useDeleteBank";
 export { default as useRestoreBank } from "@/features/branchAdmin/hooks/bank/useRestoreBank";
 export { default as useUpdateBankStatus } from "@/features/branchAdmin/hooks/bank/useUpdateBankStatus";
+export { default as useBankFilters } from "@/features/branchAdmin/hooks/bank/useBankFilters";

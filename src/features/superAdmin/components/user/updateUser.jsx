@@ -16,6 +16,8 @@ import {
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
 import RoleDropDown from "@/components/shared/dropdown/roleDropDown";
+import BusinessTypeDropDown from "@/components/shared/dropdown/businessTypeDropDown";
+import { isCoordinatorRoleName } from "@/features/auth/constants/roles";
 import useGetUserById from "@/features/superAdmin/hooks/user/useGetUserById";
 import useUpdateUser from "@/features/superAdmin/hooks/user/useUpdateUser";
 
@@ -47,6 +49,10 @@ const toForm = (user) => ({
   departmentId: user.department?.id ?? "",
   role: user.role?.name ?? "",
   roleId: user.role?.id ?? "",
+  // Coordinators only; null for every other role. The name comes from the
+  // business_type relation, the id from either it or the flat column.
+  businessType: user.business_type?.name ?? "",
+  businessTypeId: user.business_type?.id ?? user.business_type_id ?? "",
   status: user.is_active ? "Active" : "Inactive",
   city: user.address?.city ?? "",
   district: user.address?.district ?? "",
@@ -64,6 +70,10 @@ const validate = (form) => {
   if (!form.branchId) return "Please select a branch.";
   if (!form.departmentId) return "Please select a department.";
   if (!form.roleId) return "Please select a role.";
+  // A coordinator's case scope *is* their business type and it fails closed,
+  // so leaving one without it would silently hide every case from them.
+  if (isCoordinatorRoleName(form.role) && !form.businessTypeId)
+    return "Please select a business type for a coordinator.";
   if (!/^\d{6}$/.test(form.pincode)) return "Pincode must be 6 digits.";
   return "";
 };
@@ -87,6 +97,10 @@ const UpdateUserForm = ({ user, maskedAadhaar, onDone }) => {
       ...prev,
       branch: selected?.name ?? "",
       branchId: selected?.branch_id ?? "",
+      // Business types are unique per branch and the API validates the chosen
+      // one against the branch the user ends up in, so a move invalidates it.
+      businessType: "",
+      businessTypeId: "",
     }));
 
   const handleDepartmentSelect = (selected) =>
@@ -97,10 +111,25 @@ const UpdateUserForm = ({ user, maskedAadhaar, onDone }) => {
     }));
 
   const handleRoleSelect = (selected) =>
+    setForm((prev) => {
+      const role = selected?.name ?? "";
+      const keepBusinessType = isCoordinatorRoleName(role);
+      return {
+        ...prev,
+        role,
+        roleId: selected?.id ?? "",
+        // Cleared as soon as the role is no longer a coordinator; the payload
+        // then sends an explicit null, which disconnects the business line.
+        businessType: keepBusinessType ? prev.businessType : "",
+        businessTypeId: keepBusinessType ? prev.businessTypeId : "",
+      };
+    });
+
+  const handleBusinessTypeSelect = (selected) =>
     setForm((prev) => ({
       ...prev,
-      role: selected?.name ?? "",
-      roleId: selected?.id ?? "",
+      businessType: selected?.name ?? "",
+      businessTypeId: selected?.business_type_id ?? "",
     }));
 
   const handleSubmit = async (e) => {
@@ -256,6 +285,25 @@ const UpdateUserForm = ({ user, maskedAadhaar, onDone }) => {
               disabled={submitting}
             />
           </div>
+
+          {isCoordinatorRoleName(form.role) ? (
+            <div>
+              <FieldLabel required>Business Type</FieldLabel>
+              <BusinessTypeDropDown
+                value={{
+                  business_type_id: form.businessTypeId,
+                  name: form.businessType,
+                }}
+                onSelect={handleBusinessTypeSelect}
+                branchId={form.branchId}
+                disabled={submitting}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Scopes which cases this coordinator can see. Must belong to the
+                selected branch.
+              </p>
+            </div>
+          ) : null}
 
           <div>
             <FieldLabel htmlFor="userStatus" required>

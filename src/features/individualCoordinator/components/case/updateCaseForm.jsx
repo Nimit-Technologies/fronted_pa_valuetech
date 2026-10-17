@@ -1,51 +1,103 @@
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import BankDropDown from "@/components/shared/dropdown/bankDropDown";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { caseData } from "@/features/individualCoordinator/data/case/caseTable";
-import { userProfileData } from "@/data/userProfile";
+import BankSelect from "@/features/individualCoordinator/components/case/BankSelect";
+import useUpdateCase from "@/features/individualCoordinator/hooks/case/useUpdateCase";
+import { validateCaseFields } from "@/features/individualCoordinator/utils/validateCaseFields";
+import { zodFieldErrors } from "@/utils/zodFieldErrors";
 
-const RequiredLabel = ({ children }) => (
+const RequiredLabel = ({ children, optional = false }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">
     {children}
-    <span className="text-destructive text-base leading-none">*</span>
+    {optional ? null : (
+      <span className="text-destructive text-base leading-none">*</span>
+    )}
   </label>
 );
 
+const FIELD_CLASS =
+  "h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground";
+
+// The scalars this form may edit. business_type_id is absent on purpose: a
+// coordinator who moved a case to another business line would lose sight of it
+// permanently, so the backend answers that with a 403 and only a branch admin
+// can do it. employee_id is absent because it is not on this schema at all —
+// assigning an engineer is PATCH /case/assign/:id.
+const CASE_FIELDS = [
+  "file_number",
+  "banker_name",
+  "customer_name",
+  "customer_contact_number",
+  "case_type",
+];
+
+const ADDRESS_FIELDS = [
+  "city",
+  "district",
+  "state",
+  "pin_code",
+  "country",
+  "lane",
+  "landmark",
+];
+
+// Stored nulls (an address with no lane) become "" so every input stays
+// controlled, and the diff below compares like with like.
 const buildFormState = (caseItem) => {
   const address = caseItem.address ?? {};
-  const engineer = caseItem.engineer ?? {};
 
-  return {
-    file_number: caseItem.file_number || "",
-    banker_name: caseItem.banker || "",
-    customer_name: caseItem.customer_name || "",
-    customer_phone_number: caseItem.customer_phone_number || "",
-    case_type: caseItem.case_type || "",
-    business_type: caseItem.business_type?.name || "",
-    bank: caseItem.bank?.display_name || caseItem.bank?.name || "",
-    branch: caseItem.branch?.name || "",
-    city: address.city || "",
-    district: address.district || "",
-    state: address.state || "",
-    pincode: address.pin_code || "",
-    country: address.country || "",
-    lane: address.lane || "",
-    landmark: address.landmark || "",
-    engineer_name: engineer.name || "",
-    engineer_mobile_number: engineer.phone_number || "",
-  };
+  const state = {};
+  for (const field of CASE_FIELDS) state[field] = caseItem[field] ?? "";
+  for (const field of ADDRESS_FIELDS) state[field] = address[field] ?? "";
+  return state;
 };
 
-const UpdateCaseForm = () => {
-  const { id } = useParams();
+// Only what actually changed. The update schema requires at least one field and
+// rejects anything it does not declare, and sending a field the user never
+// touched is not free: an unchanged business_type_id would still be a 403 for a
+// coordinator, and an unchanged file_number re-runs the uniqueness check.
+//
+// A key left out of `address` keeps its stored value; one sent empty clears it,
+// which is how an optional lane or landmark is removed.
+const buildPayload = ({ form, bank, caseItem }) => {
+  const payload = {};
+
+  for (const field of CASE_FIELDS) {
+    const value = form[field].trim();
+    if (value !== (caseItem[field] ?? "")) payload[field] = value;
+  }
+
+  const address = {};
+  for (const field of ADDRESS_FIELDS) {
+    const value = form[field].trim();
+    if (value !== (caseItem.address?.[field] ?? "")) address[field] = value;
+  }
+  if (Object.keys(address).length) payload.address = address;
+
+  // The one relation this form may move. The case's branch follows the bank's,
+  // and the backend re-derives it rather than trusting a client.
+  if (bank?.id && bank.id !== caseItem.bank?.id) payload.bank_id = bank.id;
+
+  return payload;
+};
+
+// `caseItem` is the record as GET /case/:id returns it. The page owns loading
+// and not-found, and renders this only once the detail has arrived — seeding an
+// edit form from the cached list row would mean the fields changing underneath
+// the user when the fetch lands.
+const UpdateCaseForm = ({ caseItem }) => {
   const navigate = useNavigate();
-  const caseIndex = caseData.data.findIndex((c) => c.id === id);
-  const caseItem = caseData.data[caseIndex];
+  const { update } = useUpdateCase();
 
   const [form, setForm] = useState(() =>
     caseItem ? buildFormState(caseItem) : null,
   );
+  const [bank, setBank] = useState(() => caseItem?.bank ?? null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   if (!caseItem || !form) {
     return (
@@ -55,67 +107,72 @@ const UpdateCaseForm = () => {
     );
   }
 
+  // A closed or cancelled case is a delivered work product: the report has gone
+  // to the bank, and the backend refuses an edit with a 409. Don't offer the
+  // fields in the first place.
+  const frozen = Boolean(caseItem.status?.is_terminal);
+  const locked = frozen || submitting;
+
+  const engineer = caseItem.employee ?? {};
+  const engineerName =
+    `${engineer.first_name ?? ""} ${engineer.last_name ?? ""}`.trim();
+
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) =>
+      prev[name] ? { ...prev, [name]: undefined } : prev,
+    );
   };
 
-  const handleBankSelect = (bankName) => {
-    setForm((prev) => ({ ...prev, bank: bankName }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (locked) return;
 
-    const currentUser = userProfileData.data[0];
-    const now = new Date().toISOString();
+    // The same rules the server applies, checked before the request so a
+    // cleared required field or a half-typed number is answered immediately.
+    // business_type_id is skipped: this form cannot change it, so it has no
+    // field to show an error on.
+    const invalid = validateCaseFields({
+      form,
+      bank,
+      businessTypeId: caseItem.business_type?.id,
+      skip: ["business_type_id"],
+    });
+    if (Object.keys(invalid).length) {
+      setFieldErrors(invalid);
+      return;
+    }
 
-    caseData.data[caseIndex] = {
-      ...caseItem,
-      file_number: form.file_number,
-      customer_name: form.customer_name,
-      customer_phone_number: form.customer_phone_number,
-      banker: form.banker_name,
-      case_type: form.case_type,
-      business_type: {
-        ...caseItem.business_type,
-        name: form.business_type,
-      },
-      bank: {
-        ...caseItem.bank,
-        display_name: form.bank,
-        name: form.bank,
-      },
-      branch: {
-        ...caseItem.branch,
-        name: form.branch,
-      },
-      address: {
-        lane: form.lane,
-        landmark: form.landmark,
-        city: form.city,
-        district: form.district,
-        state: form.state,
-        pin_code: form.pincode,
-        country: form.country,
-      },
-      engineer: {
-        ...caseItem.engineer,
-        name: form.engineer_name,
-        phone_number: form.engineer_mobile_number,
-      },
-      updated_by: [
-        ...(caseItem.updated_by || []),
-        {
-          id: currentUser.id,
-          first_name: currentUser.first_name,
-          timestamp: now,
-        },
-      ],
-      updated_at: now,
-    };
+    const payload = buildPayload({ form, bank, caseItem });
 
-    navigate(`/coordinator/case/view/${id}`);
+    // An empty payload is a 400 from the schema's own "provide at least one
+    // field" rule, so it is worth answering here rather than by round trip.
+    if (Object.keys(payload).length === 0) {
+      toast("No changes to save", { duration: 2000 });
+      return;
+    }
+
+    setSubmitting(true);
+    setFieldErrors({});
+    try {
+      const result = await update(caseItem.id, payload);
+      if (result.status === "unchanged") return;
+
+      navigate(`/cordinator/case/view/${caseItem.id}`);
+    } catch (err) {
+      // The hook has already surfaced the message; this puts each validation
+      // failure on its own field.
+      setFieldErrors(zodFieldErrors(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const error = (key) =>
+    fieldErrors[key] ? (
+      <p className="mt-1 text-xs text-destructive">{fieldErrors[key]}</p>
+    ) : null;
 
   return (
     <div className="bg-card border border-border rounded-md py-6 shadow-sm">
@@ -124,6 +181,16 @@ const UpdateCaseForm = () => {
         onSubmit={handleSubmit}
         className="max-w-3xl w-full mx-auto space-y-8 px-4"
       >
+        {frozen ? (
+          <div
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            This case is {caseItem.status?.name} and can no longer be edited.
+            Ask a branch admin to reopen it first.
+          </div>
+        ) : null}
+
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
             Case Details
@@ -135,9 +202,11 @@ const UpdateCaseForm = () => {
                 name="file_number"
                 value={form.file_number}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter file number"
               />
+              {error("file_number")}
             </div>
 
             <div>
@@ -146,9 +215,11 @@ const UpdateCaseForm = () => {
                 name="banker_name"
                 value={form.banker_name}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter banker name"
               />
+              {error("banker_name")}
             </div>
 
             <div>
@@ -157,20 +228,26 @@ const UpdateCaseForm = () => {
                 name="customer_name"
                 value={form.customer_name}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter customer name"
               />
+              {error("customer_name")}
             </div>
 
             <div>
-              <RequiredLabel>Customer Phone Number</RequiredLabel>
+              <RequiredLabel>Customer Contact Number</RequiredLabel>
               <Input
-                name="customer_phone_number"
-                value={form.customer_phone_number}
+                name="customer_contact_number"
+                value={form.customer_contact_number}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter customer phone number"
+                disabled={locked}
+                inputMode="numeric"
+                maxLength={10}
+                className={FIELD_CLASS}
+                placeholder="10-digit mobile number"
               />
+              {error("customer_contact_number")}
             </div>
 
             <div>
@@ -179,35 +256,38 @@ const UpdateCaseForm = () => {
                 name="case_type"
                 value={form.case_type}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter case type"
               />
+              {error("case_type")}
             </div>
 
             <div>
+              {/* Shown, not chosen: moving a case between business lines is a
+                  branch admin's call. */}
               <RequiredLabel>Business type</RequiredLabel>
               <Input
-                name="business_type"
-                value={form.business_type}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter business type"
+                value={caseItem.business_type?.name || ""}
+                disabled
+                className={`${FIELD_CLASS} capitalize`}
               />
             </div>
 
             <div>
               <RequiredLabel>Bank</RequiredLabel>
-              <BankDropDown value={form.bank} onSelect={handleBankSelect} />
+              <BankSelect value={bank} onSelect={setBank} disabled={locked} />
+              {error("bank_id")}
             </div>
 
             <div>
-              <RequiredLabel>Bank Branch</RequiredLabel>
+              {/* Follows the bank: picking a bank picks the branch. */}
+              <RequiredLabel optional>Bank Branch</RequiredLabel>
               <Input
-                name="branch"
-                value={form.branch}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter bank branch"
+                value={bank?.bank_branch || ""}
+                disabled
+                className={`${FIELD_CLASS} capitalize`}
+                placeholder="Follows the selected bank"
               />
             </div>
           </div>
@@ -215,7 +295,7 @@ const UpdateCaseForm = () => {
 
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
-            Address
+            Property Address
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div>
@@ -224,9 +304,11 @@ const UpdateCaseForm = () => {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter city"
               />
+              {error("address.city")}
             </div>
 
             <div>
@@ -235,9 +317,11 @@ const UpdateCaseForm = () => {
                 name="district"
                 value={form.district}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter district"
               />
+              {error("address.district")}
             </div>
 
             <div>
@@ -246,53 +330,65 @@ const UpdateCaseForm = () => {
                 name="state"
                 value={form.state}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter state"
               />
+              {error("address.state")}
             </div>
 
             <div>
               <RequiredLabel>Pincode</RequiredLabel>
               <Input
-                name="pincode"
-                value={form.pincode}
+                name="pin_code"
+                value={form.pin_code}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter pincode"
+                disabled={locked}
+                inputMode="numeric"
+                maxLength={6}
+                className={FIELD_CLASS}
+                placeholder="6-digit pin code"
               />
+              {error("address.pin_code")}
             </div>
 
             <div>
-              <RequiredLabel>Country</RequiredLabel>
+              <RequiredLabel optional>Country</RequiredLabel>
               <Input
                 name="country"
                 value={form.country}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter country"
+                disabled={locked}
+                className={FIELD_CLASS}
+                placeholder="India"
               />
+              {error("address.country")}
             </div>
 
             <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-              <RequiredLabel>Lane</RequiredLabel>
+              <RequiredLabel optional>Lane</RequiredLabel>
               <Input
                 name="lane"
                 value={form.lane}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter lane / street"
               />
+              {error("address.lane")}
             </div>
 
             <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-              <RequiredLabel>Landmark</RequiredLabel>
+              <RequiredLabel optional>Landmark</RequiredLabel>
               <Input
                 name="landmark"
                 value={form.landmark}
                 onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+                disabled={locked}
+                className={FIELD_CLASS}
                 placeholder="Enter landmark"
               />
+              {error("address.landmark")}
             </div>
           </div>
         </div>
@@ -301,28 +397,55 @@ const UpdateCaseForm = () => {
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
             Allocated User
           </h2>
+          {/* Read-only: allocating an engineer is its own action
+              (PATCH /case/assign/:id), not part of editing the case's data, and
+              a case can sit unassigned until then. */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <RequiredLabel>Engineer Name</RequiredLabel>
+              <RequiredLabel optional>Engineer Name</RequiredLabel>
               <Input
-                name="engineer_name"
-                value={form.engineer_name}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter engineer name"
+                value={engineerName}
+                disabled
+                className={`${FIELD_CLASS} capitalize`}
+                placeholder="Not yet allocated"
               />
             </div>
             <div>
-              <RequiredLabel>Engineer Mobile Number</RequiredLabel>
+              <RequiredLabel optional>Engineer Mobile Number</RequiredLabel>
               <Input
-                name="engineer_mobile_number"
-                value={form.engineer_mobile_number}
-                onChange={handleChange}
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-                placeholder="Enter engineer mobile number"
+                value={engineer.phone || ""}
+                disabled
+                className={FIELD_CLASS}
+                placeholder="Not yet allocated"
               />
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <Button
+            type="submit"
+            className="max-w-xs w-full py-5 text-base capitalize sm:w-auto sm:px-12"
+            disabled={locked}
+          >
+            {submitting ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Saving
+              </span>
+            ) : (
+              "Update Case"
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="py-5 text-base capitalize sm:px-10"
+            disabled={submitting}
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </Button>
         </div>
       </form>
     </div>

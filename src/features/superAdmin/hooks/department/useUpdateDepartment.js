@@ -1,10 +1,14 @@
 import UpdateDepartmentAPI from "@/features/superAdmin/services/department/updateDepartment";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useUpdateDepartment = () => {
+  // Drops the cached department list so the next read refetches.
+  const { invalidate } = useResourceCache("department");
   const Update = async (payload) => {
     try {
       const response = await UpdateDepartmentAPI(payload);
+      invalidate();
       toast.success(response?.message, {
         duration: 700,
       });

@@ -1,21 +1,25 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 // import { Eye, Trash2 } from "lucide-react";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import FilterableTableHead from "@/components/shared/filterableTableHead";
 
 // import { Button } from "@/components/ui/button";
 
-// import UpdateDepartment from "./updateDepartment";
-// import Pagination from "@/features/branchAdmin/component/pagination";
+// import UpdateDepartment from "./UpdateDepartment";
+// import Pagination from "@/features/branchAdmin/component/Pagination";
 
-const DepartmentTable = ({ data, headers = [], isLoading = false }) => {
+// `columnFilters` is keyed by header text and carries the props for an
+// Excel-style ColumnFilter rendered inside that header cell:
+//   { Branch: { label, options, selected, onChange } }
+const DepartmentTable = ({
+  data,
+  headers = [],
+  isLoading = false,
+  columnFilters = {},
+  emptyMessage = "No departments found.",
+}) => {
   const rows = data ?? [];
   const colSpan = headers.length || 4;
 
@@ -24,18 +28,11 @@ const DepartmentTable = ({ data, headers = [], isLoading = false }) => {
   return (
     <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
       <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50 hover:bg-muted/50">
-            {headers.map((header) => (
-              <TableHead
-                key={header}
-                className="capitalize font-semibold text-foreground whitespace-nowrap text-sm"
-              >
-                {header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
+        <FilterableTableHead
+          headers={headers}
+          columnFilters={columnFilters}
+          disabled={isLoading}
+        />
 
         <TableBody
           className={
@@ -46,11 +43,11 @@ const DepartmentTable = ({ data, headers = [], isLoading = false }) => {
         >
           {firstLoad && (
             <TableRow>
-              <TableCell
-                colSpan={headers.length || 4}
-                className="text-center text-muted-foreground py-12 text-sm"
-              >
-                No departments found.
+              <TableCell colSpan={colSpan} className="py-16 text-center">
+                <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading departments…
+                </span>
               </TableCell>
             </TableRow>
           )}
@@ -61,7 +58,7 @@ const DepartmentTable = ({ data, headers = [], isLoading = false }) => {
                 colSpan={colSpan}
                 className="text-center text-muted-foreground py-12 text-sm"
               >
-                No departments found.
+                {emptyMessage}
               </TableCell>
             </TableRow>
           )}

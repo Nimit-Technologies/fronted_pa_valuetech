@@ -1,10 +1,14 @@
 import RestoreUserAPI from "@/features/superAdmin/services/user/restoreUser";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useRestoreUser = () => {
+  // Drops the cached user list so the next read refetches.
+  const { invalidate } = useResourceCache("user");
   const Restore = async (payload) => {
     try {
       const response = await RestoreUserAPI(payload);
+      invalidate();
       toast.success(response?.message || "User restored successfully", {
         duration: 700,
       });

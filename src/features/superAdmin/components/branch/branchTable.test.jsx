@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+// The table embeds <UpdateBranch>, whose mutation hook invalidates the cached
+// branch list, so rows only render under a Provider.
+import { renderWithStore as render } from "@/test/renderWithStore";
 import userEvent from "@testing-library/user-event";
-import BranchTable from "@/features/superAdmin/components/branch/branchTable";
+import BranchTable from "@/features/superAdmin/components/branch/BranchTable";
 import { branchTableHeader } from "@/features/superAdmin/data/branch/branchTableHeader";
 
 const makeBranch = (overrides = {}) => ({
@@ -101,9 +104,9 @@ describe("BranchTable", () => {
         onDelete={onDelete}
       />,
     );
-    // The delete button is an icon-only button with a Trash2 icon
-    const deleteBtn = screen.getByRole("button", { name: "" });
-    await user.click(deleteBtn);
+    // Both row actions are icon-only, so each is named by its title attribute
+    // rather than by its label.
+    await user.click(screen.getByRole("button", { name: /delete/i }));
     expect(onDelete).toHaveBeenCalledWith(branch);
   });
 

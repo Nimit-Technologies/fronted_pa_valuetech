@@ -1,8 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import IndividualEngineerHome from "@/features/individualEngineer/pages/home";
 import { caseData } from "@/features/individualEngineer/data/case/caseTable";
 import { renderWithRoute } from "@/test/renderWithRouter";
+
+// The greeting reads the session out of the store; it is not what these
+// assertions are about, and the same stand-in is used on the coordinator's home.
+vi.mock("@/components/shared/greetingHeader", () => ({
+  default: () => <div>greeting</div>,
+}));
 
 describe("IndividualEngineerHome", () => {
   it("shows total, completed and pending visit counts derived from caseData.meta", () => {

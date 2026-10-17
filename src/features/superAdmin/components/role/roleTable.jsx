@@ -1,21 +1,22 @@
 import React from "react";
 import { Trash2, Loader2, RotateCcw } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import UpdateRole from "@/features/superAdmin/components/role/updateRole";
+import FilterableTableHead from "@/components/shared/filterableTableHead";
+import UpdateRole from "@/features/superAdmin/components/role/UpdateRole";
 
-// Rows use the raw list-API shape, including is_deleted for soft-deleted roles.
+// Rows use the raw list-API shape, including is_deleted for soft-deleted
+// roles and the flattened department / branch { id, name } relations.
+//
+// `columnFilters` is keyed by header text and carries the props for an
+// Excel-style ColumnFilter rendered inside that header cell:
+//   { Department: { label, options, selected, onChange }, Branch: { … } }
 const RoleTable = ({
   data,
   headers = [],
   isLoading = false,
+  columnFilters = {},
+  emptyMessage = "No roles found.",
   onEdited,
   onDelete,
   onRestore,
@@ -30,18 +31,11 @@ const RoleTable = ({
     <div className="relative">
       <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              {headers.map((header) => (
-                <TableHead
-                  key={header}
-                  className="capitalize font-semibold text-foreground whitespace-nowrap text-sm"
-                >
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
+          <FilterableTableHead
+            headers={headers}
+            columnFilters={columnFilters}
+            disabled={isLoading}
+          />
           <TableBody
             className={
               paging
@@ -66,7 +60,7 @@ const RoleTable = ({
                   colSpan={colSpan}
                   className="text-center text-muted-foreground py-12 text-sm"
                 >
-                  No roles found.
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             )}

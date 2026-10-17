@@ -8,10 +8,15 @@ import {
   bankFailure,
 } from "@/features/branchAdmin/slice/bank/bankSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
+import {
+  buildCacheKey,
+  useResourceCache,
+} from "@/hooks/cache/useResourceCache";
 
 const useAllBank = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
+  const { isFresh, markFetched, getRows } = useResourceCache("bank");
 
   const {
     bankData,
@@ -30,7 +35,13 @@ const useAllBank = () => {
   } = useSelector((state) => state.bank);
 
   const allBank = useCallback(
-    async ({ direction = "next", cursorId = "" } = {}) => {
+    async ({ direction = "next", cursorId = "", force = false } = {}) => {
+      // The bank list takes no search parameter, so the page and cursor are
+      // the whole query.
+      const cacheKey = buildCacheKey({ direction, cursorId });
+      // Same query, still fresh: the store already holds these rows.
+      if (!force && isFresh(cacheKey)) return getRows("bank", "bankData");
+
       const requestId = ++latestRequest.current;
 
       dispatch(bankStart());
@@ -55,6 +66,8 @@ const useAllBank = () => {
           }),
         );
 
+        markFetched(cacheKey);
+
         return banks;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
@@ -62,7 +75,7 @@ const useAllBank = () => {
         return [];
       }
     },
-    [dispatch],
+    [dispatch, isFresh, markFetched, getRows],
   );
 
   return {

@@ -1,11 +1,15 @@
 import CreateRoleAPI from "@/features/superAdmin/services/role/createRole";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useCreateRole = () => {
+  // Drops the cached role list so the next read refetches.
+  const { invalidate } = useResourceCache("role");
   const Create = async (payload) => {
     try {
       const response = await CreateRoleAPI(payload);
       // The create route returns { success, data } without a message.
+      invalidate();
       toast.success(response?.message || "Role created successfully", {
         duration: 700,
       });

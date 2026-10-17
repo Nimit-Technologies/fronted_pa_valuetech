@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import BranchDropDown from "@/components/shared/dropdown/branchDropdown";
 import DepartmentDropDown from "@/components/shared/dropdown/departmentDropDown";
 import RoleDropDown from "@/components/shared/dropdown/roleDropDown";
+import BusinessTypeDropDown from "@/components/shared/dropdown/businessTypeDropDown";
+import { isCoordinatorRoleName } from "@/features/auth/constants/roles";
 import useCreateUser from "@/features/superAdmin/hooks/user/useCreateUser";
 
 const FieldLabel = ({ htmlFor, required = false, children }) => (
@@ -23,6 +25,11 @@ const INPUT_CLASS =
 const EMPTY_BRANCH = { branch_id: "", name: "" };
 const EMPTY_DEPARTMENT = { id: "", name: "" };
 const EMPTY_ROLE = { id: "", name: "" };
+const EMPTY_BUSINESS_TYPE = { business_type_id: "", name: "" };
+
+// Only a coordinator carries a business type: it is what scopes the cases they
+// can see, and is null for every other role.
+const isCoordinatorRole = (role) => isCoordinatorRoleName(role?.name);
 
 const INITIAL_FORM = {
   employeeId: "",
@@ -36,6 +43,7 @@ const INITIAL_FORM = {
   branch: EMPTY_BRANCH,
   department: EMPTY_DEPARTMENT,
   role: EMPTY_ROLE,
+  businessType: EMPTY_BUSINESS_TYPE,
   city: "",
   district: "",
   state: "",
@@ -54,6 +62,11 @@ const validate = (form) => {
   if (!form.branch.branch_id) return "Please select a branch.";
   if (!form.department.id) return "Please select a department.";
   if (!form.role.id) return "Please select a role.";
+  // A coordinator's case scope *is* their business type, and it fails closed:
+  // one created without a business type would see no cases at all, so this is
+  // required here even though the API treats the field as optional.
+  if (isCoordinatorRole(form.role) && !form.businessType.business_type_id)
+    return "Please select a business type for a coordinator.";
   if (form.password.length < 12 || form.password.length > 20)
     return "Password must be 12 to 20 characters.";
   if (form.password !== form.confirmPassword) return "Passwords do not match.";
@@ -68,6 +81,8 @@ const CreateUser = () => {
   const [form, setForm] = useState(INITIAL_FORM);
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const showBusinessType = isCoordinatorRole(form.role);
 
   // The list page lives one path segment up (/…/user/create -> /…/user).
   const goToList = () => navigate("..", { relative: "path" });
@@ -85,6 +100,10 @@ const CreateUser = () => {
         branch_id: selected?.branch_id ?? "",
         name: selected?.name ?? "",
       },
+      // Business types belong to a branch, and the API looks the chosen one up
+      // within the selected branch. A type picked under the previous branch
+      // would come back as "not found", so make the choice again.
+      businessType: EMPTY_BUSINESS_TYPE,
     }));
 
   const handleDepartmentSelect = (selected) =>
@@ -94,9 +113,26 @@ const CreateUser = () => {
     }));
 
   const handleRoleSelect = (selected) =>
+    setForm((prev) => {
+      const role = { id: selected?.id ?? "", name: selected?.name ?? "" };
+      return {
+        ...prev,
+        role,
+        // Dropping the id as soon as the role is no longer a coordinator means
+        // a hidden field can never submit a stale business type.
+        businessType: isCoordinatorRole(role)
+          ? prev.businessType
+          : EMPTY_BUSINESS_TYPE,
+      };
+    });
+
+  const handleBusinessTypeSelect = (selected) =>
     setForm((prev) => ({
       ...prev,
-      role: { id: selected?.id ?? "", name: selected?.name ?? "" },
+      businessType: {
+        business_type_id: selected?.business_type_id ?? "",
+        name: selected?.name ?? "",
+      },
     }));
 
   const handleSubmit = async (e) => {
@@ -132,6 +168,11 @@ const CreateUser = () => {
     };
     // Email is optional server-side but must be a valid address when sent.
     if (form.email.trim()) payload.email = form.email.trim();
+    // Coordinators only. The field is optional server-side but must be a
+    // non-empty string when present, so it is omitted rather than sent empty.
+    if (isCoordinatorRole(form.role) && form.businessType.business_type_id) {
+      payload.business_type_id = form.businessType.business_type_id;
+    }
 
     setSubmitting(true);
     try {
@@ -291,6 +332,22 @@ const CreateUser = () => {
                   disabled={submitting}
                 />
               </div>
+
+              {showBusinessType ? (
+                <div>
+                  <FieldLabel required>Business Type</FieldLabel>
+                  <BusinessTypeDropDown
+                    value={form.businessType}
+                    onSelect={handleBusinessTypeSelect}
+                    branchId={form.branch.branch_id}
+                    disabled={submitting}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Scopes which cases this coordinator can see. Must belong to
+                    the selected branch.
+                  </p>
+                </div>
+              ) : null}
 
               <div>
                 <FieldLabel htmlFor="password" required>

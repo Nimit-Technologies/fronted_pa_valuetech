@@ -5,9 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import AllRoleAPI from "../../services/role/allRole";
 import { roleStart, roleFailure, setRole } from "@/store/slice/role/roleSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
+import {
+  buildCacheKey,
+  useResourceCache,
+} from "@/hooks/cache/useResourceCache";
 const useAllRole = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
+  const { isFresh, markFetched, getRows } = useResourceCache("role");
 
   const {
     roleData,
@@ -27,7 +32,21 @@ const useAllRole = () => {
   } = useSelector((state) => state.role);
 
   const allRole = useCallback(
-    async ({ direction = "next", cursorId = "", search = "" } = {}) => {
+    async ({
+      direction = "next",
+      cursorId = "",
+      search = "",
+      force = false,
+    } = {}) => {
+      const cacheKeyTerm = String(search ?? "").trim();
+      const cacheKey = buildCacheKey({
+        direction,
+        cursorId,
+        search: cacheKeyTerm,
+      });
+      // Same query, still fresh: the store already holds these rows.
+      if (!force && isFresh(cacheKey)) return getRows("role", "roleData");
+
       const term = String(search ?? "").trim();
       const requestId = ++latestRequest.current;
 
@@ -62,6 +81,8 @@ const useAllRole = () => {
           }),
         );
 
+        markFetched(cacheKey);
+
         return roles;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
@@ -69,7 +90,7 @@ const useAllRole = () => {
         return [];
       }
     },
-    [dispatch],
+    [dispatch, isFresh, markFetched, getRows],
   );
 
   return {

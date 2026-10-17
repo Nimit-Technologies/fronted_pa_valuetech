@@ -13,8 +13,6 @@ export const sidebarItems = [
       { label: "Role", path: "/branch-admin/role", icon: ShieldCheck },
       { label: "User", path: "/branch-admin/user", icon: User },
       { label: "Bank", path: "/branch-admin/bank", icon: Landmark },
-
-      { label: "Business", path: "/branch-admin/business", icon: Building2 },
     ],
   },
 ];

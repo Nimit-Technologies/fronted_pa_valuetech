@@ -15,6 +15,8 @@ export const sidebarItems = [
       { label: "Department", path: "/super-admin/department", icon: Building2 },
       { label: "Role", path: "/super-admin/role", icon: ShieldCheck },
       { label: "User", path: "/super-admin/user", icon: Users },
+
+      { label: "Business", path: "/super-admin/business", icon: Building2 },
     ],
   },
 ];

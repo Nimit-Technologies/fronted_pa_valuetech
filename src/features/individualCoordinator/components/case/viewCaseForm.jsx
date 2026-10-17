@@ -1,8 +1,6 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import BankDropDown from "@/components/shared/dropdown/bankDropDown";
 import { Input } from "@/components/ui/input";
-import { caseData } from "@/features/individualCoordinator/data/case/caseTable";
 
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">
@@ -11,10 +9,22 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
-const ViewCaseForm = () => {
-  const { id } = useParams();
-  const caseItem = caseData.data.find((c) => c.id === id);
+const ReadOnlyField = ({ label, value, className = "" }) => (
+  <div className={className}>
+    <RequiredLabel>{label}</RequiredLabel>
+    <Input
+      value={value || ""}
+      disabled
+      className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+    />
+  </div>
+);
 
+// `caseItem` is the record as GET /case/:id returns it (or the matching row
+// from the list page's store, which carries the same fields bar remarks and
+// update_history). The page owns loading and not-found; by the time this
+// renders there is a case to show.
+const ViewCaseForm = ({ caseItem }) => {
   if (!caseItem) {
     return (
       <div className="bg-card border border-border rounded-md py-12 shadow-sm text-center text-sm text-muted-foreground">
@@ -24,7 +34,9 @@ const ViewCaseForm = () => {
   }
 
   const address = caseItem.address ?? {};
-  const engineer = caseItem.engineer ?? {};
+  const engineer = caseItem.employee ?? {};
+  const engineerName =
+    `${engineer.first_name ?? ""} ${engineer.last_name ?? ""}`.trim();
 
   return (
     <div className="bg-card border border-border rounded-md py-6 shadow-sm">
@@ -34,59 +46,21 @@ const ViewCaseForm = () => {
             Case Details
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <RequiredLabel>File Number</RequiredLabel>
-              <Input
-                value={caseItem.file_number || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Banker Name</RequiredLabel>
-              <Input
-                value={caseItem.banker || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Customer Name</RequiredLabel>
-              <Input
-                value={caseItem.customer_name || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Customer Contact Number</RequiredLabel>
-              <Input
-                value={caseItem.customer_phone_number || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Case Type</RequiredLabel>
-              <Input
-                value={caseItem.case_type || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Business type</RequiredLabel>
-              <Input
-                value={caseItem.business_type?.name || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
+            <ReadOnlyField label="File Number" value={caseItem.file_number} />
+            <ReadOnlyField label="Banker Name" value={caseItem.banker_name} />
+            <ReadOnlyField
+              label="Customer Name"
+              value={caseItem.customer_name}
+            />
+            <ReadOnlyField
+              label="Customer Contact Number"
+              value={caseItem.customer_contact_number}
+            />
+            <ReadOnlyField label="Case Type" value={caseItem.case_type} />
+            <ReadOnlyField
+              label="Business type"
+              value={caseItem.business_type?.name}
+            />
 
             <div>
               <RequiredLabel>Bank</RequiredLabel>
@@ -96,14 +70,11 @@ const ViewCaseForm = () => {
               />
             </div>
 
-            <div>
-              <RequiredLabel>Bank Branch</RequiredLabel>
-              <Input
-                value={caseItem.branch?.name || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
+            {/* The bank's own branch, not the valuer's branch. */}
+            <ReadOnlyField
+              label="Bank Branch"
+              value={caseItem.bank?.bank_branch}
+            />
           </div>
         </div>
 
@@ -112,68 +83,21 @@ const ViewCaseForm = () => {
             Address
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <RequiredLabel>City</RequiredLabel>
-              <Input
-                value={address.city || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>District</RequiredLabel>
-              <Input
-                value={address.district || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>State</RequiredLabel>
-              <Input
-                value={address.state || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Pincode</RequiredLabel>
-              <Input
-                value={address.pin_code || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div>
-              <RequiredLabel>Country</RequiredLabel>
-              <Input
-                value={address.country || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-              <RequiredLabel>Lane</RequiredLabel>
-              <Input
-                value={address.lane || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-
-            <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-              <RequiredLabel>Landmark</RequiredLabel>
-              <Input
-                value={address.landmark || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
+            <ReadOnlyField label="City" value={address.city} />
+            <ReadOnlyField label="District" value={address.district} />
+            <ReadOnlyField label="State" value={address.state} />
+            <ReadOnlyField label="Pincode" value={address.pin_code} />
+            <ReadOnlyField label="Country" value={address.country} />
+            <ReadOnlyField
+              label="Lane"
+              value={address.lane}
+              className="col-span-1 sm:col-span-2 lg:col-span-3"
+            />
+            <ReadOnlyField
+              label="Landmark"
+              value={address.landmark}
+              className="col-span-1 sm:col-span-2 lg:col-span-3"
+            />
           </div>
         </div>
 
@@ -182,22 +106,13 @@ const ViewCaseForm = () => {
             Allocated User
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <RequiredLabel>Engineer Name</RequiredLabel>
-              <Input
-                value={engineer.name || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
-            <div>
-              <RequiredLabel>Engineer Mobile Number</RequiredLabel>
-              <Input
-                value={engineer.phone_number || ""}
-                disabled
-                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
+            {/* A case can sit unassigned (status "open"), so these are blank
+                until an engineer is allocated. */}
+            <ReadOnlyField label="Engineer Name" value={engineerName} />
+            <ReadOnlyField
+              label="Engineer Mobile Number"
+              value={engineer.phone}
+            />
           </div>
         </div>
       </form>

@@ -1,10 +1,14 @@
 import DeleteRoleAPI from "@/features/superAdmin/services/role/deleteRole";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useDeleteRole = () => {
+  // Drops the cached role list so the next read refetches.
+  const { invalidate } = useResourceCache("role");
   const Delete = async (payload) => {
     try {
       const response = await DeleteRoleAPI(payload);
+      invalidate();
       toast.success(response?.message || "Role deleted successfully", {
         duration: 700,
       });

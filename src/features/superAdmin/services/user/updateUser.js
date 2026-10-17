@@ -1,5 +1,6 @@
 import api from "@/utils/axiosInstance";
 import { apiConfig } from "@/constants/apiConfig";
+import { isCoordinatorRoleName } from "@/features/auth/constants/roles";
 
 const AADHAAR_PATTERN = /^\d{12}$/;
 
@@ -45,6 +46,17 @@ export const normalizeUpdateUserPayload = (form = {}) => {
   // as "", which the schema's format checks would reject.
   for (const [key, value] of Object.entries(payload)) {
     if (isBlank(value)) delete payload[key];
+  }
+
+  // Set after the blank-strip above, because null is meaningful here and would
+  // otherwise be dropped: the backend reads an explicit null as "disconnect"
+  // and moves the user off their business line, while undefined leaves it
+  // untouched. Only a coordinator keeps one, so demoting a coordinator to any
+  // other role clears it in the same request that changes the role.
+  if (isCoordinatorRoleName(form.role)) {
+    if (form.businessTypeId) payload.business_type_id = form.businessTypeId;
+  } else {
+    payload.business_type_id = null;
   }
 
   return payload;

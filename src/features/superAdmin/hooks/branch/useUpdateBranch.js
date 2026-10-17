@@ -1,10 +1,14 @@
 import UpdateBranchAPI from "@/features/superAdmin/services/branch/updateBranch";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useUpdateBranch = () => {
+  // Drops the cached branch list so the next read refetches.
+  const { invalidate } = useResourceCache("branch");
   const Update = async (payload) => {
     try {
       const response = await UpdateBranchAPI(payload);
+      invalidate();
       toast.success(response?.message, {
         duration: 700,
       });

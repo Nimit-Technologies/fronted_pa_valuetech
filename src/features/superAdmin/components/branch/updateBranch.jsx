@@ -77,6 +77,7 @@ const UpdateBranch = ({
           variant="ghost"
           size="icon-sm"
           className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+          title="Edit"
         >
           <Pencil size={14} />
         </Button>

@@ -1,10 +1,14 @@
 import UpdateRoleStatusAPI from "@/features/superAdmin/services/role/updateRoleStatus";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useUpdateRoleStatus = () => {
+  // Drops the cached role list so the next read refetches.
+  const { invalidate } = useResourceCache("role");
   const UpdateStatus = async (payload) => {
     try {
       const response = await UpdateRoleStatusAPI(payload);
+      invalidate();
       toast.success(response?.message || "Role status updated", {
         duration: 700,
       });

@@ -1,20 +1,22 @@
 import React from "react";
 import { Trash2, RotateCcw, Loader2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import UpdateDepartment from "@/features/superAdmin/components/department/updateDepartment";
+import FilterableTableHead from "@/components/shared/filterableTableHead";
+import UpdateDepartment from "@/features/superAdmin/components/department/UpdateDepartment";
 
+// Rows are the raw list-API shape: id, name, branch_id, branch { id, name },
+// is_active, is_deleted.
+//
+// `columnFilters` is keyed by header text and carries the props for an
+// Excel-style ColumnFilter rendered inside that header cell:
+//   { Branch: { label, options, selected, onChange } }
 const DepartmentTable = ({
   data,
   headers = [],
   isLoading = false,
+  columnFilters = {},
+  emptyMessage = "No departments found.",
   onEdited,
   onDelete,
   onRestore,
@@ -30,18 +32,11 @@ const DepartmentTable = ({
     <div className="relative">
       <div className="w-full overflow-x-auto rounded-md border border-border bg-card shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              {headers.map((header) => (
-                <TableHead
-                  key={header}
-                  className="capitalize font-semibold text-foreground whitespace-nowrap text-sm"
-                >
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
+          <FilterableTableHead
+            headers={headers}
+            columnFilters={columnFilters}
+            disabled={isLoading}
+          />
           <TableBody
             className={
               paging
@@ -66,7 +61,7 @@ const DepartmentTable = ({
                   colSpan={colSpan}
                   className="text-center text-muted-foreground py-12 text-sm"
                 >
-                  No departments found.
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             )}

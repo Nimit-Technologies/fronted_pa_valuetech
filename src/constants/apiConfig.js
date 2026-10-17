@@ -99,6 +99,29 @@ export const apiConfig = Object.freeze({
     restoreBusiness: "restore",
   }),
 
+  // The remaining case routes (assign, status, soft-delete, restore) are added
+  // as each screen moves off its mock data.
+  case: defineEndpoints("case", {
+    getAllCase: "all-case",
+    // GET /case/:id — the id is appended by the service, as with user.
+    getCaseById: "",
+    createCase: "create-case",
+    // PUT /case/update/:id — the id is appended by the service.
+    updateCase: "update",
+    // POST /case/similar, read-only despite the verb: the address it searches
+    // on is a seven-field object, which does not belong in a query string.
+    // This is how "load more" pages the duplicate matches a create came back
+    // with — the create itself only ever returns the first page.
+    similarCase: "similar",
+  }),
+
+  // Remarks hang off a case: both routes are /remark/:caseId, with the case id
+  // appended by the service. Reading the thread page by page is not wired up
+  // yet — the case detail carries the latest remarks with it.
+  remark: defineEndpoints("remark", {
+    createRemark: "",
+  }),
+
   dashboard: defineEndpoints("dashboard", {
     superAdminSummary: "super-admin",
     branchAdminSummary: "branch-admin",

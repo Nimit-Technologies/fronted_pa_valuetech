@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import getUserByIdAPI from "@/features/superAdmin/services/user/getUserById";
+import { getUserById as getUserByIdAPI } from "@/features/superAdmin";
 // import getUserById from "../../services/user/getUserById"
 import { toast } from "sonner";
 import logger from "@/utils/logger";

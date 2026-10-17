@@ -1,10 +1,14 @@
 import CreateBranchAPI from "@/features/superAdmin/services/branch/createBranch";
 import { toast } from "sonner";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useCreateBranch = () => {
+  // Drops the cached branch list so the next read refetches.
+  const { invalidate } = useResourceCache("branch");
   const Create = async (payload) => {
     try {
       const response = await CreateBranchAPI(payload);
+      invalidate();
       toast.success(response?.message, {
         duration: 700,
       });

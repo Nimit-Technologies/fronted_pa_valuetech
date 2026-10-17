@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { screen } from "@testing-library/react";
-import SuperAdminLayout from "@/features/superAdmin/layout/superAdminLayout";
+import SuperAdminLayout from "@/features/superAdmin/layout/SuperAdminLayout";
 import { renderRoutes } from "@/test/renderWithRouter";
 
 describe("SuperAdminLayout", () => {

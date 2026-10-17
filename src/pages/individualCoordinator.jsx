@@ -1,5 +1,5 @@
 import React from "react";
-import IndividualCoordinatorLayout from "@/features/individualCoordinator/layout/individualCoordinatorLayout";
+import IndividualCoordinatorLayout from "@/features/individualCoordinator/layout/IndividualCoordinatorLayout";
 
 const IndividualCoordinator = () => {
   return <IndividualCoordinatorLayout />;

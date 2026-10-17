@@ -1,7 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Excel-style column filters applied client-side to the loaded rows. `null`
+// means the column is unfiltered; an array lists the values to keep. Kept in
+// the store so they survive a remount of the list page.
+export const EMPTY_BANK_FILTERS = Object.freeze({
+  name: null,
+});
+
 const initialState = {
   bankData: [],
+
+  filters: { ...EMPTY_BANK_FILTERS },
 
   bankFirstId: null,
   bankLastId: null,
@@ -59,9 +68,33 @@ const bankSlice = createSlice({
       state.error = null;
       state.success = true;
     },
+
+    // payload: { column, values } — values is an array of values, or null to
+    // remove the filter on that column.
+    setBankFilter: (state, action) => {
+      const { column, values } = action.payload || {};
+      if (!(column in EMPTY_BANK_FILTERS)) return;
+      state.filters[column] = Array.isArray(values) ? values : null;
+    },
+
+    clearBankFilter: (state, action) => {
+      const column = action.payload;
+      if (column in EMPTY_BANK_FILTERS) state.filters[column] = null;
+    },
+
+    clearBankFilters: (state) => {
+      state.filters = { ...EMPTY_BANK_FILTERS };
+    },
   },
 });
 
-export const { bankStart, bankFailure, bankSuccess } = bankSlice.actions;
+export const {
+  bankStart,
+  bankFailure,
+  bankSuccess,
+  setBankFilter,
+  clearBankFilter,
+  clearBankFilters,
+} = bankSlice.actions;
 
 export default bankSlice.reducer;

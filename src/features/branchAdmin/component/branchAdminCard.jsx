@@ -6,7 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const BranchAdminCard = ({ title, value }) => {
+// `value` of null/undefined renders as "—" (unknown); pass `loading` to show a
+// placeholder while the number is still on its way. Mirrors SuperAdminCard so
+// the two dashboards behave identically.
+const BranchAdminCard = ({ title, value, loading = false }) => {
   return (
     <Card className="w-full bg-card border border-border h-52 shadow-sm">
       <CardHeader className="pb-2">
@@ -15,7 +18,14 @@ const BranchAdminCard = ({ title, value }) => {
         </CardDescription>
 
         <CardTitle className="text-3xl font-bold text-foreground">
-          {value ?? "—"}
+          {loading ? (
+            <span
+              aria-label="Loading"
+              className="inline-block h-8 w-16 animate-pulse rounded bg-muted align-middle"
+            />
+          ) : (
+            (value ?? "—")
+          )}
         </CardTitle>
       </CardHeader>
 

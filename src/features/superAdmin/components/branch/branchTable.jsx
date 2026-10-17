@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import UpdateBranch from "@/features/superAdmin/components/branch/updateBranch";
+import UpdateBranch from "@/features/superAdmin/components/branch/UpdateBranch";
 
 const BranchTable = ({
   data,
@@ -129,6 +129,7 @@ const BranchTable = ({
                           size="icon-sm"
                           className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                           onClick={() => onDelete?.(branch)}
+                          title="Delete"
                         >
                           <Trash2 size={14} />
                         </Button>

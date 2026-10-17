@@ -1,8 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Excel-style column filters applied client-side to the loaded rows. `null`
+// means the column is unfiltered; an array lists the relation ids to keep.
+// Kept in the store so they survive a remount of the list page.
+export const EMPTY_ROLE_FILTERS = Object.freeze({
+  department: null,
+  branch: null,
+});
+
 const initialState = {
   // Rows on the current page, exactly as the API sends them.
   roleData: [],
+
+  filters: { ...EMPTY_ROLE_FILTERS },
 
   // Cursor pagination, as returned by the list API.
   roleFirstId: null,
@@ -77,6 +87,23 @@ const roleSlice = createSlice({
     setPageDirection: (state, action) => {
       state.direction = action.payload;
     },
+
+    // payload: { column, values } — values is an array of ids, or null to
+    // remove the filter on that column.
+    setRoleFilter: (state, action) => {
+      const { column, values } = action.payload || {};
+      if (!(column in EMPTY_ROLE_FILTERS)) return;
+      state.filters[column] = Array.isArray(values) ? values : null;
+    },
+
+    clearRoleFilter: (state, action) => {
+      const column = action.payload;
+      if (column in EMPTY_ROLE_FILTERS) state.filters[column] = null;
+    },
+
+    clearRoleFilters: (state) => {
+      state.filters = { ...EMPTY_ROLE_FILTERS };
+    },
   },
 });
 
@@ -86,6 +113,9 @@ export const {
   setRole,
   setSearchQuery,
   setPageDirection,
+  setRoleFilter,
+  clearRoleFilter,
+  clearRoleFilters,
 } = roleSlice.actions;
 
 export default roleSlice.reducer;

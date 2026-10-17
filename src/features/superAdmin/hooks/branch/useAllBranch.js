@@ -6,12 +6,17 @@ import {
   branchStart,
   branchSuccess,
   branchFailure,
-} from "@/store/branch/branchSlice";
+} from "@/store/slice/branch/branchSlice";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
+import {
+  buildCacheKey,
+  useResourceCache,
+} from "@/hooks/cache/useResourceCache";
 
 const useAllBranch = () => {
   const dispatch = useDispatch();
   const latestRequest = useRef(0);
+  const { isFresh, markFetched, getRows } = useResourceCache("branch");
 
   const {
     branchData,
@@ -31,7 +36,17 @@ const useAllBranch = () => {
   } = useSelector((state) => state.branch);
 
   const allBranch = useCallback(
-    async ({ direction = "next", cursorId = "", search = "" } = {}) => {
+    async ({
+      direction = "next",
+      cursorId = "",
+      search = "",
+      force = false,
+    } = {}) => {
+      const term = String(search ?? "").trim();
+      const cacheKey = buildCacheKey({ direction, cursorId, search: term });
+      // Same query, still fresh: the store already holds these rows.
+      if (!force && isFresh(cacheKey)) return getRows("branch", "branchData");
+
       const searchQuery = String(search ?? "").trim();
       const requestId = ++latestRequest.current;
 
@@ -65,6 +80,8 @@ const useAllBranch = () => {
           }),
         );
 
+        markFetched(cacheKey);
+
         return branches;
       } catch (err) {
         if (requestId !== latestRequest.current) return [];
@@ -74,7 +91,7 @@ const useAllBranch = () => {
         return [];
       }
     },
-    [dispatch],
+    [dispatch, isFresh, markFetched, getRows],
   );
 
   return {

@@ -2,8 +2,11 @@ import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import UpdateProfileAPI from "@/features/user/services/updateProfile";
 import { loginSuccess } from "@/features/auth/slice/authSlice";
+import { useResourceCache } from "@/hooks/cache/useResourceCache";
 
 const useUpdateProfile = () => {
+  // Drops the cached user list so the next read refetches.
+  const { invalidate } = useResourceCache("user");
   const dispatch = useDispatch();
 
   const update = async (form) => {
@@ -16,6 +19,8 @@ const useUpdateProfile = () => {
       if (response?.data) {
         dispatch(loginSuccess({ user: response.data }));
       }
+
+      invalidate();
 
       toast.success(response?.message || "Profile updated successfully", {
         duration: 700,
