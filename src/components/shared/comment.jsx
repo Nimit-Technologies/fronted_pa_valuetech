@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import CoordinatorButton from "@/features/individualCoordinator/components/CoordinatorButton";
+import { formatDate, formatTime } from "@/constants/formatDate";
 import { userProfileData } from "@/data/userProfile";
 
 // Two ways to add a remark, because the screens are mid-migration:
@@ -57,8 +58,11 @@ const Comment = ({
         branch: { name: currentUser.branch?.name },
       },
       comment,
-      date: now.toLocaleDateString(),
-      time: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      // Same formatters the persisted path runs through (see toComment), so a
+      // locally added remark is not the one row in the thread with a different
+      // date style or a 24-hour clock.
+      date: formatDate(now),
+      time: formatTime(now),
     };
 
     setLocalRemarks((prev) => [...prev, newRemark]);
