@@ -36,25 +36,12 @@ const INITIAL_FORM = {
   landmark: "",
 };
 
-// What has been typed is held in the tab's storage, not just in state: the
-// duplicate panel links out to the cases it found, and following one of those
-// links unmounts this form. Without a draft, Back would come back to twelve
-// empty fields and no matches — which is how a user loses the work twice over,
-// since the second attempt hits the same duplicate warning.
-//
-// Three keys rather than one object so each piece is restored, and discarded,
-// on its own terms.
 const DRAFT_KEYS = {
   form: "coordinator:create-case:form",
   bank: "coordinator:create-case:bank",
   duplicates: "coordinator:create-case:duplicates",
 };
 
-// Whatever is in storage was written by some build of this form, not
-// necessarily this one, and every field here is read with .trim() when the
-// payload is built. Keeping only the known keys, and only as strings, is what
-// makes a stale draft something that gets ignored rather than something that
-// throws mid-render.
 const reviveForm = (stored) => {
   if (!stored || typeof stored !== "object") return undefined;
 
@@ -65,21 +52,9 @@ const reviveForm = (stored) => {
   }, {});
 };
 
-// A bank is only worth restoring if it still carries the id the create needs.
 const reviveBank = (stored) =>
   stored && typeof stored === "object" && stored.id ? stored : undefined;
 
-// Only the fields the create schema declares — it is `.strict()`, so an extra
-// key is a 400. Blank optionals are left out rather than sent empty, which is
-// what lets the server apply its own default for country.
-//
-// branch_id is not sent: the backend derives the case's branch from the bank,
-// and re-derives it even when a client asserts one.
-//
-// The address is built by buildAddress so the create and the similar-case
-// search that pages its matches send the same object — the server's duplicate
-// ranking is over this address, and a second definition here would be free to
-// drift from it.
 const buildAddress = (form) => {
   const address = {
     city: form.city.trim(),

@@ -4,6 +4,7 @@ import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 // import { userTableData } from "@/features/branchAdmin/data/user/userTable";
+import { isCoordinatorRoleName } from "@/features/auth/constants/roles";
 import {
   useGetAadhaarByEmployeeId,
   useGetUserById,
@@ -170,6 +171,18 @@ const ViewUser = () => {
                 <InfoRow label="Branch" value={user.branch?.name} />
                 <InfoRow label="Department" value={user.department?.name} />
                 <InfoRow label="Role" value={user.role?.name} />
+                {/* Only a coordinator carries one — the column is null for
+                    every other role, so the row is gated on the role exactly
+                    as the update form gates its field. It is still rendered
+                    (as "N/A") for a coordinator who has none, because that is
+                    a misconfiguration worth seeing: their case scope is their
+                    business type and it fails closed. */}
+                {isCoordinatorRoleName(user.role?.name) ? (
+                  <InfoRow
+                    label="Business Type"
+                    value={user.business_type?.name}
+                  />
+                ) : null}
                 <div className="flex flex-col gap-1">
                   <span className="text-xs font-medium text-muted-foreground">
                     Status

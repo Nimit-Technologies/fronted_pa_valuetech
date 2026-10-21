@@ -2,16 +2,20 @@ import React, { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import CoordinatorButton from "@/features/individualCoordinator/components/CoordinatorButton";
 import { formatDate, formatTime } from "@/constants/formatDate";
-import { userProfileData } from "@/data/userProfile";
 
 // Two ways to add a remark, because the screens are mid-migration:
 //
 //   onSubmit(content)  the caller persists it (POST /remark/:caseId) and feeds
 //                      the saved remark back through `remarks`. The box clears
 //                      only once the write succeeds.
-//   onAddComment(r)    the older mock path: the author is fabricated here and
-//                      the remark is kept locally, since there is nothing to
-//                      save it to.
+//   onAddComment(r)    the older mock path: the remark is kept locally, since
+//                      there is nothing to save it to, and stamped with the
+//                      `author` the caller passed.
+//
+// `author` is only consulted on that second path — on the persisted one the
+// backend stamps the snapshot and sends it back. It stays a prop rather than a
+// store read so this component keeps rendering anywhere, including the screens
+// still on mock data that mount outside a Provider.
 //
 // `remarks` is rendered from props rather than copied into state, so a thread
 // that arrives after mount (an async fetch) still shows up.
@@ -19,6 +23,7 @@ const Comment = ({
   remarks = [],
   onAddComment,
   onSubmit,
+  author,
   disabled = false,
 }) => {
   const [comment, setComment] = useState("");
@@ -48,14 +53,16 @@ const Comment = ({
       return;
     }
 
-    const currentUser = userProfileData.data[0];
     const now = new Date();
     const newRemark = {
+      // Each field is rendered only when present (see the thread above), so a
+      // caller that passes no author, or a partial one, simply omits those
+      // lines instead of inventing them.
       user: {
-        first_name: currentUser.first_name,
-        role: { name: currentUser.role?.name || "Coordinator" },
-        department: { name: currentUser.department?.name || "Operations" },
-        branch: { name: currentUser.branch?.name },
+        first_name: author?.first_name,
+        role: { name: author?.role?.name },
+        department: { name: author?.department?.name },
+        branch: { name: author?.branch?.name },
       },
       comment,
       // Same formatters the persisted path runs through (see toComment), so a

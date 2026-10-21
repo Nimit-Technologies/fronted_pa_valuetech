@@ -10,8 +10,31 @@ import { renderWithRoute } from "@/test/renderWithRouter";
 vi.mock("@/features/individualCoordinator/services/case/updateCase", () => ({
   default: vi.fn(),
 }));
+vi.mock("@/features/individualCoordinator/services/case/assignCase", () => ({
+  default: vi.fn(),
+}));
 vi.mock("@/features/individualCoordinator/services/bank/allBanks", () => ({
   default: vi.fn(),
+}));
+vi.mock("@/features/user/hooks/useGetAllEngineer", () => ({
+  default: () => ({
+    getAllEngineer: vi.fn(),
+    engineers: [
+      {
+        id: "engineer_002",
+        employee_id: "emp002",
+        first_name: "nita",
+        last_name: "kapoor",
+        phone: "9876543211",
+      },
+    ],
+    engineerFirstId: "engineer_002",
+    engineerLastId: "engineer_002",
+    hasNextPage: false,
+    hasPreviousPage: false,
+    loading: false,
+    error: null,
+  }),
 }));
 
 const mockNavigate = vi.fn();
@@ -22,6 +45,9 @@ vi.mock("react-router-dom", async () => ({
 
 const updateCaseAPI = (
   await import("@/features/individualCoordinator/services/case/updateCase")
+).default;
+const assignCaseAPI = (
+  await import("@/features/individualCoordinator/services/case/assignCase")
 ).default;
 const allBanksAPI = (
   await import("@/features/individualCoordinator/services/bank/allBanks")
@@ -111,6 +137,65 @@ describe("UpdateCaseForm", () => {
       screen.getByRole("button", { name: /hdfc sector 18/i }),
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue("sector 18 noida")).toBeDisabled();
+  });
+
+  it("shows the current engineer in the assignment controls", () => {
+    renderForm({
+      ...CASE,
+      employee: {
+        id: "engineer_001",
+        employee_id: "emp001",
+        first_name: "meera",
+        last_name: "sharma",
+        phone: "9876543210",
+      },
+    });
+
+    expect(
+      screen.getByRole("button", { name: /meera sharma/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("9876543210")).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /reassign engineer/i }),
+    ).toBeDisabled();
+  });
+
+  it("assigns the selected engineer using the employee id", async () => {
+    const user = setup();
+    const engineer = {
+      id: "engineer_002",
+      employee_id: "emp002",
+      first_name: "nita",
+      last_name: "kapoor",
+      phone: "9876543211",
+    };
+    assignCaseAPI.mockResolvedValue({
+      success: true,
+      message: "Case assigned successfully",
+      data: { ...CASE, employee: engineer },
+    });
+
+    const { store } = renderForm();
+
+    await user.click(screen.getByRole("button", { name: /select engineer/i }));
+    await user.click(await screen.findByText("nita kapoor"));
+    expect(screen.getByDisplayValue("9876543211")).toBeDisabled();
+
+    await user.click(
+      screen.getByRole("button", { name: /^assign engineer$/i }),
+    );
+
+    await waitFor(() =>
+      expect(assignCaseAPI).toHaveBeenCalledWith(CASE.id, "emp002"),
+    );
+    expect(
+      screen.getByRole("button", { name: /nita kapoor/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /^reassign engineer$/i }),
+    ).toBeDisabled();
+    expect(store.getState().case.caseData[0].employee).toEqual(engineer);
+    expect(updateCaseAPI).not.toHaveBeenCalled();
   });
 
   it("shows 'Case not found.' when there is no case to edit", () => {

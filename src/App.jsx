@@ -183,9 +183,9 @@ const App = () => {
             <Route
               path="/engineer"
               element={
-                <ProtectedRoute allowedRoles={[ROLES.ENGINEER]}>
-                  <IndividualEngineer />
-                </ProtectedRoute>
+                // <ProtectedRoute allowedRoles={[ROLES.ENGINEER]}>
+                <IndividualEngineer />
+                // </ProtectedRoute>
               }
             >
               <Route index element={<IndividualEngineerHome />} />

@@ -5,9 +5,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import BankSelect from "@/features/individualCoordinator/components/case/BankSelect";
+import useAssignCase from "@/features/individualCoordinator/hooks/case/useAssignCase";
 import useUpdateCase from "@/features/individualCoordinator/hooks/case/useUpdateCase";
+import { extractErrorMessage } from "@/utils/extractErrorMessage";
 import { validateCaseFields } from "@/features/individualCoordinator/utils/validateCaseFields";
 import { zodFieldErrors } from "@/utils/zodFieldErrors";
+import EngineerDropDown from "@/components/shared/dropdown/engineerDropDown";
 
 const RequiredLabel = ({ children, optional = false }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">
@@ -90,12 +93,20 @@ const buildPayload = ({ form, bank, caseItem }) => {
 // the user when the fetch lands.
 const UpdateCaseForm = ({ caseItem }) => {
   const navigate = useNavigate();
+  const { assign, isAssigning } = useAssignCase();
   const { update } = useUpdateCase();
 
   const [form, setForm] = useState(() =>
     caseItem ? buildFormState(caseItem) : null,
   );
   const [bank, setBank] = useState(() => caseItem?.bank ?? null);
+  const [assignedEngineer, setAssignedEngineer] = useState(
+    () => caseItem?.employee ?? null,
+  );
+  const [savedEmployeeId, setSavedEmployeeId] = useState(
+    () => caseItem?.employee?.employee_id ?? "",
+  );
+  const [assignmentError, setAssignmentError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -111,11 +122,10 @@ const UpdateCaseForm = ({ caseItem }) => {
   // to the bank, and the backend refuses an edit with a 409. Don't offer the
   // fields in the first place.
   const frozen = Boolean(caseItem.status?.is_terminal);
-  const locked = frozen || submitting;
-
-  const engineer = caseItem.employee ?? {};
-  const engineerName =
-    `${engineer.first_name ?? ""} ${engineer.last_name ?? ""}`.trim();
+  const locked = frozen || submitting || isAssigning;
+  const selectedEmployeeId = assignedEngineer?.employee_id ?? "";
+  const assignmentChanged =
+    Boolean(selectedEmployeeId) && selectedEmployeeId !== savedEmployeeId;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -166,6 +176,19 @@ const UpdateCaseForm = ({ caseItem }) => {
       setFieldErrors(zodFieldErrors(err));
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleAssign = async () => {
+    if (locked || !assignmentChanged) return;
+
+    setAssignmentError("");
+    try {
+      const response = await assign(caseItem.id, selectedEmployeeId);
+      setAssignedEngineer(response?.data?.employee ?? assignedEngineer);
+      setSavedEmployeeId(selectedEmployeeId);
+    } catch (err) {
+      setAssignmentError(extractErrorMessage(err, "Failed to assign engineer"));
     }
   };
 
@@ -395,30 +418,54 @@ const UpdateCaseForm = ({ caseItem }) => {
 
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
-            Allocated User
+            Assignments
           </h2>
-          {/* Read-only: allocating an engineer is its own action
-              (PATCH /case/assign/:id), not part of editing the case's data, and
-              a case can sit unassigned until then. */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <RequiredLabel optional>Engineer Name</RequiredLabel>
-              <Input
-                value={engineerName}
-                disabled
-                className={`${FIELD_CLASS} capitalize`}
-                placeholder="Not yet allocated"
+              <RequiredLabel optional>Engineer</RequiredLabel>
+              <EngineerDropDown
+                placeholder="Select Engineer"
+                value={assignedEngineer}
+                onSelect={(engineer) => {
+                  setAssignedEngineer(engineer);
+                  setAssignmentError("");
+                }}
+                disabled={locked}
               />
             </div>
             <div>
               <RequiredLabel optional>Engineer Mobile Number</RequiredLabel>
               <Input
-                value={engineer.phone || ""}
+                value={assignedEngineer?.phone || ""}
                 disabled
                 className={FIELD_CLASS}
                 placeholder="Not yet allocated"
               />
             </div>
+          </div>
+          <div className="flex flex-col items-start gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={locked || !assignmentChanged}
+              onClick={handleAssign}
+            >
+              {isAssigning ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Assigning
+                </span>
+              ) : savedEmployeeId ? (
+                "Reassign Engineer"
+              ) : (
+                "Assign Engineer"
+              )}
+            </Button>
+            {assignmentError ? (
+              <p role="alert" className="text-sm text-destructive">
+                {assignmentError}
+              </p>
+            ) : null}
           </div>
         </div>
 

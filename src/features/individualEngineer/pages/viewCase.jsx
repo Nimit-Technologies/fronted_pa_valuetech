@@ -5,11 +5,16 @@ import Comment from "@/components/shared/comment";
 import ViewCaseForm from "@/features/individualEngineer/components/case/viewCaseForm";
 import { caseData } from "@/features/individualEngineer/data/case/caseTable";
 import CaseHeader from "@/features/individualEngineer/components/caseHeader";
+import useSession from "@/features/auth/hooks/useSession";
 
 const ViewCase = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const caseItem = caseData.data.find((c) => c.id === id);
+  // This screen is still on mock data, so a remark added here is only kept in
+  // that array — but it is stamped with the engineer who is actually signed in
+  // rather than a fabricated author.
+  const { user } = useSession();
 
   const handleAddComment = (newRemark) => {
     const index = caseData.data.findIndex((c) => c.id === id);
@@ -63,6 +68,7 @@ const ViewCase = () => {
         <Comment
           remarks={caseItem?.remarks || []}
           onAddComment={handleAddComment}
+          author={user}
         />
       </div>
     </>

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "@/features/auth/slice/authSlice";
 import ViewCase from "@/features/individualEngineer/pages/viewCase";
 import { caseData } from "@/features/individualEngineer/data/case/caseTable";
 import { renderWithRoute } from "@/test/renderWithRouter";
@@ -17,11 +20,38 @@ afterEach(() => {
   restoreEngineerCaseData(snapshot);
 });
 
+// The page stamps a new remark with the signed-in engineer, so it mounts under
+// a store holding one.
+const SIGNED_IN_ENGINEER = {
+  id: "u_eng_1",
+  first_name: "ravi",
+  role: { id: "r1", name: "individual-engineer" },
+  department: { id: "d1", name: "valuation" },
+  branch: { id: "b1", name: "noida" },
+};
+
 function renderForId(id) {
-  return renderWithRoute(<ViewCase />, {
-    route: `/engineer/case/view/${id}`,
-    path: "/engineer/case/view/:id",
+  const store = configureStore({
+    reducer: { auth: authReducer },
+    preloadedState: {
+      auth: {
+        user: SIGNED_IN_ENGINEER,
+        isAuthenticated: true,
+        loading: false,
+        error: null,
+      },
+    },
   });
+
+  return renderWithRoute(
+    <Provider store={store}>
+      <ViewCase />
+    </Provider>,
+    {
+      route: `/engineer/case/view/${id}`,
+      path: "/engineer/case/view/:id",
+    },
+  );
 }
 
 describe("ViewCase page (Engineer)", () => {
@@ -60,5 +90,24 @@ describe("ViewCase page (Engineer)", () => {
 
     const updated = caseData.data.find((c) => c.id === "case_0001");
     expect(updated.remarks.at(-1).comment).toBe("Site visit completed.");
+  });
+
+  it("stamps a newly added remark with the signed-in engineer", async () => {
+    const user = userEvent.setup();
+    renderForId("case_0001");
+
+    await user.type(
+      screen.getByPlaceholderText("Add your comment here"),
+      "Measurements taken.",
+    );
+    await user.click(screen.getByRole("button", { name: "Add Comment" }));
+
+    const added = caseData.data
+      .find((c) => c.id === "case_0001")
+      .remarks.at(-1);
+    expect(added.user.first_name).toBe("ravi");
+    expect(added.user.role.name).toBe("individual-engineer");
+    expect(added.user.department.name).toBe("valuation");
+    expect(added.user.branch.name).toBe("noida");
   });
 });

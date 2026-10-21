@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import BankDropDown from "@/components/shared/dropdown/bankDropDown";
+import BankDropDown from "@/components/shared/dropdown/engineerDropDown";
 import { Input } from "@/components/ui/input";
 import { caseData } from "@/features/individualEngineer/data/case/caseTable";
 
