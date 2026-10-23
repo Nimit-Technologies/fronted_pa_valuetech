@@ -6,7 +6,10 @@ const Pagination = ({
   totalPages = 5,
   onPrev,
   onNext,
+  onSaveDraft,
   onSubmit,
+  isSaving = false,
+  isSubmitted = false,
   isLastStep = false,
 }) => {
   return (
@@ -20,7 +23,7 @@ const Pagination = ({
           size="sm"
           className="flex-1 sm:flex-none px-6"
           onClick={onPrev}
-          disabled={currentPage <= 1}
+          disabled={currentPage <= 1 || isSaving || isSubmitted}
         >
           Previous
         </Button>
@@ -29,8 +32,9 @@ const Pagination = ({
             size="sm"
             className="flex-1 sm:flex-none px-10"
             onClick={onSubmit}
+            disabled={isSaving || isSubmitted}
           >
-            Submit
+            {isSaving ? "Saving..." : "Submit Report"}
           </Button>
         ) : (
           <Button
@@ -38,11 +42,20 @@ const Pagination = ({
             size="sm"
             className="flex-1 sm:flex-none px-10"
             onClick={onNext}
-            disabled={currentPage >= totalPages}
+            disabled={currentPage >= totalPages || isSaving || isSubmitted}
           >
             Next
           </Button>
         )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 sm:flex-none px-6"
+          onClick={onSaveDraft}
+          disabled={isSaving || isSubmitted}
+        >
+          {isSaving ? "Saving..." : "Save Draft"}
+        </Button>
       </div>
     </div>
   );

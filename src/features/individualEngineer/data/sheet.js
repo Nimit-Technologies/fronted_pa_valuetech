@@ -1,5 +1,11 @@
 export const sheetData = {
-  locality: ["residential", "commercial", "industrial", "agricultural"],
+  locality: [
+    "residential",
+    "commercial",
+    "industrial",
+    "agricultural",
+    "other",
+  ],
   colony: [
     "authorized",
     "unauthorized",
@@ -9,9 +15,17 @@ export const sheetData = {
     "MCPL Property",
     "Regularized",
     "Gram Panchayat",
+    "other",
   ],
-  ownership: ["Freehold", "Leasehold"],
-  neighborhood: ["posh", "good", "middle", "poor", "upper middle class"],
+  ownership: ["Freehold", "Leasehold", "other"],
+  neighborhood: [
+    "posh",
+    "good",
+    "middle",
+    "poor",
+    "upper middle class",
+    "other",
+  ],
   property: [
     "bunglow",
     "Society",
@@ -23,6 +37,7 @@ export const sheetData = {
     "Builder floor",
     "Developer APT.",
     "Indep House",
+    "other",
   ],
   construction: [
     "RCC Framed Structure",
@@ -31,6 +46,7 @@ export const sheetData = {
     "T-Iron",
     "Tin shed",
     "truss",
+    "other",
   ],
 
   occupation: [
@@ -41,6 +57,7 @@ export const sheetData = {
     "under construction",
     "company occupied",
     "under renovation",
+    "other",
   ],
   rentedDetails: [
     "number of tenant",
@@ -58,6 +75,7 @@ export const sheetData = {
     "shop",
     "office",
     "vacant",
+    "other",
   ],
   propertyLocation: [
     "intermittent",
@@ -65,6 +83,7 @@ export const sheetData = {
     "main road",
     "inner lane",
     "parking facing",
+    "other",
   ],
   coverage: [
     "east",
@@ -83,8 +102,8 @@ export const sheetData = {
     "unit on each floor",
     "lift/stairs/both",
   ],
-  transPort: ["railway", "bus stand", "hospital", "school"],
-  road: ["developed", "undeveloped"],
+  transPort: ["railway", "bus stand", "hospital", "school", "other"],
+  road: ["developed", "undeveloped", "other"],
 
   step5: [
     "internal finish",

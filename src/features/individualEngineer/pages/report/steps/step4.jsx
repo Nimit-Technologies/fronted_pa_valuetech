@@ -35,9 +35,15 @@ const emptyRow = {
   purpose: "",
 };
 
-const Step4 = forwardRef((_props, ref) => {
+const Step4 = forwardRef(({ initialData = {} }, ref) => {
   const [floorData, setFloorData] = useState(() =>
-    floors.reduce((acc, floor) => ({ ...acc, [floor]: { ...emptyRow } }), {}),
+    floors.reduce(
+      (acc, floor) => ({
+        ...acc,
+        [floor]: { ...emptyRow, ...initialData[floor] },
+      }),
+      {},
+    ),
   );
 
   const handleChange = (floor, key, value) => {

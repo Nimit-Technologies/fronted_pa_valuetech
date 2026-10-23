@@ -13,4 +13,5 @@ export const caseTableHeader = [
   "status",
   "address",
   "action",
+  "report",
 ];

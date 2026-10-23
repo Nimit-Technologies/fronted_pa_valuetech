@@ -23,7 +23,9 @@ describe("Step2 (report wizard)", () => {
   it("renders every item from sheetData.locality as a checklist option", () => {
     render(<Step2 />);
     sheetData.locality.forEach((item) => {
-      expect(screen.getByText(item)).toBeInTheDocument();
+      expect(
+        screen.getAllByRole("checkbox", { name: item }).length,
+      ).toBeGreaterThan(0);
     });
   });
 });

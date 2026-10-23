@@ -102,6 +102,11 @@ describe("CaseTable", () => {
         (l) => l.getAttribute("href") === "/cordinator/case/update/case_0001",
       ),
     ).toBe(true);
+    expect(
+      links.some(
+        (l) => l.getAttribute("href") === "/cordinator/report/view/case_0001",
+      ),
+    ).toBe(true);
   });
 
   it("falls back to '-' for missing optional fields", () => {

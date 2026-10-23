@@ -23,12 +23,15 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
-const Step2 = forwardRef((_props, ref) => {
-  const [personInfo, setPersonInfo] = useState({
-    name: "",
-    contactNumber: "",
-    relation: "",
-  });
+const Step2 = forwardRef(({ initialData = {} }, ref) => {
+  const [personInfo, setPersonInfo] = useState(
+    () =>
+      initialData.personInfo ?? {
+        name: "",
+        contactNumber: "",
+        relation: "",
+      },
+  );
 
   const handleChange = (key, value) => {
     setPersonInfo((prev) => ({ ...prev, [key]: value }));
@@ -93,15 +96,47 @@ const Step2 = forwardRef((_props, ref) => {
         </div>
       </div>
 
-      <Locality ref={localityRef} data={sheetData.locality} />
-      <Colony ref={colonyRef} data={sheetData.colony} />
-      <Ownership ref={ownershipRef} data={sheetData.ownership} />
-      <Neighborhood ref={neighborhoodRef} data={sheetData.neighborhood} />
-      <Property ref={propertyRef} data={sheetData.property} />
-      <Construction ref={constructionRef} data={sheetData.construction} />
-      <Occupation ref={occupationRef} data={sheetData.occupation} />
+      <Locality
+        ref={localityRef}
+        data={sheetData.locality}
+        initialValues={initialData.locality}
+      />
+      <Colony
+        ref={colonyRef}
+        data={sheetData.colony}
+        initialValues={initialData.colony}
+      />
+      <Ownership
+        ref={ownershipRef}
+        data={sheetData.ownership}
+        initialValues={initialData.ownership}
+      />
+      <Neighborhood
+        ref={neighborhoodRef}
+        data={sheetData.neighborhood}
+        initialValues={initialData.neighborhood}
+      />
+      <Property
+        ref={propertyRef}
+        data={sheetData.property}
+        initialValues={initialData.property}
+      />
+      <Construction
+        ref={constructionRef}
+        data={sheetData.construction}
+        initialValues={initialData.construction}
+      />
+      <Occupation
+        ref={occupationRef}
+        data={sheetData.occupation}
+        initialValues={initialData.occupation}
+      />
 
-      <RentedDetails ref={rentedDetailsRef} data={sheetData.rentedDetails} />
+      <RentedDetails
+        ref={rentedDetailsRef}
+        data={sheetData.rentedDetails}
+        initialValues={initialData.rentedDetails}
+      />
     </div>
   );
 });

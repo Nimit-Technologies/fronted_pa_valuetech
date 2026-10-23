@@ -6,9 +6,10 @@ export const caseTableHeader = [
   "customer name",
   "phone number",
   "bank",
-  "coordinator",
-  "Phone Number",
+  "assigned by",
+  "assigner phone",
   "status",
   "address",
   "action",
+  "report",
 ];

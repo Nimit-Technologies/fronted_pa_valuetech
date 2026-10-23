@@ -8,8 +8,13 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
-const RentedDetails = forwardRef(({ data }, ref) => {
-  const [values, setValues] = useState({});
+const NUMBER_FIELDS = {
+  "number of tenant": "1",
+  "rent payable": "0.01",
+};
+
+const RentedDetails = forwardRef(({ data, initialValues = {} }, ref) => {
+  const [values, setValues] = useState(() => initialValues);
 
   const handleChange = (item, value) => {
     setValues((prev) => ({ ...prev, [item]: value }));
@@ -30,6 +35,9 @@ const RentedDetails = forwardRef(({ data }, ref) => {
             <div key={item}>
               <RequiredLabel>{item}</RequiredLabel>
               <Input
+                type={NUMBER_FIELDS[item] ? "number" : "text"}
+                min={NUMBER_FIELDS[item] ? "0" : undefined}
+                step={NUMBER_FIELDS[item] ?? undefined}
                 value={values[item] ?? ""}
                 onChange={(e) => handleChange(item, e.target.value)}
                 className="h-11 w-full"

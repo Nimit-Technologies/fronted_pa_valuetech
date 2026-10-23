@@ -2,15 +2,18 @@ import React, { forwardRef, useImperativeHandle, useState } from "react";
 import FormHeader from "@/features/individualEngineer/components/sheet/formHeader";
 import { Input } from "@/components/ui/input";
 
-const Occupation = forwardRef(({ data }, ref) => {
-  const [checkedItems, setCheckedItems] = useState({});
+const Occupation = forwardRef(({ data, initialValues = {} }, ref) => {
+  const [checkedItems, setCheckedItems] = useState(() => initialValues);
+  const [otherText, setOtherText] = useState(
+    () => initialValues.otherText ?? "",
+  );
 
   const handleToggle = (item, isChecked) => {
     setCheckedItems((prev) => ({ ...prev, [item]: isChecked }));
   };
 
   useImperativeHandle(ref, () => ({
-    getData: () => checkedItems,
+    getData: () => ({ ...checkedItems, otherText }),
   }));
 
   return (
@@ -30,6 +33,14 @@ const Occupation = forwardRef(({ data }, ref) => {
               />
               {item}
             </label>
+            {item === "other" && checkedItems[item] && (
+              <Input
+                aria-label="Other occupation"
+                value={otherText}
+                onChange={(e) => setOtherText(e.target.value)}
+                className="ml-2 h-9"
+              />
+            )}
           </div>
         ))}
       </div>

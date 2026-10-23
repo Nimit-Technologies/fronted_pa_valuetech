@@ -8,8 +8,14 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
-const Step5 = forwardRef(({ data }, ref) => {
-  const [values, setValues] = useState({});
+const PERCENTAGE_FIELDS = new Set([
+  "development in locality in %",
+  "occupancy in locality in %",
+  "community area if any %",
+]);
+
+const Step5 = forwardRef(({ data, initialValues = {} }, ref) => {
+  const [values, setValues] = useState(() => initialValues);
 
   const handleChange = (item, value) => {
     setValues((prev) => ({ ...prev, [item]: value }));
@@ -36,6 +42,9 @@ const Step5 = forwardRef(({ data }, ref) => {
             >
               <RequiredLabel>{item}</RequiredLabel>
               <Input
+                type={PERCENTAGE_FIELDS.has(item) ? "number" : "text"}
+                min={PERCENTAGE_FIELDS.has(item) ? "0" : undefined}
+                step={PERCENTAGE_FIELDS.has(item) ? "0.01" : undefined}
                 value={values[item] ?? ""}
                 onChange={(e) => handleChange(item, e.target.value)}
                 className="h-11 w-full"

@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, Pencil, Loader2 } from "lucide-react";
+import { Eye, Pencil, Loader2, FileSpreadsheetIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -142,6 +142,27 @@ const CaseTable = ({
                       >
                         <Link to={`/cordinator/case/update/${caseItem.id}`}>
                           <Pencil size={14} />
+                        </Link>
+                      </Button>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex flex-wrap items-center justify-center gap-1.5">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted w-fit h-fit px-3 py-1"
+                      >
+                        <Link
+                          className="flex items-center gap-1.5"
+                          to={`/cordinator/report/view/${caseItem.id}`}
+                        >
+                          <FileSpreadsheetIcon size={14} />
+                          <span className="hidden text-xs whitespace-nowrap sm:inline">
+                            View report
+                          </span>
                         </Link>
                       </Button>
                     </div>

@@ -1,15 +1,14 @@
 import React from "react";
 import { IdCardLanyard, FileArchiveIcon } from "lucide-react";
-
-const Header1 = () => {
+const Header1 = ({ task, user }) => {
   return (
     <div className="flex w-full flex-col gap-3 rounded-none border border-border bg-card px-4 py-6 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:px-5">
       {/* Left side: Engineer Info */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <FileArchiveIcon size={15} className="shrink-0 text-primary" />
-        <span>
+        <span className="capitalize">
           Engineer -{" "}
-          <span className="font-medium text-foreground">FILE-0254891</span>
+          {[user?.first_name, user?.last_name].filter(Boolean).join(" ") || "-"}
         </span>
       </div>
 
@@ -18,7 +17,9 @@ const Header1 = () => {
         <IdCardLanyard size={15} className="shrink-0 text-primary" />
         <span>
           Case Id{" - "}
-          <span className="font-medium text-foreground">CASE-80524NCS</span>
+          <span className="font-medium text-foreground">
+            {task?.case_id || "-"}
+          </span>
         </span>
       </div>
     </div>

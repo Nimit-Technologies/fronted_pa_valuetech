@@ -3,29 +3,41 @@ import { screen } from "@testing-library/react";
 import ViewCaseForm from "@/features/individualEngineer/components/case/viewCaseForm";
 import { renderWithRoute } from "@/test/renderWithRouter";
 
-function renderForId(id) {
-  return renderWithRoute(<ViewCaseForm />, {
-    route: `/engineer/case/view/${id}`,
-    path: "/engineer/case/view/:id",
-  });
-}
+const caseItem = {
+  file_number: "BANK-12345",
+  customer_name: "Rahul Sharma",
+  customer_contact_number: "9876543210",
+  case_type: "Awaas",
+  bank: { display_name: "HDFC (Noida Sector-18)" },
+  employee: {
+    first_name: "Ravi",
+    last_name: "Kumar",
+    phone: "9876500000",
+  },
+  address: {
+    city: "Noida",
+    district: "Gautam Budh Nagar",
+    state: "Uttar Pradesh",
+    pin_code: "201301",
+  },
+};
 
 describe("ViewCaseForm (Engineer)", () => {
-  it("shows 'Case not found.' for an unknown id", () => {
-    renderForId("does-not-exist");
+  it("shows 'Case not found.' when no case is provided", () => {
+    renderWithRoute(<ViewCaseForm />);
     expect(screen.getByText("Case not found.")).toBeInTheDocument();
   });
 
-  it("renders the matched case's fields as disabled inputs", () => {
-    renderForId("case_0001");
+  it("renders the case and assigned engineer fields as disabled inputs", () => {
+    renderWithRoute(<ViewCaseForm caseItem={caseItem} />);
 
     expect(screen.getByDisplayValue("BANK-12345")).toBeDisabled();
     expect(screen.getByDisplayValue("Rahul Sharma")).toBeDisabled();
     expect(screen.getByDisplayValue("9876543210")).toBeDisabled();
+    expect(screen.getByDisplayValue("Ravi Kumar")).toBeDisabled();
+    expect(screen.getByDisplayValue("9876500000")).toBeDisabled();
     expect(screen.getByDisplayValue("Noida")).toBeDisabled();
     expect(screen.getByDisplayValue("Gautam Budh Nagar")).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "HDFC (Noida Sector-18)" }),
-    ).toBeDisabled();
+    expect(screen.getByDisplayValue("HDFC (Noida Sector-18)")).toBeDisabled();
   });
 });

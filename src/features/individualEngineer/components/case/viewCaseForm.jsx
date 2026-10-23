@@ -1,8 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
-import BankDropDown from "@/components/shared/dropdown/engineerDropDown";
 import { Input } from "@/components/ui/input";
-import { caseData } from "@/features/individualEngineer/data/case/caseTable";
 
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-0.5 text-sm font-medium capitalize text-foreground">
@@ -11,10 +8,7 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
-const ViewCaseForm = () => {
-  const { id } = useParams();
-  const caseItem = caseData.data.find((c) => c.id === id);
-
+const ViewCaseForm = ({ caseItem }) => {
   if (!caseItem) {
     return (
       <div className="bg-card border border-border rounded-md py-12 shadow-sm text-center text-sm text-muted-foreground">
@@ -24,6 +18,9 @@ const ViewCaseForm = () => {
   }
 
   const address = caseItem.address ?? {};
+  const engineer = caseItem.employee ?? {};
+  const engineerName =
+    `${engineer.first_name ?? ""} ${engineer.last_name ?? ""}`.trim();
 
   return (
     <div className="bg-card border border-border rounded-md py-6 shadow-sm">
@@ -54,7 +51,7 @@ const ViewCaseForm = () => {
             <div>
               <RequiredLabel>Customer Contact Number</RequiredLabel>
               <Input
-                value={caseItem.customer_phone_number || ""}
+                value={caseItem.customer_contact_number || ""}
                 disabled
                 className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
               />
@@ -71,9 +68,10 @@ const ViewCaseForm = () => {
 
             <div>
               <RequiredLabel>Bank</RequiredLabel>
-              <BankDropDown
-                value={caseItem.bank?.display_name || caseItem.bank?.name}
+              <Input
+                value={caseItem.bank?.display_name || caseItem.bank?.name || ""}
                 disabled
+                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
               />
             </div>
           </div>
@@ -142,6 +140,30 @@ const ViewCaseForm = () => {
               <RequiredLabel>Landmark</RequiredLabel>
               <Input
                 value={address.landmark || ""}
+                disabled
+                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold text-foreground capitalize border-b border-border pb-2">
+            Assigned Engineer
+          </h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <RequiredLabel>Engineer Name</RequiredLabel>
+              <Input
+                value={engineerName}
+                disabled
+                className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div>
+              <RequiredLabel>Engineer Contact Number</RequiredLabel>
+              <Input
+                value={engineer.phone || ""}
                 disabled
                 className="h-11 w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
               />

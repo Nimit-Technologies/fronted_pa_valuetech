@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { logout } from "@/features/auth/slice/authSlice";
 import caseReducer, {
   caseStart,
   caseFailure,
@@ -33,6 +34,15 @@ describe("caseSlice", () => {
     expect(initial.caseData).toEqual([]);
     expect(initial.loading).toBe(false);
     expect(initial.error).toBeNull();
+  });
+
+  it("clears case data when the user logs out", () => {
+    const loaded = caseReducer(initial, setCase(page()));
+    const state = caseReducer(loaded, logout());
+
+    expect(state.caseData).toEqual([]);
+    expect(state.filters).toEqual({ bank: null, caseType: null });
+    expect(state.loading).toBe(false);
   });
 
   it("marks a request in flight and clears the previous error", () => {

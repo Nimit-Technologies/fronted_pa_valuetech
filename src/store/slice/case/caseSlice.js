@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { logout } from "@/features/auth/slice/authSlice";
 
 // Mirrors the user slice: one page of rows plus the cursor metadata the list
 // API returns. Lives in the shared store rather than under a role feature
@@ -134,6 +135,9 @@ const caseSlice = createSlice({
     clearCaseFilters: (state) => {
       state.filters = { ...EMPTY_CASE_FILTERS };
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
   },
 });
 

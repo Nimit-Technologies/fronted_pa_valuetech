@@ -8,8 +8,8 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
-const Step6 = forwardRef(({ data }, ref) => {
-  const [values, setValues] = useState({});
+const Step6 = forwardRef(({ data, initialValues = {} }, ref) => {
+  const [values, setValues] = useState(() => initialValues);
 
   const handleChange = (item, value) => {
     setValues((prev) => ({ ...prev, [item]: value }));

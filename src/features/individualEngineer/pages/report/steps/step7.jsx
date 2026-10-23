@@ -44,10 +44,10 @@ const Step7 = forwardRef((_props, ref) => {
       <section className="space-y-4">
         <div>
           <h2 className="text-base font-semibold text-foreground">
-            Required Photos
+            Report Photos
           </h2>
           <p className="text-sm text-muted-foreground">
-            All 5 photos below are mandatory to submit the report.
+            Photos are not stored or included with drafts and submissions yet.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -55,7 +55,6 @@ const Step7 = forwardRef((_props, ref) => {
             <FileUpload
               key={title}
               title={title}
-              required
               onFileChange={(file) => {
                 requiredFilesRef.current[title] = file;
               }}

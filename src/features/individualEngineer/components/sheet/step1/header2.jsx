@@ -1,9 +1,10 @@
 import React from "react";
 import { CalendarDays, FileArchiveIcon } from "lucide-react";
-import { STATUS_STYLES } from "@/constants/formatStatus";
+import { formatStatus, STATUS_STYLES } from "@/constants/formatStatus";
+import { formatDate, formatTime } from "@/constants/formatDate";
 
-const Header2 = () => {
-  const status = "VISIT_IN_PROGRESS"; // hardcoded for now
+const Header2 = ({ task }) => {
+  const status = task?.status?.code;
 
   return (
     <div className="flex w-full flex-col gap-3 rounded-none border border-border bg-card px-4 py-6 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:px-5">
@@ -13,17 +14,22 @@ const Header2 = () => {
           <FileArchiveIcon size={15} className="shrink-0 text-primary" />
           <span>
             File Number{" "}
-            <span className="font-medium text-foreground">FILE-0254891</span>
+            <span className="font-medium text-foreground">
+              {task?.file_number || "-"}
+            </span>
           </span>
         </div>
 
         {/* Assigned On */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <CalendarDays size={15} className="shrink-0 text-primary" />
-          <span>
-            Assigned on{" "}
-            <span className="font-medium text-foreground">25-July-2026</span>
-          </span>
+          <div className="flex  items-center justify-center gap-1">
+            <CalendarDays size={15} className="shrink-0 text-primary" />
+            <p>Assigned on </p>
+            <div className="flex gap-1.5">
+              <p>{formatDate(task?.assigned_at)}</p>
+              <p>{formatTime(task?.assigned_at)}</p>
+            </div>
+          </div>
         </div>
 
         {/* Visit Date */}
@@ -31,7 +37,9 @@ const Header2 = () => {
           <CalendarDays size={15} className="shrink-0 text-primary" />
           <span>
             Visit Date{" "}
-            <span className="font-medium text-foreground">28-July-2026</span>
+            <span className="font-medium text-foreground">
+              {formatDate(task?.visit_date)}
+            </span>
           </span>
         </div>
       </div>
@@ -42,7 +50,7 @@ const Header2 = () => {
           STATUS_STYLES[status] || "bg-gray-100 text-gray-800"
         }`}
       >
-        {status}
+        {formatStatus(status)}
       </span>
     </div>
   );

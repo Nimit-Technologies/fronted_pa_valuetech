@@ -99,14 +99,27 @@ export const apiConfig = Object.freeze({
     updateBusinessStatus: "status",
     restoreBusiness: "restore",
   }),
+  status: defineEndpoints("status", {
+    getAllStatuses: "all-status",
+  }),
 
   case: defineEndpoints("case", {
     getAllCase: "all-case",
     getCaseById: "",
     createCase: "create-case",
     updateCase: "update",
+    updateCaseStatus: "status",
     similarCase: "similar",
     assignCase: "assign",
+  }),
+
+  engineer: defineEndpoints("engineer", {
+    getMyTasks: "my-task",
+    getMyTasksById: "my-task/:id",
+    getMyReport: "my-task/:taskId/report",
+    getMySubmittedReport: "case/:caseId/report",
+    getMySubmittedReports: "my-reports",
+    saveMyReport: "my-task/:taskId/report",
   }),
 
   // Remarks hang off a case: both routes are /remark/:caseId, with the case id

@@ -71,6 +71,13 @@ const EngineerViewCase = lazy(
 const Report = lazy(
   () => import("@/features/individualEngineer/pages/report/report"),
 );
+const SubmittedReport = lazy(
+  () => import("@/features/individualEngineer/pages/report/submittedReport"),
+);
+const CoordinatorSubmittedReport = SubmittedReport;
+const SubmittedReports = lazy(
+  () => import("@/features/individualEngineer/pages/report/submittedReports"),
+);
 
 // Branch Admin
 const BranchAdminPage = lazy(() => import("@/pages/branchAdmin"));
@@ -176,6 +183,10 @@ const App = () => {
               <Route path="case/create" element={<CreateCase />} />
               <Route path="case/view/:id" element={<ViewCase />} />
               <Route path="case/update/:id" element={<UpdateCase />} />
+              <Route
+                path="report/view/:id"
+                element={<CoordinatorSubmittedReport />}
+              />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />
             </Route>
@@ -183,15 +194,17 @@ const App = () => {
             <Route
               path="/engineer"
               element={
-                // <ProtectedRoute allowedRoles={[ROLES.ENGINEER]}>
-                <IndividualEngineer />
-                // </ProtectedRoute>
+                <ProtectedRoute allowedRoles={[ROLES.ENGINEER]}>
+                  <IndividualEngineer />
+                </ProtectedRoute>
               }
             >
               <Route index element={<IndividualEngineerHome />} />
               <Route path="case" element={<EngineerCaseDashboard />} />
               <Route path="case/view/:id" element={<EngineerViewCase />} />
               <Route path="report/create/:id" element={<Report />} />
+              <Route path="report/view/:id" element={<SubmittedReport />} />
+              <Route path="reports" element={<SubmittedReports />} />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />
             </Route>

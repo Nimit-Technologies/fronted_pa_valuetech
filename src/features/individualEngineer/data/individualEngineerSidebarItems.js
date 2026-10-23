@@ -1,4 +1,4 @@
-import { GitBranch, HomeIcon } from "lucide-react";
+import { FileText, GitBranch, HomeIcon } from "lucide-react";
 
 export const sidebarItems = [
   {
@@ -6,6 +6,11 @@ export const sidebarItems = [
     items: [
       { label: "Home", path: "/engineer", icon: HomeIcon, exact: true },
       { label: "Case management", path: "/engineer/case", icon: GitBranch },
+      {
+        label: "Submitted reports",
+        path: "/engineer/reports",
+        icon: FileText,
+      },
     ],
   },
 ];
