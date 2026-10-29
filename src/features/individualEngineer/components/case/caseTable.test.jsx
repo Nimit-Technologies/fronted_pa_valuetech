@@ -98,6 +98,21 @@ describe("CaseTable (Engineer)", () => {
     ).toBe(true);
   });
 
+  // "Fill Sheet" is the one row action keyed on the allocation rather than the
+  // case, because the report hangs off the engineer's task. Asserted separately
+  // so a swap back to case_id can't pass unnoticed.
+  it("links 'Fill Sheet' to the report creation route by task id", () => {
+    renderTable([sampleCase]);
+
+    const links = screen.getAllByRole("link");
+    expect(
+      links.some(
+        (l) =>
+          l.getAttribute("href") === "/engineer/report/create/allocation_001",
+      ),
+    ).toBe(true);
+  });
+
   it("falls back to '-' for missing optional fields", () => {
     renderTable([{ task_id: "task_empty", case_id: "case_empty" }]);
     const dashes = screen.getAllByText("-");

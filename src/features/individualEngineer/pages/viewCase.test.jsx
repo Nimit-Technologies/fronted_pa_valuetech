@@ -123,18 +123,6 @@ describe("ViewCase page (Engineer)", () => {
     ).toBeInTheDocument();
   });
 
-  it("links the 'Fill Sheet' action to the report creation route for the case", async () => {
-    renderForId(caseRecord.id);
-    await screen.findByDisplayValue("BANK-12345");
-    const links = screen.getAllByRole("link");
-    expect(
-      links.some(
-        (l) =>
-          l.getAttribute("href") === `/engineer/report/create/${caseRecord.id}`,
-      ),
-    ).toBe(true);
-  });
-
   it("posts and displays a new remark", async () => {
     const user = userEvent.setup();
     createRemarkMock.mockResolvedValue({
