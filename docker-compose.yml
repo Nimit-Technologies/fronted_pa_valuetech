@@ -13,10 +13,8 @@ services:
         VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-30000}
         VITE_ENV: ${VITE_ENV:-production}
         VITE_ENABLE_DEBUG_MODE: ${VITE_ENABLE_DEBUG_MODE:-false}
-        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-true}
-        VITE_AUTH_COOKIE_NAME: ${VITE_AUTH_COOKIE_NAME:-auth}
-        VITE_AUTH_TOKEN_STORAGE: ${VITE_AUTH_TOKEN_STORAGE:-localStorage}
         VITE_LOG_LEVEL: ${VITE_LOG_LEVEL:-error}
+        VITE_ERROR_REPORT_URL: ${VITE_ERROR_REPORT_URL:-}
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
     image: pa-valuetech-frontend:local
     container_name: pa-valuetech-frontend

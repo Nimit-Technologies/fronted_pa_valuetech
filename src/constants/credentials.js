@@ -8,6 +8,5 @@ export const CREDENTIALS = {
   API_TIMEOUT: Number(import.meta.env.VITE_API_TIMEOUT ?? 30000),
 
   ENABLE_DEBUG_MODE: import.meta.env.VITE_ENABLE_DEBUG_MODE === "true",
-  ENABLE_ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === "true",
   LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL,
 };
