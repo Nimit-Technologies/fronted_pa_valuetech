@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/constants/formatDate";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,7 @@ const SubmittedReports = () => {
                   <TableCell>{report.caseType}</TableCell>
                   <TableCell>
                     {report.submittedAt
-                      ? new Date(report.submittedAt).toLocaleString()
+                      ? formatDateTime(report.submittedAt)
                       : "—"}
                   </TableCell>
                   <TableCell className="text-right">

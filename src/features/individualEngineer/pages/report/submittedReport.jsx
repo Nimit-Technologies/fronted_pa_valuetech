@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/constants/formatDate";
 import React from "react";
 import { useParams } from "react-router-dom";
 import Step1 from "@/features/individualEngineer/pages/report/steps/step1";
@@ -21,7 +22,7 @@ const SubmittedReport = () => {
   }
 
   const submittedAt = report?.submittedAt
-    ? new Date(report.submittedAt).toLocaleString()
+    ? formatDateTime(report.submittedAt)
     : "Unknown";
   const formData = report?.formData ?? {};
 
