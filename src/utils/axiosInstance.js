@@ -30,14 +30,71 @@ api.interceptors.request.use(
 // requests (e.g. on page load) all come back 401 at once.
 let isRedirectingToLogin = false;
 
-// Response interceptor — centralizes auth-error handling so call sites
-// don't each need to check for 401/403 themselves.
+// Only methods that can be repeated without changing anything. A retried POST
+// creates a second case; a retried PATCH re-applies an edit over someone
+// else's. Those failures belong to the user to retry deliberately, which is
+// why there is no "retry everything" switch here.
+const RETRYABLE_METHODS = new Set(["get", "head", "options"]);
+
+const MAX_RETRIES = 2;
+const RETRY_BASE_DELAY_MS = 300;
+
+// Worth another attempt: the request never reached a server (network drop,
+// timeout), or the server failed in a way that is plausibly transient.
+//
+// 429 is deliberately excluded. Retrying a rate limit is what produced it;
+// the user is told to wait instead (see extractErrorMessage, which surfaces
+// the API's own "too many attempts" wording).
+const isTransient = (error) => {
+  if (!error.response) return true;
+  return error.response.status >= 500;
+};
+
+// Exponential, with jitter so that a burst of requests failing together does
+// not retry in lockstep and hit the recovering server as another spike.
+const retryDelay = (attempt) => {
+  const backoff = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1);
+  return backoff + Math.random() * RETRY_BASE_DELAY_MS;
+};
+
+const sleep = (ms) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const shouldRetry = (error) => {
+  const config = error.config;
+  if (!config) return false;
+  if (!RETRYABLE_METHODS.has((config.method || "get").toLowerCase())) {
+    return false;
+  }
+  if (!isTransient(error)) return false;
+
+  return (config.retryCount ?? 0) < MAX_RETRIES;
+};
+
+// Response interceptor — centralizes retry and auth-error handling so call
+// sites don't each need to check for 401/403 themselves.
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    if (shouldRetry(error)) {
+      const config = error.config;
+      config.retryCount = (config.retryCount ?? 0) + 1;
+
+      logger.warn(
+        `Retrying ${config.method?.toUpperCase()} ${config.url} ` +
+          `(attempt ${config.retryCount} of ${MAX_RETRIES})`,
+      );
+
+      await sleep(retryDelay(config.retryCount));
+      return api.request(config);
+    }
+
     if (!error.response) {
       // Network failure, timeout, or the request was cancelled — no status
       // to branch on, but still worth surfacing instead of failing silently.
+      // Retries are already exhausted by this point.
       logger.error("Network error or no response from server", error);
       return Promise.reject(error);
     }

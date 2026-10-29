@@ -112,6 +112,27 @@ const persistConfig = {
   storage,
   whitelist: ["auth", "case", "engineerTask"],
   transforms: [reduceForStorage],
+  // The version bump above handles state that is merely *old*. This handles
+  // state that is corrupt: a half-written or hand-edited localStorage entry
+  // rehydrates an object of the wrong shape, and the first selector to read
+  // through it throws inside PersistGate, where the app has no UI yet — a
+  // blank page with no way back short of clearing site data by hand.
+  //
+  // Returning undefined makes redux-persist fall back to the reducers' initial
+  // state, which is always safe here: the session is re-derived from the
+  // cookie by useVerifySession, and the list slices refetch on mount.
+  migrate: (state) => {
+    if (state && typeof state !== "object") return Promise.resolve(undefined);
+
+    const authIsUsable =
+      !state?.auth ||
+      (typeof state.auth === "object" &&
+        (state.auth.user === null ||
+          state.auth.user === undefined ||
+          typeof state.auth.user === "object"));
+
+    return Promise.resolve(authIsUsable ? state : undefined);
+  },
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
