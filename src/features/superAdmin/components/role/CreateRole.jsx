@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -42,7 +43,7 @@ const CreateRole = ({ onCreated, disabled = false }) => {
       // never point at a different branch than its department.
       await Create({ name: roleName.trim(), department_id: department.id });
     } catch (err) {
-      console.error("Failed to create role:", err);
+      logger.error("Failed to create role:", err);
       return;
     }
 

@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -45,7 +46,7 @@ const CreateBusiness = ({ onCreated, disabled = false }) => {
     try {
       await Create({ name: businessName.trim(), branch_id: branch.branch_id });
     } catch (err) {
-      console.error("Failed to create business type:", err);
+      logger.error("Failed to create business type:", err);
       return;
     }
 

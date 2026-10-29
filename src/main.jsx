@@ -8,6 +8,11 @@ import "@/index.css";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "@/store/store";
+import { installErrorReporter } from "@/utils/errorReporter";
+
+// Before render, so a crash during the first paint is still reported. No-op
+// unless VITE_ERROR_REPORT_URL is configured.
+installErrorReporter();
 
 const root = (
   <ErrorBoundary>

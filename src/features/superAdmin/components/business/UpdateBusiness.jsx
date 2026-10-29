@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -63,7 +64,7 @@ const UpdateBusiness = ({
     try {
       await Update(payload);
     } catch (err) {
-      console.error("Failed to update business type:", err);
+      logger.error("Failed to update business type:", err);
       return;
     }
     onUpdated?.();

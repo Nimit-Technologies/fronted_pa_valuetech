@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { AlertCircle } from "lucide-react";
+import logger from "@/utils/logger";
 
 const isDevelopment = import.meta.env.MODE === "development";
 
@@ -14,10 +15,13 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log error to console in development
-    if (isDevelopment) {
-      console.error("Error Boundary caught:", error, errorInfo);
-    }
+    // Reported in every environment, not just development: a crash that takes
+    // out the whole render tree is the one thing worth knowing about in
+    // production, and logger.error is the only path that reaches the tracker.
+    logger.error("Error Boundary caught a render error", error);
+    logger.warn("Error Boundary component stack", {
+      componentStack: errorInfo?.componentStack,
+    });
 
     this.setState({
       error,
@@ -25,8 +29,14 @@ class ErrorBoundary extends Component {
     });
   }
 
+  // A full reload rather than just clearing the flag. This boundary sits
+  // outside <Provider> (see main.jsx), so it cannot reset the store: if the
+  // crash came from bad persisted state, re-rendering the same tree over the
+  // same state crashes again immediately and "Try Again" does nothing visible.
+  // Reloading re-runs rehydration and the session check, which is what
+  // actually recovers.
   handleReset = () => {
-    this.setState({ hasError: false, error: null, errorInfo: null });
+    window.location.reload();
   };
 
   render() {

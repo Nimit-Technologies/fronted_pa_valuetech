@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -56,7 +57,7 @@ const UpdateDepartment = ({
     try {
       await Update({ data });
     } catch (err) {
-      console.error("Failed to update department:", err);
+      logger.error("Failed to update department:", err);
       return;
     }
     onUpdated?.();

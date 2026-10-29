@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -38,7 +39,7 @@ const CreateBranch = ({ onCreated, disabled = false }) => {
     try {
       await Create({ name: branchName.trim(), is_active: status === "true" });
     } catch (err) {
-      console.error("Failed to create branch:", err);
+      logger.error("Failed to create branch:", err);
       return;
     }
 

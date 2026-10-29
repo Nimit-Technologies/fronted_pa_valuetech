@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -60,7 +61,7 @@ const UpdateRole = ({
     try {
       await Update({ data });
     } catch (err) {
-      console.error("Failed to update role:", err);
+      logger.error("Failed to update role:", err);
       return;
     }
     onUpdated?.();

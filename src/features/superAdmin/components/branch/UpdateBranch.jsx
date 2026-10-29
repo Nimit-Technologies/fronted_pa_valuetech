@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import React, { useState } from "react";
 import {
   Popover,
@@ -46,7 +47,7 @@ const UpdateBranch = ({
     try {
       await Update(payload);
     } catch (err) {
-      console.error("Failed to update branch:", err);
+      logger.error("Failed to update branch:", err);
       return;
     }
     onUpdated?.();
