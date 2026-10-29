@@ -37,7 +37,7 @@ const INITIAL_FORM = {
   lastName: "",
   email: "",
   phone: "",
-  aadharNumber: "",
+  aadhaarNumber: "",
   password: "",
   confirmPassword: "",
   branch: EMPTY_BRANCH,
@@ -57,7 +57,7 @@ const INITIAL_FORM = {
 // browser; the backend remains the authority and its message is toasted.
 const validate = (form) => {
   if (!/^\d{10}$/.test(form.phone)) return "Phone number must be 10 digits.";
-  if (!/^\d{12}$/.test(form.aadharNumber))
+  if (!/^\d{12}$/.test(form.aadhaarNumber))
     return "Aadhaar number must be 12 digits.";
   if (!form.branch.branch_id) return "Please select a branch.";
   if (!form.department.id) return "Please select a department.";
@@ -152,7 +152,7 @@ const CreateUser = () => {
       phone: form.phone.trim(),
       password: form.password,
       confirm_password: form.confirmPassword,
-      aadhaar_number: form.aadharNumber.trim(),
+      aadhaar_number: form.aadhaarNumber.trim(),
       branch_id: form.branch.branch_id,
       department_id: form.department.id,
       role_id: form.role.id,
@@ -290,15 +290,15 @@ const CreateUser = () => {
               </div>
 
               <div>
-                <FieldLabel htmlFor="aadharNumber" required>
+                <FieldLabel htmlFor="aadhaarNumber" required>
                   Aadhaar Number
                 </FieldLabel>
                 <Input
-                  id="aadharNumber"
-                  name="aadharNumber"
+                  id="aadhaarNumber"
+                  name="aadhaarNumber"
                   inputMode="numeric"
                   maxLength={12}
-                  value={form.aadharNumber}
+                  value={form.aadhaarNumber}
                   onChange={handleChange}
                   placeholder="12-digit Aadhaar number"
                   className={INPUT_CLASS}

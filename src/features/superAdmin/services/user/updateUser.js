@@ -34,8 +34,8 @@ export const normalizeUpdateUserPayload = (form = {}) => {
   // Responses carry Aadhaar masked as XXXXXXXX1234, so the form is pre-filled
   // with something the backend would reject. Only a freshly typed 12-digit
   // number is sent; anything else keeps the stored value.
-  if (AADHAAR_PATTERN.test(form.aadharNumber ?? "")) {
-    payload.aadhaar_number = form.aadharNumber;
+  if (AADHAAR_PATTERN.test(form.aadhaarNumber ?? "")) {
+    payload.aadhaar_number = form.aadhaarNumber;
   }
 
   if (form.status === "Active" || form.status === "Inactive") {

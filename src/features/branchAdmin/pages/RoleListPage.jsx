@@ -4,7 +4,6 @@ import BranchAdminTableHeader from "@/features/branchAdmin/component/BranchAdmin
 import ActiveFilters from "@/components/shared/activeFilters";
 
 import RoleTable from "@/features/branchAdmin/component/role/RoleTable";
-// import CreateRole from "@/features/branchAdmin/component/role/CreateRole";
 
 // import { roleData } from "@/features/branchAdmin/data/role/roleTable";
 import { roleTableHeader } from "@/features/branchAdmin/data/role/roleTableHeader";

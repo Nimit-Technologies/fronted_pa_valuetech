@@ -23,8 +23,12 @@ const UserAvatar = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
+        {/* The visible label is a single initial, which tells a screen reader
+            nothing and gives the logout flow no stable handle. The aria-label
+            names what the control opens. */}
         <Button
           variant="outline"
+          aria-label="Account menu"
           className="h-9 w-9 rounded-full bg-muted border-border text-foreground text-sm font-semibold uppercase hover:bg-muted/70 transition-colors duration-300 flex items-center justify-center"
         >
           {profile?.first_name?.charAt(0) || "?"}

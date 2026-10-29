@@ -167,7 +167,7 @@ const User = () => {
   //       fullName.toLowerCase().includes(q) ||
   //       (user.phone ?? "").toLowerCase().includes(q) ||
   //       (user.email ?? "").toLowerCase().includes(q) ||
-  //       (user.adhar_number ?? "").toLowerCase().includes(q) ||
+  //       (user.aadhaar_number ?? "").toLowerCase().includes(q) ||
   //       (user.branch?.name ?? "").toLowerCase().includes(q) ||
   //       (user.department?.name ?? "").toLowerCase().includes(q) ||
   //       (user.role?.name ?? "").toLowerCase().includes(q)
@@ -195,15 +195,6 @@ const User = () => {
         onSearch={onSearchChange}
         placeholder="Search user..."
         disabled={loading}
-        // createButton={
-        //   <Button
-        //     className="gap-2"
-        //     onClick={() => navigate("/branch-admin/user/create")}
-        //   >
-        //     <Plus size={16} />
-        //     Create User
-        //   </Button>
-        // }
       />
       {isFiltered ? (
         <div className="flex flex-wrap items-center gap-2 text-sm">

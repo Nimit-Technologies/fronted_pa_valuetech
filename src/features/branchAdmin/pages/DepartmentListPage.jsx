@@ -5,7 +5,6 @@ import BranchAdminSearchbar from "@/features/branchAdmin/component/BranchAdminTa
 import ActiveFilters from "@/components/shared/activeFilters";
 
 import DepartmentTable from "@/features/branchAdmin/component/department/DepartmentTable";
-// import CreateDepartment from "@/features/branchAdmin/component/department/CreateDepartment";
 
 // import {
 //   departmentData,
@@ -146,7 +145,6 @@ const Department = () => {
         onSearch={onSearchChange}
         placeholder="Search department..."
         disabled={loading}
-        // createButton={<CreateDepartment />}
       />
 
       <ActiveFilters

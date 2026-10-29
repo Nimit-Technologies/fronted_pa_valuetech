@@ -7,7 +7,6 @@ import FilterableTableHead from "@/components/shared/filterableTableHead";
 
 // import { Button } from "@/components/ui/button";
 
-// import UpdateDepartment from "./UpdateDepartment";
 // import Pagination from "@/features/branchAdmin/component/Pagination";
 
 // `columnFilters` is keyed by header text and carries the props for an
@@ -99,45 +98,9 @@ const DepartmentTable = ({
                   </button>
                 )}
               </TableCell>
-              {/* <TableCell>
-                  <div className="flex gap-1.5">
-                    {department.is_deleted ? (
-                      // <Button
-                      //   variant="ghost"
-                      //   size="sm"
-                      //   className="h-8 gap-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
-                      //   onClick={() => onRestore?.(department)}
-                      // >
-                      //   <RotateCcw size={14} />
-                      //   Restore
-                      // </Button>
-                    ) : (
-                      <>
-                        {/* <UpdateDepartment
-                          defaultName={department.name}
-                          departmentId={department.id}
-                          defaultStatus={department.is_active}
-                          defaultBranch={{
-                            branch_id:
-                              department.branch_id ??
-                              department.branch?.id ??
-                              "",
-                            name: department.branch?.name ?? "",
-                          }}
-                          onUpdated={onEdited}
-                        /> */}
-              {/* <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => onDelete?.(department)}
-                        >
-                          <Trash2 size={14} />
-                        </Button> */}
-              {/* </> */}
-
-              {/* // </div> */}
-              {/* // </TableCell>  */}
+              {/* No action column: branch admins have view-only rights over
+                  departments. Creating, editing, deleting and restoring them
+                  is super admin only, enforced by the backend. */}
             </TableRow>
           ))}
         </TableBody>

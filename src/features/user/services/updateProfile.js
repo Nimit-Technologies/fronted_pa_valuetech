@@ -29,8 +29,8 @@ export const normalizeUpdateProfilePayload = (form = {}) => {
 
   // Responses only ever carry the masked Aadhaar (XXXXXXXX1234), so the form
   // starts blank; only a freshly typed 12-digit number is sent.
-  if (AADHAAR_PATTERN.test(form.aadharNumber ?? "")) {
-    payload.aadhaar_number = form.aadharNumber;
+  if (AADHAAR_PATTERN.test(form.aadhaarNumber ?? "")) {
+    payload.aadhaar_number = form.aadhaarNumber;
   }
 
   for (const [key, value] of Object.entries(payload)) {

@@ -106,8 +106,11 @@ const UserProfile = () => {
             <SectionTitle>Personal Details</SectionTitle>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <InfoRow label="Employee ID" value={user.employee_id} />
+              {/* Already masked by the backend's formatUserResponse; the full
+                  number is fetched on demand from the audit-logged
+                  /user/aadhaar endpoint. */}
               <AadhaarRow
-                maskedValue={user.aadhaar_number ?? user.adhar_number}
+                maskedValue={user.aadhaar_number}
                 employeeId={user.employee_id}
               />
               <InfoRow label="First Name" value={user.first_name} />

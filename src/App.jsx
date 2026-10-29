@@ -227,9 +227,12 @@ const App = () => {
               <Route path="department" element={<BranchAdminDepartment />} />
               <Route path="engineer" element={<Engineer />} />
               <Route path="role" element={<BranchAdminRole />} />
+              {/* View-only by design for users, departments and roles —
+                  hence a detail route but no create or update one. The
+                  backend agrees: create-user and update/:id are isSuperAdmin,
+                  while all-user and :id are isAdmin. Banks above are
+                  deliberately different; those branch admins do manage. */}
               <Route path="user" element={<BranchAdminUser />} />
-              <Route path="user/create" element={<CreateUser />} />
-              <Route path="user/update/:id" element={<UpdateUser />} />
               <Route path="user/view/:id" element={<BranchAdminViewUser />} />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />

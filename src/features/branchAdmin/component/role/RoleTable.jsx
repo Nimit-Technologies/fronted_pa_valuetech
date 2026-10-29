@@ -97,39 +97,14 @@ const RoleTable = ({
                     )}
                   </TableCell>
 
-                  {/* Action */}
-                  {/* <TableCell> */}
-                  {/* <div className="flex items-center gap-1.5"> */}
-                  {/* <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Eye size={16} />
-                      </Button> */}
-
-                  {/* <UpdateRole
-                        roleId={role.id}
-
-                        defaultRoleName={role.name}
-
-                        defaultDepartment={role.department?.id}
-
-                        defaultStatus={role.is_active}
-                      /> */}
-
-                  {/* <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:text-destructive"
-                      >
-                        <Trash2 size={16} />
-                      </Button> */}
-                  {/* </div> */}
-                  {/* </TableCell> */}
+                  {/* No action column: branch admins have view-only rights
+                      over roles. Creating, editing and deleting them is super
+                      admin only, enforced by the backend. */}
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
-
-        {/* <Pagination /> */}
       </div>
     </div>
   );

@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
-// import { userTableData } from "@/features/branchAdmin/data/user/userTable";
+import AadhaarRow from "@/components/shared/AadhaarRow";
 import { isCoordinatorRoleName } from "@/features/auth/constants/roles";
-import {
-  useGetAadhaarByEmployeeId,
-  useGetUserById,
-} from "@/features/superAdmin";
+import { useGetUserById } from "@/features/superAdmin";
 
 const InfoRow = ({ label, value, className = "capitalize" }) => (
   <div className="flex flex-col gap-1">
@@ -24,58 +21,6 @@ const SectionTitle = ({ children }) => (
     {children}
   </h2>
 );
-
-// Responses only ever carry the last four digits. The full number comes from
-// a separate admin-only endpoint that audit-logs every reveal, so it is
-// fetched on demand and never kept in the store.
-const AadhaarRow = ({ maskedValue, employeeId }) => {
-  const { getAadhaarByEmployeeId } = useGetAadhaarByEmployeeId();
-  const [revealed, setRevealed] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const toggle = async () => {
-    if (revealed) {
-      setRevealed("");
-      return;
-    }
-    setBusy(true);
-    const response = await getAadhaarByEmployeeId(employeeId);
-    setBusy(false);
-    if (response?.data?.aadhaar_number) {
-      setRevealed(response.data.aadhaar_number);
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-muted-foreground">
-        Aadhaar Number
-      </span>
-      <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-        <span className="font-mono">{revealed || maskedValue || "N/A"}</span>
-        {maskedValue ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="h-7 w-7 text-muted-foreground hover:text-foreground"
-            title={revealed ? "Hide" : "Reveal (audit-logged)"}
-            onClick={toggle}
-            disabled={busy}
-          >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : revealed ? (
-              <EyeOff size={14} />
-            ) : (
-              <Eye size={14} />
-            )}
-          </Button>
-        ) : null}
-      </span>
-    </div>
-  );
-};
 
 const ViewUser = () => {
   const { id } = useParams();
@@ -121,20 +66,8 @@ const ViewUser = () => {
           </Button>
           <h1 className="text-lg font-semibold text-foreground">View User</h1>
         </div>
-        {/* {user && !user.is_deleted ? (
-          // <Button
-          //   type="button"
-          //   variant="outline"
-          //   size="sm"
-          //   className="gap-1.5"
-          //   onClick={() =>
-          //     navigate(`../../update/${user.id}`, { relative: "path" })
-          //   }
-          // >
-          //   <Pencil size={14} />
-          //   Edit
-          // </Button>
-        ) : null} */}
+        {/* No Edit action: branch admins have view-only rights over users, so
+            there is no update route under /branch-admin to send them to. */}
       </div>
 
       <div className="bg-card border border-border rounded-md py-6 shadow-sm">

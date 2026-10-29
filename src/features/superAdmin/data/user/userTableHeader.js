@@ -4,7 +4,7 @@ export const userTableHeader = [
   "Employee ID",
   "Full Name ",
   "Phone",
-  "Aadhar Number",
+  "Aadhaar Number",
   "Branch",
   "Department",
   "Role",

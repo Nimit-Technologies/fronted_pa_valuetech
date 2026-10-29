@@ -140,46 +140,15 @@ const UserTable = ({
                     >
                       <Eye size={14} />
                     </Button>
-                    {/* {user.is_deleted ? ( */}
-                    {/* // <Button */}
-                    {/* //   variant="ghost" */}
-                    {/* //   size="sm" */}
-                    {/* //   className="h-8 gap-1.5 text-muted-foreground hover:text-foreground hover:bg-muted" */}
-                    {/* //   onClick={() => onRestore?.(user)} */}
-                    {/* // > */}
-                    {/* //   <RotateCcw size={14} /> */}
-                    {/* //   Restore */}
-                    {/* // </Button> */}
-                    {/* // ) : ( */}
-                    <>
-                      {/* <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
-                          title="Edit"
-                          onClick={() => navigate(`update/${user.id}`)}
-                        >
-                          <Pencil size={14} />
-                        </Button> */}
-                      {/* <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                          title="Delete"
-                          onClick={() => onDelete?.(user)}
-                        >
-                          <Trash2 size={14} />
-                        </Button> */}
-                    </>
-                    {/* )} */}
+                    {/* View is the only action: branch admins have view-only
+                        rights over users. Edit, delete and restore are super
+                        admin only, and the backend enforces that. */}
                   </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-
-        {/* <Pagination /> */}
       </div>
     </div>
   );

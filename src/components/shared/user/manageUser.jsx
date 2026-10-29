@@ -42,7 +42,7 @@ const toForm = (user) => ({
   phone: user.phone ?? "",
   // Responses only carry the masked Aadhaar (XXXXXXXX1234); the field starts
   // empty and is sent only when a new 12-digit number is typed.
-  aadharNumber: "",
+  aadhaarNumber: "",
   city: user.address?.city ?? "",
   district: user.address?.district ?? "",
   state: user.address?.state ?? "",
@@ -54,7 +54,7 @@ const toForm = (user) => ({
 
 const validate = (form) => {
   if (!/^\d{10}$/.test(form.phone)) return "Phone number must be 10 digits.";
-  if (form.aadharNumber && !/^\d{12}$/.test(form.aadharNumber))
+  if (form.aadhaarNumber && !/^\d{12}$/.test(form.aadhaarNumber))
     return "Aadhaar number must be 12 digits.";
   if (!form.city.trim()) return "City is required.";
   if (!form.district.trim()) return "District is required.";
@@ -176,13 +176,13 @@ const ManageUserForm = ({ user, maskedAadhaar, onDone }) => {
           </div>
 
           <div>
-            <FieldLabel htmlFor="aadharNumber">Aadhaar Number</FieldLabel>
+            <FieldLabel htmlFor="aadhaarNumber">Aadhaar Number</FieldLabel>
             <Input
-              id="aadharNumber"
-              name="aadharNumber"
+              id="aadhaarNumber"
+              name="aadhaarNumber"
               inputMode="numeric"
               maxLength={12}
-              value={form.aadharNumber}
+              value={form.aadhaarNumber}
               onChange={handleChange}
               placeholder={
                 maskedAadhaar
