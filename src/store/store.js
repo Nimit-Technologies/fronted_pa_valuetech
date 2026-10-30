@@ -20,6 +20,7 @@ import bankReducer from "@/features/branchAdmin/slice/bank/bankSlice";
 import businessReducer from "@/features/superAdmin/slice/business/businessSlice";
 import engineerTaskReducer from "@/features/individualEngineer/slice/engineerTaskSlice";
 import cacheReducer from "@/store/slice/cache/cacheSlice";
+import referenceReducer from "@/store/slice/reference/referenceSlice";
 
 // Vite's dev-server CJS pre-bundling of "redux-persist/lib/storage" double-wraps
 // its default export, leaving storage.getItem undefined at runtime. A plain
@@ -96,6 +97,9 @@ const rootReducer = combineReducers({
   // fetchedAt restored from localStorage would suppress the first fetch after
   // a reload, leaving the screen empty.
   cache: cacheReducer,
+  // Shared lookup lists (statuses, engineers, banks, business types). Not
+  // persisted for the same reason, and because they are cheap to refetch.
+  reference: referenceReducer,
 });
 
 // Auth, case and engineer task state are persisted. Other server-backed lists
@@ -139,6 +143,15 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
+  // Redux Toolkit 2 defaults this to `true` — not to "on in development" as
+  // RTK 1 did — so a production build quietly connects to the Redux DevTools
+  // extension in any browser that has it installed. That hands over the entire
+  // store: the case lists carry customer names, phone numbers and addresses,
+  // and the extension's export button turns a loaded dashboard into a file.
+  //
+  // Keyed on vite's own MODE rather than VITE_ENV, which is an app-level label
+  // that the local .env sets to "production" while running the dev server.
+  devTools: import.meta.env.MODE === "development",
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

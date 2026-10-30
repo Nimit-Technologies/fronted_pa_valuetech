@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { logout } from "@/features/auth/slice/authSlice";
+import { clearInFlightRequests } from "@/hooks/cache/inFlightRequests";
 
 // Freshness bookkeeping for the server-backed list slices, so a list is not
 // refetched when the store already holds the answer to the exact same query.
@@ -35,6 +37,25 @@ const cacheSlice = createSlice({
 
     // Logout and other "forget everything" transitions.
     invalidateAll: () => initialState,
+  },
+
+  extraReducers: (builder) => {
+    // Freshness must not outlive the rows it describes.
+    //
+    // The list slices reset on logout, but this one used to survive it, and
+    // nothing ever dispatched invalidateAll. Within the TTL that left two
+    // failures on the same code path: a slice that had been reset still
+    // counted as "fresh", so the next user's dashboard rendered the empty
+    // array and never fetched; and a slice that does not reset (branch, role,
+    // department, …) handed the next user to sign in on that machine the
+    // previous user's rows, with no request made.
+    builder.addCase(logout, () => {
+      // Requests started by the signed-out user are abandoned here too, so a
+      // reply that lands after the switch cannot be adopted by the new
+      // session.
+      clearInFlightRequests();
+      return initialState;
+    });
   },
 });
 

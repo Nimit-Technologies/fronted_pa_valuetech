@@ -1,6 +1,7 @@
 import { Component } from "react";
 import { AlertCircle } from "lucide-react";
 import logger from "@/utils/logger";
+import { getErrorReference } from "@/utils/errorReference";
 
 const isDevelopment = import.meta.env.MODE === "development";
 
@@ -51,9 +52,21 @@ class ErrorBoundary extends Component {
               <h1 className="text-2xl font-bold text-foreground mb-2">
                 Something went wrong
               </h1>
-              <p className="text-sm text-muted-foreground mb-6">
+              <p className="text-sm text-muted-foreground mb-2">
                 We're sorry, but something unexpected happened. Please try
                 refreshing the page.
+              </p>
+
+              {/* The one thing that makes this screen actionable for support:
+                  the same reference the failing requests were sent with, so
+                  the crash can be found in the backend's logs from a phone
+                  call. Selectable, because it will be read out or pasted. */}
+              <p className="text-xs text-muted-foreground mb-6">
+                If it keeps happening, quote reference{" "}
+                <span className="font-mono text-foreground select-all">
+                  {getErrorReference()}
+                </span>
+                .
               </p>
 
               {isDevelopment && this.state.error && (

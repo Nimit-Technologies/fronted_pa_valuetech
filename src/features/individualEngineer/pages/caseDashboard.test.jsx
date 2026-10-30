@@ -105,6 +105,29 @@ describe("CaseDashboard (Engineer)", () => {
     });
   });
 
+  // The first load used to run through the same 250ms debounce timer as a
+  // search keystroke, so every engineer opening this screen waited a quarter
+  // second looking at an empty table before the request was even sent — there
+  // was nothing to debounce yet on mount. Fake timers prove the call goes out
+  // with no timer pending, rather than merely before some generous waitFor
+  // timeout.
+  it("requests the first page immediately, without waiting out the search debounce", () => {
+    vi.useFakeTimers();
+    try {
+      renderDashboard();
+      expect(getMyTasksMock).toHaveBeenCalledTimes(1);
+      expect(getMyTasksMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          search: "",
+          direction: "next",
+          cursorId: "",
+        }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("shows an empty state when the API returns no tasks", async () => {
     getMyTasksMock.mockResolvedValue({ data: [], totalCount: 0 });
     renderDashboard();

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { logout } from "@/features/auth/slice/authSlice";
 
 // Excel-style column filters applied client-side to the loaded rows. `null`
 // means the column is unfiltered; an array lists the relation ids to keep.
@@ -91,6 +92,11 @@ const departmentSlice = createSlice({
     clearDepartmentFilters: (state) => {
       state.filters = { ...EMPTY_DEPARTMENT_FILTERS };
     },
+  },
+
+  // Rows belong to the session that fetched them (see cacheSlice).
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
   },
 });
 

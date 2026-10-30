@@ -1,80 +1,56 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import AllBanksAPI from "@/features/individualCoordinator/services/bank/allBanks";
-import { extractErrorMessage } from "@/utils/extractErrorMessage";
+import useReferenceList from "@/hooks/reference/useReferenceList";
 
-// One page of the branch's banks, for the case form's bank picker. Local
-// state rather than a redux slice: this is reference data for one form, not a
-// screen's worth of list state, and the branchAdmin bank slice belongs to the
-// bank management pages.
-const useAllBanks = () => {
-  const [banks, setBanks] = useState([]);
-  const [page, setPage] = useState({
-    firstId: null,
-    lastId: null,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const latestRequest = useRef(0);
+const RESOURCE = "coordinator-bank";
 
-  const load = useCallback(
-    async ({ direction = "next", cursorId = "" } = {}) => {
-      const requestId = ++latestRequest.current;
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await AllBanksAPI({ direction, cursorId });
-        if (requestId !== latestRequest.current) return;
-
-        setBanks(response?.data || []);
-        setPage({
-          firstId: response?.bankFirstId ?? null,
-          lastId: response?.bankLastId ?? null,
-          hasNextPage: Boolean(response?.hasNextPage),
-          hasPreviousPage: Boolean(response?.hasPreviousPage),
-        });
-      } catch (err) {
-        if (requestId !== latestRequest.current) return;
-        setError(extractErrorMessage(err, "Failed to load banks"));
-        setBanks([]);
-      } finally {
-        if (requestId === latestRequest.current) setLoading(false);
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    // Awaited inside an async wrapper rather than called straight from the
-    // effect body, which would be a synchronous setState on mount.
-    void (async () => {
-      await load();
-    })();
-
-    return () => {
-      latestRequest.current += 1;
-    };
-  }, [load]);
-
-  const next = useCallback(() => {
-    if (page.hasNextPage) load({ direction: "next", cursorId: page.lastId });
-  }, [load, page.hasNextPage, page.lastId]);
-
-  const previous = useCallback(() => {
-    if (page.hasPreviousPage)
-      load({ direction: "previous", cursorId: page.firstId });
-  }, [load, page.hasPreviousPage, page.firstId]);
+// One page of the branch's banks, for the case form's bank picker.
+//
+// Reference data rather than screen state, so it goes through the shared
+// reference cache instead of local component state: opening the create-case
+// form, cancelling, and opening it again used to refetch every time, and the
+// update form mounting a second picker doubled it. The branchAdmin bank slice
+// stays separate — that one backs the bank management screen, which pages,
+// filters and mutates.
+const fetchBanks = async ({ direction = "next", cursorId = "" } = {}) => {
+  const response = await AllBanksAPI({ direction, cursorId });
 
   return {
-    banks,
+    rows: response?.data ?? [],
+    meta: {
+      firstId: response?.bankFirstId ?? null,
+      lastId: response?.bankLastId ?? null,
+      hasNextPage: Boolean(response?.hasNextPage),
+      hasPreviousPage: Boolean(response?.hasPreviousPage),
+    },
+  };
+};
+
+const useAllBanks = () => {
+  const { rows, meta, loading, error, load, reload } = useReferenceList({
+    resource: RESOURCE,
+    fetcher: fetchBanks,
+    errorMessage: "Failed to load banks",
+  });
+
+  const next = useCallback(() => {
+    if (meta.hasNextPage) load({ direction: "next", cursorId: meta.lastId });
+  }, [load, meta.hasNextPage, meta.lastId]);
+
+  const previous = useCallback(() => {
+    if (meta.hasPreviousPage)
+      load({ direction: "previous", cursorId: meta.firstId });
+  }, [load, meta.hasPreviousPage, meta.firstId]);
+
+  return {
+    banks: rows,
     loading,
     error,
-    hasNextPage: page.hasNextPage,
-    hasPreviousPage: page.hasPreviousPage,
+    hasNextPage: Boolean(meta.hasNextPage),
+    hasPreviousPage: Boolean(meta.hasPreviousPage),
     next,
     previous,
-    reload: load,
+    reload,
   };
 };
 

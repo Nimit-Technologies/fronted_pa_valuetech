@@ -4,6 +4,7 @@ import {
   invalidateResource,
   recordFetch,
 } from "@/store/slice/cache/cacheSlice";
+import { dedupeRequest } from "@/hooks/cache/inFlightRequests";
 
 // How long a list stays usable without refetching. Short enough that another
 // user's change shows up on the next navigation, long enough that reopening a
@@ -60,7 +61,15 @@ export const useResourceCache = (resource, ttlMs = DEFAULT_TTL_MS) => {
     [store],
   );
 
-  return { isFresh, markFetched, invalidate, getRows };
+  // Joins an identical request that is already in the air instead of starting
+  // a second one. `isFresh` cannot cover this: concurrent callers all start
+  // before any of them has recorded a fetch. See inFlightRequests.js.
+  const dedupe = useCallback(
+    (key, run) => dedupeRequest(`${resource}:${key}`, run),
+    [resource],
+  );
+
+  return { isFresh, markFetched, invalidate, getRows, dedupe };
 };
 
 export default useResourceCache;

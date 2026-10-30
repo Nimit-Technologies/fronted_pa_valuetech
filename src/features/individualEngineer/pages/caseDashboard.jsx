@@ -3,12 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import EngineerTableHeader from "@/features/individualEngineer/components/engineerTableHeader";
 import CaseTable from "@/features/individualEngineer/components/case/engineerCaseTable";
 import EngineerCard from "@/features/individualEngineer/components/engineerCard";
-import {
-  clearEngineerTasks,
-  fetchEngineerTasks,
-} from "@/features/individualEngineer/slice/engineerTaskSlice";
+import { fetchEngineerTasks } from "@/features/individualEngineer/slice/engineerTaskSlice";
 import { caseTableHeader } from "@/features/individualEngineer/data/case/caseTableHeader.js";
 import useTransitionEngineerCase from "@/features/individualEngineer/hooks/useTransitionEngineerCase";
+
+// How long to wait after the last keystroke before asking the server. Not
+// applied to the first load: that one used to run through this same timer,
+// which meant every engineer opening this screen stared at an empty table for
+// a quarter second before the request even went out, for no reason — there
+// was no typing to debounce yet.
+const SEARCH_DEBOUNCE_MS = 250;
 
 const CaseDashboard = () => {
   const dispatch = useDispatch();
@@ -26,6 +30,9 @@ const CaseDashboard = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const requestId = useRef(0);
+  // Distinguishes the mount run of the effect below from a run caused by the
+  // user actually typing, since only the latter should wait out the debounce.
+  const isFirstRun = useRef(true);
   const { transition, updatingCaseId } = useTransitionEngineerCase();
 
   const loadTasks = useCallback(
@@ -46,17 +53,27 @@ const CaseDashboard = () => {
   );
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    const loadFirstPage = () => {
       setPage(1);
-      dispatch(clearEngineerTasks());
       loadTasks({ search: search.trim(), direction: "next", cursorId: "" });
-    }, 250);
+    };
+
+    // The first task list an engineer sees on this screen, not a reaction to
+    // a search they typed — nothing to debounce, and nothing gained by making
+    // them wait SEARCH_DEBOUNCE_MS to find out what is on their queue.
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      loadFirstPage();
+      return undefined;
+    }
+
+    const timeoutId = setTimeout(loadFirstPage, SEARCH_DEBOUNCE_MS);
 
     return () => {
       clearTimeout(timeoutId);
       requestId.current += 1;
     };
-  }, [dispatch, loadTasks, search]);
+  }, [loadTasks, search]);
 
   const handleNext = async () => {
     const response = await loadTasks({

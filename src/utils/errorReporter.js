@@ -1,4 +1,5 @@
 import { setErrorReporter } from "@/utils/logger";
+import { getErrorReference } from "@/utils/errorReference";
 
 /**
  * Connects logger.warn/logger.error to something outside the browser.
@@ -18,8 +19,12 @@ import { setErrorReporter } from "@/utils/logger";
  * configuration rather than by a code change.
  *
  * The endpoint contract is a POST of
- *   { level, message, data, timestamp, path, userAgent, release }
+ *   { level, message, data, timestamp, path, userAgent, release, reference }
  * with credentials omitted.
+ *
+ * `reference` is the same string the user is shown when the app breaks and the
+ * same one every API call carries as X-Client-Reference, so a report here, the
+ * screenshot a user sends, and the backend's request log all name one session.
  */
 
 const ENDPOINT = import.meta.env.VITE_ERROR_REPORT_URL;
@@ -73,6 +78,7 @@ export const installErrorReporter = () => {
           path: window.location.pathname,
           userAgent: navigator.userAgent,
           release: RELEASE,
+          reference: getErrorReference(),
         }),
       );
     } catch {

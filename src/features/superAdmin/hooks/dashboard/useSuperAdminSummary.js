@@ -34,29 +34,23 @@ const useSuperAdminSummary = () => {
   }, []);
 
   useEffect(() => {
-    let active = true;
-    const loadSummary = async () => {
-      const requestId = ++latestRequest.current;
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await SuperAdminSummaryAPI();
-        if (!active || requestId !== latestRequest.current) return;
-        setSummary({ ...EMPTY_SUMMARY, ...(response?.data ?? {}) });
-      } catch (err) {
-        if (!active || requestId !== latestRequest.current) return;
-        setError(extractErrorMessage(err, "Failed to load dashboard summary"));
-      } finally {
-        if (active && requestId === latestRequest.current) setLoading(false);
-      }
-    };
-    loadSummary();
-    // Invalidate in-flight requests on unmount so they can't set state.
+    // Was its own second copy of the body of `refresh` above, kept in step by
+    // hand since whoever added `refresh` for the Retry button never folded the
+    // mount fetch back into it. The two had already drifted apart — this one
+    // alone tracked an `active` flag — so a future edit to one had nothing to
+    // stop it silently not reaching the other.
+    //
+    // Awaited inside an async wrapper rather than called straight from the
+    // effect body, which would be a synchronous setState on mount.
+    void (async () => {
+      await refresh();
+    })();
+
+    // Invalidate the in-flight request on unmount so it can't set state.
     return () => {
-      active = false;
       latestRequest.current += 1;
     };
-  }, []);
+  }, [refresh]);
 
   return { summary, loading, error, refresh };
 };

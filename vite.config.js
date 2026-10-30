@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import { defaultExclude } from "vitest/config";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
@@ -7,6 +8,51 @@ import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// The Content-Security-Policy the container serves (see serve.json) names the
+// API origin in connect-src, and the bundle has its own copy of that origin
+// baked in from VITE_API_URL. Two places, one fact: if they drift, the browser
+// blocks every API call with nothing in the server logs to explain it, and the
+// app looks dead on arrival.
+//
+// serve.json is JSON, so it cannot carry a comment saying "keep this in step
+// with VITE_API_URL" — this check is that comment, and it fails the build
+// instead of the deploy.
+const assertCspAllowsApiOrigin = (apiUrl, projectRoot) => {
+  const servePath = path.resolve(projectRoot, "serve.json");
+  if (!fs.existsSync(servePath)) return;
+
+  const serveConfig = JSON.parse(fs.readFileSync(servePath, "utf8"));
+  const csp = serveConfig.headers
+    ?.flatMap((entry) => entry.headers ?? [])
+    .find(({ key }) => key?.toLowerCase() === "content-security-policy")?.value;
+
+  if (!csp) {
+    throw new Error(
+      "serve.json sets no Content-Security-Policy. Restore it, or remove " +
+        "this check if the policy has moved to the reverse proxy.",
+    );
+  }
+
+  const connectSrc =
+    csp
+      .split(";")
+      .map((directive) => directive.trim())
+      .find((directive) => directive.startsWith("connect-src")) ?? "";
+
+  const apiOrigin = new URL(apiUrl).origin;
+
+  // 'self' covers an API served from the frontend's own origin, e.g. behind a
+  // proxy that forwards /api to the backend.
+  if (!connectSrc.includes(apiOrigin)) {
+    throw new Error(
+      `The Content-Security-Policy in serve.json does not allow requests to ` +
+        `${apiOrigin}, which is where this build's VITE_API_URL points. Add ` +
+        `it to connect-src, or point VITE_API_URL at an origin the policy ` +
+        `already allows.\n  connect-src: ${connectSrc || "(missing)"}`,
+    );
+  }
+};
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -68,6 +114,8 @@ export default defineConfig(({ mode }) => {
           "a local API deliberately.",
       );
     }
+
+    assertCspAllowsApiOrigin(env.VITE_API_URL, __dirname);
   }
 
   const serverBaseUrl = env.VITE_SERVER_PORT

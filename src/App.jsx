@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import Navbar from "@/components/shared/navigation/navbar";
 import Footer from "@/components/shared/navigation/footer";
+import OfflineBanner from "@/components/shared/offlineBanner";
 
 import useVerifySession from "@/features/auth/hooks/useVerifySession";
 import Login from "@/features/auth/pages/login";
@@ -15,6 +16,11 @@ import ManageUser from "@/components/shared/user/manageUser";
 
 import { ROLES } from "@/features/auth/constants/roles";
 import { Loader2 } from "lucide-react";
+
+// Reachable from every screen's footer, and the destination for every unknown
+// URL, so both are lazy like the dashboards rather than in the first chunk.
+const DeveloperSupport = lazy(() => import("@/pages/developerSupport"));
+const NotFound = lazy(() => import("@/pages/notFound"));
 
 //super admin module
 const SuperAdmin = lazy(() => import("@/pages/superAdmin"));
@@ -134,6 +140,7 @@ const App = () => {
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Navbar />
+      <OfflineBanner />
 
       <div className="flex-1 overflow-hidden">
         <Suspense fallback={<RouteFallback />}>
@@ -146,6 +153,10 @@ const App = () => {
                 </PublicOnlyRoute>
               }
             />
+
+            {/* Linked from the footer on every screen, signed in or not, so it
+                sits outside the role dashboards and behind no guard. */}
+            <Route path="/developer-support" element={<DeveloperSupport />} />
 
             {/* super admin */}
             <Route
@@ -167,6 +178,7 @@ const App = () => {
               <Route path="user/update/:id" element={<UpdateUser />} />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* cordinator */}
@@ -189,6 +201,7 @@ const App = () => {
               />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
             {/* engineer */}
             <Route
@@ -207,6 +220,7 @@ const App = () => {
               <Route path="reports" element={<SubmittedReports />} />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* branch admin */}
@@ -236,7 +250,16 @@ const App = () => {
               <Route path="user/view/:id" element={<BranchAdminViewUser />} />
               <Route path="user-profile/:id?" element={<UserProfile />} />
               <Route path="manage-profile" element={<ManageUser />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
+
+            {/* Last, so it matches only what nothing above did. Each dashboard
+                carries its own `*` child as well: an unknown path *inside* a
+                dashboard keeps that dashboard's sidebar and chrome, which is
+                where the user's way back lives, while an unknown path outside
+                any of them lands here. Without either, a mistyped URL rendered
+                the navbar and footer around an empty page. */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </div>

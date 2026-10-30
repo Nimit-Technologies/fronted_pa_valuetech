@@ -1,5 +1,4 @@
 import React from "react";
-import BankDropDown from "@/components/shared/dropdown/engineerDropDown";
 import { Input } from "@/components/ui/input";
 
 const RequiredLabel = ({ children }) => (
@@ -62,13 +61,16 @@ const ViewCaseForm = ({ caseItem }) => {
               value={caseItem.business_type?.name}
             />
 
-            <div>
-              <RequiredLabel>Bank</RequiredLabel>
-              <BankDropDown
-                value={caseItem.bank?.display_name || caseItem.bank?.name}
-                disabled
-              />
-            </div>
+            {/* A read-only field, like every other value on this screen.
+                It used to be the engineer dropdown — imported here under the
+                name BankDropDown — rendered disabled with the bank's name
+                pushed into it. It looked right and cost a GET
+                /user/all-engineer on every case view, for a list nothing on
+                this page can open or select from. */}
+            <ReadOnlyField
+              label="Bank"
+              value={caseItem.bank?.display_name || caseItem.bank?.name}
+            />
 
             {/* The bank's own branch, not the valuer's branch. */}
             <ReadOnlyField

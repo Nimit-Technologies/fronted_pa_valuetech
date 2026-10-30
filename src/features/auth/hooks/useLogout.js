@@ -8,6 +8,7 @@ import {
 } from "@/features/auth/slice/authSlice";
 import useSession from "@/features/auth/hooks/useSession";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
+import { clearReturnTo } from "@/features/auth/returnTo";
 
 export const useLogout = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,9 @@ export const useLogout = () => {
         ),
       );
     } finally {
+      // Before the state reset, so the next person to sign in on this machine
+      // is never dropped onto the page this user was last looking at.
+      clearReturnTo();
       dispatch(logoutAction());
       navigate("/", { replace: true });
     }

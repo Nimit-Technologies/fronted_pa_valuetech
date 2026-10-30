@@ -22,8 +22,11 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
 
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <!-- No font preconnect: Inter ships with the bundle via
+         @fontsource-variable/inter (see src/index.css), so nothing is fetched
+         from Google Fonts. The preconnect that used to sit here opened a
+         connection to a host the app never calls, and the production
+         Content-Security-Policy (serve.json) keeps font-src to 'self'. -->
 
     <title>PA ValueTech - Admin Portal</title>
   </head>

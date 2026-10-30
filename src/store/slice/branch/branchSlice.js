@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { logout } from "@/features/auth/slice/authSlice";
 
 const initialState = {
   // Rows on the current page.
@@ -69,6 +70,13 @@ const branchSlice = createSlice({
       state.error = null;
       state.success = true;
     },
+  },
+
+  // Rows belong to the session that fetched them: without this they sit in
+  // memory across a logout and are handed to the next user to sign in, since
+  // the cache entry says they are fresh (see cacheSlice).
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
   },
 });
 

@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { logout } from "@/features/auth/slice/authSlice";
 
 // Excel-style column filters applied client-side to the loaded rows. `null`
 // means the column is unfiltered; an array lists the values to keep. Kept in
@@ -85,6 +86,13 @@ const bankSlice = createSlice({
     clearBankFilters: (state) => {
       state.filters = { ...EMPTY_BANK_FILTERS };
     },
+  },
+
+  // Rows belong to the session that fetched them. Banks are branch-scoped by
+  // the API, so a leftover page is also the wrong branch's for whoever signs
+  // in next (see cacheSlice).
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
   },
 });
 

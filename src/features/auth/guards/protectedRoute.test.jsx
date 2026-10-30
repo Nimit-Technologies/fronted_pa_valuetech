@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/features/auth/guards/protectedRoute";
 import authReducer from "@/features/auth/slice/authSlice";
+import { takeReturnTo } from "@/features/auth/returnTo";
 import { renderWithStore } from "@/test/renderWithStore";
 
 // Passing `allowedRoles: undefined` would hit the default below, so the
@@ -12,14 +13,14 @@ const ANY_ROLE = Symbol("any role");
 // Mounts the guard at /super-admin alongside the two routes it can bounce to,
 // so a redirect is observable as rendered markup rather than asserted on a
 // mocked <Navigate>.
-const renderGuard = ({ auth, allowedRoles = ["super admin"] }) =>
+const renderGuard = ({ auth, allowedRoles = ["super admin"], entry }) =>
   renderWithStore(
-    <MemoryRouter initialEntries={["/super-admin"]}>
+    <MemoryRouter initialEntries={[entry ?? "/super-admin"]}>
       <Routes>
         <Route path="/" element={<p>Login screen</p>} />
         <Route path="/engineer" element={<p>Engineer home</p>} />
         <Route
-          path="/super-admin"
+          path="/super-admin/*"
           element={
             <ProtectedRoute
               allowedRoles={
@@ -52,6 +53,10 @@ const sessionFor = (roleName) => ({
 });
 
 describe("ProtectedRoute", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
   it("sends an unauthenticated visitor to the login screen", () => {
     renderGuard({ auth: { isAuthenticated: false, user: null } });
 
@@ -84,6 +89,28 @@ describe("ProtectedRoute", () => {
     renderGuard({ auth: sessionFor("cordinator"), allowedRoles: ANY_ROLE });
 
     expect(screen.getByText("Super admin dashboard")).toBeInTheDocument();
+  });
+
+  // A link to a case, opened cold from a WhatsApp message, is the usual way in
+  // for an engineer — and sending them to their dashboard after login loses
+  // the case they were sent.
+  it("remembers a deep link so login can finish the journey", () => {
+    renderGuard({
+      auth: { isAuthenticated: false, user: null },
+      entry: "/super-admin/user/view/9?tab=cases",
+    });
+
+    expect(screen.getByText("Login screen")).toBeInTheDocument();
+    expect(takeReturnTo()).toBe("/super-admin/user/view/9?tab=cases");
+  });
+
+  // Nothing to return to here: this user will never be allowed on that page,
+  // so remembering it would bounce them straight back out after a re-login.
+  it("does not remember a page the signed-in user may not see", () => {
+    renderGuard({ auth: sessionFor("engineer"), entry: "/super-admin/user" });
+
+    expect(screen.getByText("Engineer home")).toBeInTheDocument();
+    expect(takeReturnTo()).toBeNull();
   });
 
   // The persisted auth slice is reduced to { role: { name } } only, so a

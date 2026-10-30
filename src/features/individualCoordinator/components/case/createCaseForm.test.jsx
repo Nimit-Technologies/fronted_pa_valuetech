@@ -4,8 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/features/auth/slice/authSlice";
+import cacheReducer from "@/store/slice/cache/cacheSlice";
+import referenceReducer from "@/store/slice/reference/referenceSlice";
 import CreateCaseForm from "@/features/individualCoordinator/components/case/CreateCaseForm";
 import { renderWithRoute } from "@/test/renderWithRouter";
+
+// BankSelect's useAllBanks and useMyBusinessType both read through the shared
+// reference-list cache now, so every store in this file needs these two
+// alongside `auth`.
+const REFERENCE_REDUCERS = { cache: cacheReducer, reference: referenceReducer };
 
 vi.mock("@/features/individualCoordinator/services/case/createCase", () => ({
   default: vi.fn(),
@@ -56,7 +63,7 @@ const BUSINESS_TYPE_ID = "bt_001";
 
 function renderForm() {
   const store = configureStore({
-    reducer: { auth: authReducer },
+    reducer: { auth: authReducer, ...REFERENCE_REDUCERS },
     preloadedState: {
       auth: {
         user: {
@@ -394,7 +401,7 @@ describe("CreateCaseForm", () => {
 
   it("blocks the create when the account has no business type", async () => {
     const store = configureStore({
-      reducer: { auth: authReducer },
+      reducer: { auth: authReducer, ...REFERENCE_REDUCERS },
       preloadedState: {
         auth: {
           user: { id: "u1", first_name: "meera", business_type_id: null },

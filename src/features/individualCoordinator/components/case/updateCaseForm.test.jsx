@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import caseReducer, { setCase } from "@/store/slice/case/caseSlice";
+import cacheReducer from "@/store/slice/cache/cacheSlice";
+import referenceReducer from "@/store/slice/reference/referenceSlice";
 import UpdateCaseForm from "@/features/individualCoordinator/components/case/UpdateCaseForm";
 import { renderWithRoute } from "@/test/renderWithRouter";
 
@@ -96,9 +98,17 @@ const CASE = {
 };
 
 // The hook writes the saved case back into the loaded list page, so the form
-// needs the real slice behind it.
+// needs the real slice behind it. `cache` and `reference` back BankSelect's
+// useAllBanks, which now reads the branch's banks through the shared
+// reference-list cache rather than its own component state.
 const renderForm = (caseItem = CASE, { rows = [CASE] } = {}) => {
-  const store = configureStore({ reducer: { case: caseReducer } });
+  const store = configureStore({
+    reducer: {
+      case: caseReducer,
+      cache: cacheReducer,
+      reference: referenceReducer,
+    },
+  });
   store.dispatch(setCase({ data: rows }));
 
   return {

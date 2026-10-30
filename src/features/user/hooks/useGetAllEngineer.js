@@ -1,80 +1,64 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 import { apiConfig } from "@/constants/apiConfig";
-import { extractErrorMessage } from "@/utils/extractErrorMessage";
 import api from "@/utils/axiosInstance";
+import useReferenceList from "@/hooks/reference/useReferenceList";
 
-const EMPTY_PAGE = {
-  firstId: null,
-  lastId: null,
-  hasNextPage: false,
-  hasPreviousPage: false,
+const RESOURCE = "engineer";
+
+// The assignable engineers for the signed-in user's branch, read by the
+// engineer picker on the case form. Reference data, not screen state: it is
+// shared through the reference cache so reopening the form — or mounting two
+// pickers on one screen — does not refetch it.
+const fetchEngineers = async ({
+  direction = "next",
+  cursorId = "",
+  search = "",
+} = {}) => {
+  const params = { direction, cursorId };
+  const term = String(search ?? "").trim();
+  if (term) params.search = term;
+
+  const response = await api.get(apiConfig.user.getAllEngineer, { params });
+  const payload = response.data;
+
+  if (!Array.isArray(payload?.data)) {
+    throw new Error("The engineer list response is invalid.");
+  }
+
+  return {
+    rows: payload.data,
+    meta: {
+      firstId: payload.userFirstId ?? null,
+      lastId: payload.userLastId ?? null,
+      hasNextPage: Boolean(payload.hasNextPage),
+      hasPreviousPage: Boolean(payload.hasPreviousPage),
+    },
+  };
 };
 
 const useGetAllEngineer = () => {
-  const [engineers, setEngineers] = useState([]);
-  const [page, setPage] = useState(EMPTY_PAGE);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const latestRequest = useRef(0);
+  const { rows, meta, loading, error, load } = useReferenceList({
+    resource: RESOURCE,
+    fetcher: fetchEngineers,
+    errorMessage: "Failed to load engineers",
+  });
 
+  // Paging and searching are queries in their own right, so they go through
+  // `load` and get their own cache entry: paging back to a page just visited,
+  // or retyping a search term, is answered from the store.
   const getAllEngineer = useCallback(
-    async ({ direction = "next", cursorId = "", search = "" } = {}) => {
-      const requestId = ++latestRequest.current;
-      const term = String(search ?? "").trim();
-      const params = { direction, cursorId };
-      if (term) params.search = term;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await api.get(apiConfig.user.getAllEngineer, {
-          params,
-        });
-        if (requestId !== latestRequest.current) return [];
-
-        const payload = response.data;
-        if (!Array.isArray(payload?.data)) {
-          throw new Error("The engineer list response is invalid.");
-        }
-
-        setEngineers(payload.data);
-        setPage({
-          firstId: payload.userFirstId ?? null,
-          lastId: payload.userLastId ?? null,
-          hasNextPage: Boolean(payload.hasNextPage),
-          hasPreviousPage: Boolean(payload.hasPreviousPage),
-        });
-        return payload.data;
-      } catch (err) {
-        if (requestId !== latestRequest.current) return [];
-        setError(extractErrorMessage(err, "Failed to load engineers"));
-        setEngineers([]);
-        setPage(EMPTY_PAGE);
-        return [];
-      } finally {
-        if (requestId === latestRequest.current) setLoading(false);
-      }
-    },
-    [],
+    ({ direction = "next", cursorId = "", search = "" } = {}) =>
+      load({ direction, cursorId, search }),
+    [load],
   );
-
-  useEffect(() => {
-    void (async () => {
-      await getAllEngineer();
-    })();
-    return () => {
-      latestRequest.current += 1;
-    };
-  }, [getAllEngineer]);
 
   return {
     getAllEngineer,
-    engineers,
-    engineerFirstId: page.firstId,
-    engineerLastId: page.lastId,
-    hasNextPage: page.hasNextPage,
-    hasPreviousPage: page.hasPreviousPage,
+    engineers: rows,
+    engineerFirstId: meta.firstId ?? null,
+    engineerLastId: meta.lastId ?? null,
+    hasNextPage: Boolean(meta.hasNextPage),
+    hasPreviousPage: Boolean(meta.hasPreviousPage),
     loading,
     error,
   };

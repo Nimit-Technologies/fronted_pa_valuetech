@@ -54,9 +54,11 @@ describe("ViewCaseForm", () => {
     // the bank's branch, not the valuer's branch
     expect(screen.getByDisplayValue("Sector-18")).toBeDisabled();
     expect(screen.getByDisplayValue("Gautam Budh Nagar")).toBeDisabled();
-    expect(
-      screen.getByRole("button", { name: "HDFC (Sector-18)" }),
-    ).toBeDisabled();
+    // A read-only field like every other one here — not the engineer picker
+    // it used to borrow for its dropdown chrome, which cost a GET
+    // /user/all-engineer on every case view for a value nothing on this
+    // read-only screen can change.
+    expect(screen.getByDisplayValue("HDFC (Sector-18)")).toBeDisabled();
     // employee { first_name, last_name, phone } backs the allocated-user block
     expect(screen.getByDisplayValue("Amit Singh")).toBeDisabled();
     expect(screen.getByDisplayValue("9123456789")).toBeDisabled();

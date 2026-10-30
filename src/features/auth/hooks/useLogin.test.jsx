@@ -98,10 +98,27 @@ describe("useLogin", () => {
     );
   });
 
-  it("falls back to its own wording when the API says nothing useful", async () => {
+  // A login that never reached the server is not a login problem, and telling
+  // the user to "try again" sends them round the same loop. extractErrorMessage
+  // names the real cause instead.
+  it("blames the connection when the request never reached the API", async () => {
     loginRequest.mockRejectedValue(
       Object.assign(new Error(""), { isAxiosError: true }),
     );
+
+    const { result, store } = renderLogin();
+
+    await expect(
+      act(async () => {
+        await result.current.login({ employee_id: "emp1", password: "x" });
+      }),
+    ).rejects.toThrow();
+
+    expect(store.getState().auth.error).toMatch(/can't reach the server/i);
+  });
+
+  it("falls back to its own wording when the API answers with nothing useful", async () => {
+    loginRequest.mockRejectedValue(apiError(400, null));
 
     const { result, store } = renderLogin();
 

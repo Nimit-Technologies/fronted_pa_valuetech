@@ -3,6 +3,8 @@ import { CREDENTIALS } from "@/constants/credentials";
 import logger from "@/utils/logger";
 import store from "@/store/store";
 import { logout } from "@/features/auth/slice/authSlice";
+import { rememberCurrentPath } from "@/features/auth/returnTo";
+import { getErrorReference } from "@/utils/errorReference";
 
 // Routes that already render the login screen (see src/App.jsx) — don't
 // force-redirect if we're already on one.
@@ -19,10 +21,20 @@ const api = axios.create({
   },
 });
 
-// Request interceptor — hook point for attaching an auth token if the
-// backend ever needs one alongside the httpOnly cookie session.
+// Request interceptor — stamps every call with this tab's support reference so
+// a user-reported error can be found in the backend's request logs, and stays
+// the hook point for attaching an auth token if the backend ever needs one
+// alongside the httpOnly cookie session.
+//
+// A custom header costs nothing here: every request already carries
+// Content-Type: application/json, so they are all preflighted either way, and
+// the API's cors() reflects the requested headers rather than listing them.
 api.interceptors.request.use(
-  (config) => config,
+  (config) => {
+    config.headers = config.headers ?? {};
+    config.headers["X-Client-Reference"] = getErrorReference();
+    return config;
+  },
   (error) => Promise.reject(error),
 );
 
@@ -106,6 +118,10 @@ api.interceptors.response.use(
       if (!isPublicRoute && !isRedirectingToLogin) {
         isRedirectingToLogin = true;
         logger.error("Unauthorized - redirecting to login", error);
+        // Where the user was when the session ran out, so logging back in
+        // returns them to it instead of to their dashboard. Recorded before
+        // the navigation below, which discards everything in memory.
+        rememberCurrentPath();
         // Clear persisted auth state before the hard reload so the
         // freshly-loaded /login page doesn't rehydrate a stale
         // isAuthenticated: true and have to fire a redundant session check.
