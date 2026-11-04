@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { describe, it, expect, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -9,6 +10,8 @@ import Report from "@/features/individualEngineer/pages/report/report";
 import { renderWithRoute } from "@/test/renderWithRouter";
 import saveReport from "@/features/individualEngineer/services/saveReport";
 import getMyReport from "@/features/individualEngineer/services/getMyReport";
+import getAssets from "@/features/individualEngineer/services/getAssets";
+import saveAssets from "@/features/individualEngineer/services/saveAssets";
 
 vi.mock("@/features/individualEngineer/services/saveReport", () => ({
   default: vi.fn(),
@@ -16,6 +19,32 @@ vi.mock("@/features/individualEngineer/services/saveReport", () => ({
 vi.mock("@/features/individualEngineer/services/getMyReport", () => ({
   default: vi.fn(),
 }));
+vi.mock("@/features/individualEngineer/services/getAssets", () => ({
+  default: vi.fn(),
+}));
+vi.mock("@/features/individualEngineer/services/saveAssets", () => ({
+  default: vi.fn(),
+}));
+// Driving a real Uppy/TUS upload isn't practical in a unit test; stub the
+// uploader so it immediately reports one photo per slot, satisfying Step7's
+// required-photos gate before submit.
+vi.mock("@/features/assetsUpload/resumableUpload", () => {
+  const MockResumableUpload = ({ photoType, onAssetsChange }) => {
+    useEffect(() => {
+      onAssetsChange?.([
+        {
+          objectUrl: "https://example.com/mock.jpg",
+          objectID: "mock-id",
+          objectName: "mock.jpg",
+          photoType,
+        },
+      ]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return null;
+  };
+  return { default: MockResumableUpload };
+});
 
 const task = {
   task_id: "allocation_0001",
@@ -38,6 +67,8 @@ const task = {
 
 function renderForId(id, report = null) {
   vi.mocked(getMyReport).mockResolvedValue({ success: true, data: report });
+  vi.mocked(getAssets).mockResolvedValue({ success: true, data: [] });
+  vi.mocked(saveAssets).mockResolvedValue({ success: true });
   const store = configureStore({
     reducer: {
       engineerTask: engineerTaskReducer,

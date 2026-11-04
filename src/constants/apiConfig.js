@@ -120,6 +120,9 @@ export const apiConfig = Object.freeze({
     getMySubmittedReport: "case/:caseId/report",
     getMySubmittedReports: "my-reports",
     saveMyReport: "my-task/:taskId/report",
+    getMyAssets: "my-task/:taskId/assets",
+    saveMyAssets: "my-task/:taskId/assets",
+    getCaseAssets: "case/:caseId/assets",
   }),
 
   // Remarks hang off a case: both routes are /remark/:caseId, with the case id

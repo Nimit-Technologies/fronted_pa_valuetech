@@ -17,6 +17,10 @@ import ManageUser from "@/components/shared/user/manageUser";
 import { ROLES } from "@/features/auth/constants/roles";
 import { Loader2 } from "lucide-react";
 
+const ResumableUpload = lazy(
+  () => import("@/features/assetsUpload/resumableUpload"),
+);
+
 // Reachable from every screen's footer, and the destination for every unknown
 // URL, so both are lazy like the dashboards rather than in the first chunk.
 const DeveloperSupport = lazy(() => import("@/pages/developerSupport"));
@@ -157,6 +161,17 @@ const App = () => {
             {/* Linked from the footer on every screen, signed in or not, so it
                 sits outside the role dashboards and behind no guard. */}
             <Route path="/developer-support" element={<DeveloperSupport />} />
+            <Route
+              path="/test"
+              element={
+                <ResumableUpload
+                  taskId="test-task"
+                  photoType="TestPhoto"
+                  slug="test"
+                  label="Test Upload"
+                />
+              }
+            />
 
             {/* super admin */}
             <Route
@@ -253,12 +268,6 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Route>
 
-            {/* Last, so it matches only what nothing above did. Each dashboard
-                carries its own `*` child as well: an unknown path *inside* a
-                dashboard keeps that dashboard's sidebar and chrome, which is
-                where the user's way back lives, while an unknown path outside
-                any of them lands here. Without either, a mistyped URL rendered
-                the navbar and footer around an empty page. */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

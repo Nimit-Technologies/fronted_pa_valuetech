@@ -43,6 +43,26 @@ describe("extractErrorMessage", () => {
       ).toBe("Aadhaar must be 12 digits");
     });
 
+    // The real shape a failed .safeParse() controller sends: both a generic
+    // wrapper message ("Invalid report") and the specific per-field issues.
+    // The wrapper is never worth showing over the actual problem.
+    it("prefers a specific issue over a generic wrapper message", () => {
+      expect(
+        extractErrorMessage(
+          withResponse(400, {
+            message: "Invalid report",
+            errors: [
+              {
+                path: ["stepData", "step1"],
+                message: "file_number is required",
+              },
+            ],
+          }),
+          FALLBACK,
+        ),
+      ).toBe("file_number is required");
+    });
+
     it("keeps the API's rate-limit sentence rather than its own", () => {
       expect(
         extractErrorMessage(

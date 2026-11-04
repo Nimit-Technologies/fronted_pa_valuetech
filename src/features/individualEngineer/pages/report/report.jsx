@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Step1 from "@/features/individualEngineer/pages/report/steps/step1";
 import Step2 from "@/features/individualEngineer/pages/report/steps/step2";
 import Step3 from "@/features/individualEngineer/pages/report/steps/step3";
@@ -9,7 +9,9 @@ import Step6 from "@/features/individualEngineer/pages/report/steps/step6";
 import Step7 from "@/features/individualEngineer/pages/report/steps/step7";
 import Pagination from "@/features/individualEngineer/components/pagination";
 import saveReport from "@/features/individualEngineer/services/saveReport";
+import saveAssets from "@/features/individualEngineer/services/saveAssets";
 import getMyReport from "@/features/individualEngineer/services/getMyReport";
+import getAssets from "@/features/individualEngineer/services/getAssets";
 import { extractErrorMessage } from "@/utils/extractErrorMessage";
 
 const STEP_COMPONENTS = [Step1, Step2, Step3, Step4, Step5, Step6, Step7];
@@ -17,12 +19,14 @@ const TOTAL_STEPS = STEP_COMPONENTS.length;
 
 const Report = () => {
   const { id: taskId } = useParams();
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
   const [initialData, setInitialData] = useState(null);
+  const [initialAssets, setInitialAssets] = useState([]);
   const [isLoadingReport, setIsLoadingReport] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
@@ -41,6 +45,17 @@ const Report = () => {
         setCurrentPage(report?.currentStep ?? 1);
         setCompletedSteps(report?.completedSteps ?? []);
         setIsSubmitted(Boolean(report && !report.isDraft));
+
+        // Best-effort: previously uploaded photos are a nice-to-have on
+        // resume, not a requirement to view/edit the rest of the report, so
+        // a failure here (e.g. the assets endpoint isn't ready yet) must not
+        // block the page.
+        try {
+          const assetsResponse = await getAssets(taskId);
+          if (isCurrent) setInitialAssets(assetsResponse.data ?? []);
+        } catch (assetsError) {
+          console.error("Failed to load existing report photos:", assetsError);
+        }
       } catch (error) {
         if (isCurrent) {
           setLoadError(
@@ -87,6 +102,18 @@ const Report = () => {
       return;
     }
 
+    if (action === "submit") {
+      const missingPhotos =
+        stepRefs[6]?.current?.getMissingRequiredPhotos?.() ?? [];
+      if (missingPhotos.length > 0) {
+        setSaveMessage({
+          type: "error",
+          text: `Please upload all required photos before submitting: ${missingPhotos.join(", ")}.`,
+        });
+        return;
+      }
+    }
+
     const stepData = stepRefs.slice(0, 6).reduce((data, stepRef, index) => {
       data[`step${index + 1}`] = stepRef.current?.getData();
       return data;
@@ -100,24 +127,41 @@ const Report = () => {
       return;
     }
 
+    // Step7 (Report Photos) is deliberately excluded from stepData/formData
+    // above — asset metadata is saved only through the normalized Asset
+    // table (saveAssets below), not duplicated into the report's JSON blob.
+    // stepDataSchema on the backend is also .strict() with no step7 key, so
+    // including it here would 400 on every save.
+    const photosData = stepRefs[6]?.current?.getData();
+    const assets = [
+      ...Object.values(photosData?.requiredPhotos ?? {}).flat(),
+      ...(photosData?.additionalPhotos ?? []).flatMap(
+        (photo) => photo.assets ?? [],
+      ),
+    ];
+
     setIsSaving(true);
     setSaveMessage(null);
     try {
-      await saveReport(taskId, {
-        action,
-        currentStep: action === "submit" ? TOTAL_STEPS : currentPage,
-        completedSteps:
-          action === "submit"
-            ? Array.from({ length: TOTAL_STEPS }, (_, index) => index + 1)
-            : completedSteps,
-        stepData,
-      });
+      await Promise.all([
+        saveReport(taskId, {
+          action,
+          currentStep: action === "submit" ? TOTAL_STEPS : currentPage,
+          completedSteps:
+            action === "submit"
+              ? Array.from({ length: TOTAL_STEPS }, (_, index) => index + 1)
+              : completedSteps,
+          stepData,
+        }),
+        saveAssets(taskId, { assets }),
+      ]);
       if (action === "submit") {
         setIsSubmitted(true);
         setSaveMessage({
           type: "success",
           text: "Report submitted successfully.",
         });
+        navigate("/engineer/case", { replace: true });
       } else {
         setSaveMessage({ type: "success", text: "Draft saved successfully." });
       }
@@ -156,6 +200,8 @@ const Report = () => {
             <StepComponent
               ref={stepRefs[index]}
               initialData={initialData?.[`step${index + 1}`] ?? {}}
+              taskId={taskId}
+              initialAssets={initialAssets}
             />
           </fieldset>
         </div>

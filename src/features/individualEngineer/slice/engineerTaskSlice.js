@@ -103,4 +103,11 @@ export const { clearEngineerTasks, updateEngineerTaskStatus } =
 export const selectEngineerTasks = (state) =>
   state.engineerTask.engineerTaskData;
 
+// Resolves a case_id from a task_id against the already-loaded task list
+// (populated by fetchEngineerTasks). Returns null if that task isn't in the
+// store yet — e.g. a direct page load/refresh that skipped the case list.
+export const selectCaseIdByTaskId = (state, taskId) =>
+  state.engineerTask.engineerTaskData.find((task) => task.task_id === taskId)
+    ?.case_id ?? null;
+
 export default engineerTaskSlice.reducer;

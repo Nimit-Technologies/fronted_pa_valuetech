@@ -8,10 +8,15 @@
  * cases silently fell through to the fallback.
  *
  * Order matters:
- *   data.message            the API's own sentence, written for a user
- *   data.errors[0].message  a failed zod parse answers with issues and no
- *                           top-level message, so the first issue is the only
- *                           readable thing in the payload
+ *   data.errors[0].message  a failed validation answers with per-field issues;
+ *                           every endpoint in this app that sends `errors`
+ *                           alongside a top-level `message` sets that message
+ *                           to a generic wrapper ("Invalid report", "Invalid
+ *                           assets", "Validation Error") — so whenever an
+ *                           issue is present, it is always the more useful
+ *                           sentence, never the other way around
+ *   data.message            the API's own sentence, written for a user, used
+ *                           when there is no more specific issue to prefer
  *   transport wording       the request never reached a server, so there is no
  *                           API message to use — say so in words a user can
  *                           act on ("check your connection"), never in axios's
@@ -77,7 +82,7 @@ export function extractErrorMessage(err, fallback) {
   const data = err?.response?.data;
 
   if (data) {
-    const apiMessage = data.message ?? data.errors?.[0]?.message;
+    const apiMessage = data.errors?.[0]?.message ?? data.message;
     if (typeof apiMessage === "string" && apiMessage.trim()) return apiMessage;
   }
 
