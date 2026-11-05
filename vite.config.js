@@ -54,6 +54,41 @@ const assertCspAllowsApiOrigin = (apiUrl, projectRoot) => {
   }
 };
 
+// Report-photo uploads/viewing hit Supabase storage directly from the
+// browser (see resumableUpload.jsx), not through this app's own API, so that
+// origin needs its own entries in img-src and connect-src. Same drift risk as
+// the API origin above, so it gets the same build-time guard.
+const assertCspAllowsSupabaseOrigin = (projectId, projectRoot) => {
+  const servePath = path.resolve(projectRoot, "serve.json");
+  if (!fs.existsSync(servePath)) return;
+
+  const serveConfig = JSON.parse(fs.readFileSync(servePath, "utf8"));
+  const csp = serveConfig.headers
+    ?.flatMap((entry) => entry.headers ?? [])
+    .find(({ key }) => key?.toLowerCase() === "content-security-policy")?.value;
+
+  if (!csp) return; // already reported by assertCspAllowsApiOrigin
+
+  const supabaseOrigin = `https://${projectId}.supabase.co`;
+
+  for (const name of ["img-src", "connect-src"]) {
+    const directive =
+      csp
+        .split(";")
+        .map((directive) => directive.trim())
+        .find((directive) => directive.startsWith(name)) ?? "";
+
+    if (!directive.includes(supabaseOrigin)) {
+      throw new Error(
+        `The Content-Security-Policy in serve.json does not allow ${name} ` +
+          `requests to ${supabaseOrigin} (built from VITE_SUPABASE_PROJECT_ID), ` +
+          `which report-photo uploads/viewing need. Add it to ${name}.\n` +
+          `  ${name}: ${directive || "(missing)"}`,
+      );
+    }
+  }
+};
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
@@ -116,6 +151,10 @@ export default defineConfig(({ mode }) => {
     }
 
     assertCspAllowsApiOrigin(env.VITE_API_URL, __dirname);
+
+    if (env.VITE_SUPABASE_PROJECT_ID) {
+      assertCspAllowsSupabaseOrigin(env.VITE_SUPABASE_PROJECT_ID, __dirname);
+    }
   }
 
   const serverBaseUrl = env.VITE_SERVER_PORT
