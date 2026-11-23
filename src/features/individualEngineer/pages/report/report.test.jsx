@@ -148,10 +148,11 @@ describe("Report (wizard page)", () => {
     renderForId("allocation_0001");
     await screen.findByText(/page 1 of 7/i);
 
-    // Edit a Step1 field, then navigate all the way to the last step.
+    // The file number is case-owned and read-only: typing must not change it.
+    // Then navigate all the way to the last step.
     const fileNumberInput = screen.getByDisplayValue("BANK-12345");
-    await user.clear(fileNumberInput);
-    await user.type(fileNumberInput, "BANK-99999");
+    await user.type(fileNumberInput, "99999");
+    expect(fileNumberInput).toHaveValue("BANK-12345");
 
     for (let i = 0; i < 6; i++) {
       await user.click(screen.getByRole("button", { name: "Next" }));
@@ -168,7 +169,7 @@ describe("Report (wizard page)", () => {
           completedSteps: [1, 2, 3, 4, 5, 6],
           stepData: expect.objectContaining({
             step1: expect.objectContaining({
-              caseInfo: expect.objectContaining({ file_number: "BANK-99999" }),
+              caseInfo: expect.objectContaining({ file_number: "BANK-12345" }),
             }),
             step6: expect.any(Object),
           }),
@@ -186,12 +187,12 @@ describe("Report (wizard page)", () => {
 
     await user.click(screen.getByRole("button", { name: "Next" }));
     await user.type(
-      screen.getByText("Pearson Name").parentElement.querySelector("input"),
+      screen.getByText("Person Name").parentElement.querySelector("input"),
       "Site contact",
     );
     await user.type(
       screen
-        .getByText("Pearson contact number")
+        .getByText("Person contact number")
         .parentElement.querySelector("input"),
       "9876543210",
     );

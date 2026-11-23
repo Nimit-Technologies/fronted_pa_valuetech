@@ -68,7 +68,7 @@ const Step2 = forwardRef(({ initialData = {} }, ref) => {
         {/* Responsive grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <RequiredLabel>Pearson Name</RequiredLabel>
+            <RequiredLabel>Person Name</RequiredLabel>
             <Input
               value={personInfo.name}
               onChange={(e) => handleChange("name", e.target.value)}
@@ -77,7 +77,7 @@ const Step2 = forwardRef(({ initialData = {} }, ref) => {
           </div>
 
           <div>
-            <RequiredLabel>Pearson contact number</RequiredLabel>
+            <RequiredLabel>Person contact number</RequiredLabel>
             <Input
               value={personInfo.contactNumber}
               onChange={(e) => handleChange("contactNumber", e.target.value)}

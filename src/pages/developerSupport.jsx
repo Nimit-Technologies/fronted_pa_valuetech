@@ -1,14 +1,7 @@
 import { LifeBuoy } from "lucide-react";
 import { getErrorReference } from "@/utils/errorReference";
 
-/**
- * The page behind the footer's Developer Support link, which pointed at a route
- * that did not exist and so rendered an empty screen on every dashboard.
- *
- * Its practical job is the support reference: this tab's id travels with every
- * API call as `X-Client-Reference`, so quoting it lets support find the exact
- * session in the backend's logs instead of guessing from a timestamp.
- */
+
 const DeveloperSupport = () => {
   const reference = getErrorReference();
 
@@ -55,15 +48,15 @@ const DeveloperSupport = () => {
           </div>
 
           <div className="rounded-lg border border-border p-4">
-            <dt className="font-medium text-foreground mb-1">Maintained by</dt>
+            <dt className="font-medium text-foreground mb-1">Mail us</dt>
             <dd className="text-muted-foreground">
               <a
-                href="https://nimittech.com"
+                href="mailto:info@nimittech.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline-offset-4 hover:underline"
               >
-                Nimit Technologies Private Limited
+                info@nimittech.com
               </a>
             </dd>
           </div>

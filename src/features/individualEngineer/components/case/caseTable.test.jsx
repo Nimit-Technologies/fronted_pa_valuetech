@@ -82,6 +82,35 @@ describe("CaseTable (Engineer)", () => {
     });
   });
 
+  it("keeps the status dropdown enabled while the report is not submitted", () => {
+    renderTable([{ ...sampleCase, report_submitted: false }]);
+
+    expect(
+      screen.getByRole("button", { name: "Assigned To Engineer" }),
+    ).toBeEnabled();
+    expect(screen.queryByText("Report submitted")).not.toBeInTheDocument();
+  });
+
+  it("locks the status dropdown once the report is submitted", () => {
+    const onStatusSelect = vi.fn();
+    renderTable(
+      [
+        {
+          ...sampleCase,
+          status: { code: "report_completed" },
+          report_submitted: true,
+        },
+      ],
+      { onStatusSelect },
+    );
+
+    const dropdown = screen.getByRole("button", { name: "Report Completed" });
+    expect(dropdown).toBeDisabled();
+    fireEvent.click(dropdown);
+    expect(onStatusSelect).not.toHaveBeenCalled();
+    expect(screen.getByText("Report submitted")).toBeInTheDocument();
+  });
+
   it("links row actions to the correct case id", () => {
     renderTable([sampleCase]);
 

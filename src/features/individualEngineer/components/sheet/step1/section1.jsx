@@ -17,6 +17,9 @@ const ADDRESS_FIELD_KEYS = [
   "landmark",
 ];
 
+const emptySiteAddress = () =>
+  ADDRESS_FIELD_KEYS.reduce((acc, key) => ({ ...acc, [key]: "" }), {});
+
 const RequiredLabel = ({ children }) => (
   <label className="mb-2 flex items-center gap-1 text-sm font-medium capitalize text-foreground">
     {children}
@@ -24,19 +27,25 @@ const RequiredLabel = ({ children }) => (
   </label>
 );
 
+const READ_ONLY_INPUT_CLASS =
+  "h-11 w-full border-border bg-muted text-muted-foreground cursor-not-allowed";
+
+// File number, customer name/contact and the initiation address come from the
+// case the coordinator created; the engineer sees them but cannot change them.
+// A saved report's values are shown first (the submitted view must show what
+// was submitted) — the server writes these from the case on every save, so the
+// saved copy is the case's, not the engineer's. The live task fills in before
+// the first save.
 const Section1 = forwardRef(
   ({ task, initialData = {}, showInitiationAddress = false }, ref) => {
     const address = task?.address ?? {};
-    const [caseInfo, setCaseInfo] = useState(() => ({
+    const caseInfo = {
       file_number: task?.file_number || "",
       customer_name: task?.customer_name || "",
       customer_phone_number: task?.customer_contact_number || "",
       ...initialData.caseInfo,
-    }));
-
-    const handleChange = (key, value) => {
-      setCaseInfo((prev) => ({ ...prev, [key]: value }));
     };
+    const initiationAddress = initialData.addressAsPerInitiation ?? address;
 
     const initiationAddressRef = useRef(null);
     const [siteAddress, setSiteAddress] = useState(
@@ -55,11 +64,18 @@ const Section1 = forwardRef(
       setSiteAddress((prev) => ({ ...prev, [key]: value }));
     };
 
+    // Checked (the default for a new report): the site address is pre-filled
+    // from the initiation address. Unchecking means "the site differs", so the
+    // pre-filled values are cleared for the engineer to enter the real ones.
+    // Only the user's toggle clears — a saved draft that was already unchecked
+    // keeps its site address on load.
     const handleSameAsInitiationChange = (checked) => {
       setSameAsInitiation(checked);
       if (checked) {
         const initiationValues = initiationAddressRef.current?.getValues();
         if (initiationValues) setSiteAddress(initiationValues);
+      } else {
+        setSiteAddress(emptySiteAddress());
       }
     };
 
@@ -89,8 +105,8 @@ const Section1 = forwardRef(
               <RequiredLabel>File Number</RequiredLabel>
               <Input
                 value={caseInfo.file_number}
-                onChange={(e) => handleChange("file_number", e.target.value)}
-                className="h-11 w-full border-border text-foreground"
+                readOnly
+                className={READ_ONLY_INPUT_CLASS}
               />
             </div>
 
@@ -98,8 +114,8 @@ const Section1 = forwardRef(
               <RequiredLabel>Customer Name</RequiredLabel>
               <Input
                 value={caseInfo.customer_name}
-                onChange={(e) => handleChange("customer_name", e.target.value)}
-                className="h-11 w-full border-border text-foreground"
+                readOnly
+                className={READ_ONLY_INPUT_CLASS}
               />
             </div>
 
@@ -107,10 +123,8 @@ const Section1 = forwardRef(
               <RequiredLabel>Customer Contact</RequiredLabel>
               <Input
                 value={caseInfo.customer_phone_number}
-                onChange={(e) =>
-                  handleChange("customer_phone_number", e.target.value)
-                }
-                className="h-11 w-full border-border text-foreground"
+                readOnly
+                className={READ_ONLY_INPUT_CLASS}
               />
             </div>
           </div>
@@ -121,7 +135,8 @@ const Section1 = forwardRef(
               ref={initiationAddressRef}
               className={showInitiationAddress ? "" : "hidden"}
               label="Address as per initiation"
-              address={initialData.addressAsPerInitiation ?? address}
+              address={initiationAddress}
+              readOnly
             />
             <Address
               label="Address as per site"

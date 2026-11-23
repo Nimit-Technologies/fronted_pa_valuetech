@@ -36,7 +36,7 @@ const CaseDashboard = () => {
   // The endpoint hides close/cancelled cases unless asked, so the default view
   // is the coordinator's live queue. The toggle is the only way to reach a
   // finished case from this list.
-  const [includeFinished, setIncludeFinished] = useState(false);
+  const includeFinished = false;
 
   // Coming back from a case detail — the browser's Back button, or the view
   // page's own — remounts this page on top of a store that still holds the rows
@@ -176,7 +176,7 @@ const CaseDashboard = () => {
         createRoute="/cordinator/case/create"
         createLabel="Create Case"
       >
-        <Button
+        {/* <Button
           type="button"
           variant="outline"
           className="whitespace-nowrap"
@@ -184,7 +184,7 @@ const CaseDashboard = () => {
           onClick={() => setIncludeFinished((shown) => !shown)}
         >
           {includeFinished ? "Hide finished" : "Show finished"}
-        </Button>
+        </Button> */}
       </CoordinatorTableHeader>
 
       <ActiveFilters

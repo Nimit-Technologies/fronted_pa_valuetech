@@ -18,6 +18,11 @@ const FIELD_KEYS = [
   "landmark",
 ];
 
+// Read-only rather than disabled: the value stays selectable/copyable and is
+// still announced by screen readers, it just can't be edited.
+const READ_ONLY_INPUT_CLASS =
+  "bg-muted text-muted-foreground cursor-not-allowed";
+
 const Address = forwardRef(
   (
     {
@@ -28,9 +33,11 @@ const Address = forwardRef(
       onChange,
       checked,
       onCheckedChange,
+      readOnly = false,
     },
     ref,
   ) => {
+    const inputClass = `h-11 w-full ${readOnly ? READ_ONLY_INPUT_CLASS : ""}`;
     const isControlled = value !== undefined;
     const [internalFields, setInternalFields] = useState(() =>
       FIELD_KEYS.reduce(
@@ -42,6 +49,7 @@ const Address = forwardRef(
     const fields = isControlled ? value : internalFields;
 
     const handleFieldChange = (key, fieldValue) => {
+      if (readOnly) return;
       if (isControlled) {
         onChange(key, fieldValue);
       } else {
@@ -60,12 +68,14 @@ const Address = forwardRef(
           <h2 className="text-base font-semibold text-foreground capitalize">
             {label || "Address as per initiation"}
           </h2>
-          <Input
-            type="checkbox"
-            checked={checked}
-            onChange={(e) => onCheckedChange?.(e.target.checked)}
-            className={`h-5 w-5 ${className || ""}`}
-          />
+          {readOnly ? null : (
+            <Input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => onCheckedChange?.(e.target.checked)}
+              className={`h-5 w-5 ${className || ""}`}
+            />
+          )}
         </div>
 
         {/* Responsive grid */}
@@ -75,7 +85,8 @@ const Address = forwardRef(
             <Input
               value={fields.city}
               onChange={(e) => handleFieldChange("city", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
 
@@ -84,7 +95,8 @@ const Address = forwardRef(
             <Input
               value={fields.district}
               onChange={(e) => handleFieldChange("district", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
 
@@ -93,7 +105,8 @@ const Address = forwardRef(
             <Input
               value={fields.state}
               onChange={(e) => handleFieldChange("state", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
 
@@ -102,7 +115,8 @@ const Address = forwardRef(
             <Input
               value={fields.pin_code}
               onChange={(e) => handleFieldChange("pin_code", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
 
@@ -111,7 +125,8 @@ const Address = forwardRef(
             <Input
               value={fields.country}
               onChange={(e) => handleFieldChange("country", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
 
@@ -120,7 +135,8 @@ const Address = forwardRef(
             <Input
               value={fields.lane}
               onChange={(e) => handleFieldChange("lane", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
 
@@ -129,7 +145,8 @@ const Address = forwardRef(
             <Input
               value={fields.landmark}
               onChange={(e) => handleFieldChange("landmark", e.target.value)}
-              className="h-11 w-full"
+              readOnly={readOnly}
+              className={inputClass}
             />
           </div>
         </div>

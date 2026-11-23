@@ -47,6 +47,17 @@ describe("Address (sheet)", () => {
     expect(cityInput).toHaveValue("Delhi");
   });
 
+  it("blocks edits and hides the checkbox when readOnly", async () => {
+    const user = userEvent.setup();
+    render(<Address address={address} readOnly />);
+
+    const cityInput = screen.getByDisplayValue("Noida");
+    expect(cityInput).toHaveAttribute("readonly");
+    await user.type(cityInput, "X");
+    expect(cityInput).toHaveValue("Noida");
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
+
   it("renders blank fields when address is not provided", () => {
     render(<Address />);
     expect(screen.getByText("Address as per initiation")).toBeInTheDocument();

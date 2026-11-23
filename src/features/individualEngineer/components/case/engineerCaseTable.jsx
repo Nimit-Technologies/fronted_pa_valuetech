@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, FileSpreadsheetIcon } from "lucide-react";
+import { Eye, FileSpreadsheetIcon, Lock } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -116,16 +116,28 @@ const CaseTable = ({
                   {task.assigned_by?.phone || "-"}
                 </TableCell>
                 <TableCell>
+                  {/* Locked once the report is submitted; the server enforces
+                      this too, so this only saves a doomed request. */}
                   <StatusDropdown
                     value={task.status}
                     onSelect={(status) =>
                       onStatusSelect?.(task.case_id, status)
                     }
-                    disabled={loading || Boolean(updatingCaseId)}
+                    disabled={
+                      loading ||
+                      Boolean(updatingCaseId) ||
+                      Boolean(task.report_submitted)
+                    }
                     placeholder={
                       task.status?.name || task.status?.code || "Change status"
                     }
                   />
+                  {task.report_submitted ? (
+                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                      <Lock size={12} />
+                      Report submitted
+                    </p>
+                  ) : null}
                 </TableCell>
                 <TableCell className="text-foreground whitespace-nowrap">
                   {formatAddress(task.address)}

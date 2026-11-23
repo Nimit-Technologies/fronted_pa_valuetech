@@ -1,6 +1,5 @@
 import React from "react";
 import Logo from "/pa_valuetech_logo.png";
-import Notification from "@/components/shared/notification";
 import UserAvatar from "@/components/shared/auth/userAvatar";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,7 @@ const MobileNavbar = ({ title }) => {
         </Link>
 
         <div className="flex items-center gap-2">
-          <Notification />
+          {/* <Notification /> */}
 
           {!loading && isAuthenticated ? (
             <UserAvatar />
