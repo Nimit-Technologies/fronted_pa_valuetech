@@ -1,7 +1,6 @@
 import { LifeBuoy } from "lucide-react";
 import { getErrorReference } from "@/utils/errorReference";
 
-
 const DeveloperSupport = () => {
   const reference = getErrorReference();
 
